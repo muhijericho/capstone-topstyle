@@ -1,0 +1,47 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Complete Order - TopStyle Business{% endblock %}
+{% block page_title %}Complete Order{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Complete Order</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Are you sure you want to mark this order as completed?
+                </div>
+                
+                <div class="order-details mb-4">
+                    <h6>Order Details:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Order ID:</strong> {{ order.order_identifier|default:order.id }}</li>
+                        <li><strong>Customer:</strong> {{ order.customer.name }}</li>
+                        <li><strong>Order Type:</strong> {{ order.get_order_type_display }}</li>
+                        <li><strong>Total Amount:</strong> ₱{{ order.total_amount|floatformat:2 }}</li>
+                        <li><strong>Current Status:</strong> {{ order.get_status_display }}</li>
+                    </ul>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Mark as Completed
+                        </button>
+                        <a href="{% url 'orders' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

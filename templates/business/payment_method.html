@@ -1,0 +1,324 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Payment Method - TopStyle Business{% endblock %}
+{% block page_title %}Payment Method{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 10px;
+    }
+    .payment-panel {
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        margin: 0 auto;
+        backdrop-filter: blur(10px);
+    }
+    .payment-title {
+        font-weight: bold;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        color: #1e3a8a;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .order-summary {
+        background: rgba(248, 249, 250, 0.5);
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .order-summary h5 {
+        color: #1e3a8a;
+        margin-bottom: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(222, 226, 230, 0.7);
+        font-size: 0.9rem;
+    }
+    .order-item:last-child {
+        border-bottom: none;
+    }
+    .order-item-label {
+        font-weight: 500;
+        color: #555;
+    }
+    .order-item-value {
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+    .total-amount {
+        background: #1e3a8a;
+        color: white !important;
+        padding: 12px;
+        border-radius: 6px;
+        text-align: center;
+        margin: 15px 0;
+    }
+    .total-amount h4 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: white !important;
+    }
+    .payment-methods {
+        margin-bottom: 20px;
+    }
+    .payment-method {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 2px solid rgba(233, 236, 239, 0.7);
+        border-radius: 6px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: rgba(255, 255, 255, 0.3);
+    }
+    .payment-method:hover {
+        border-color: #1e3a8a;
+        background-color: rgba(248, 249, 250, 0.8);
+    }
+    .payment-method.selected {
+        border-color: #1e3a8a;
+        background-color: rgba(227, 242, 253, 0.8);
+    }
+    .payment-method input[type="radio"] {
+        margin-right: 10px;
+        width: 16px;
+        height: 16px;
+        accent-color: #1e3a8a;
+    }
+    .payment-method label {
+        margin: 0;
+        font-weight: 500;
+        color: #1e3a8a;
+        cursor: pointer;
+        flex: 1;
+        font-size: 0.9rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .payment-icon {
+        font-size: 18px;
+        margin-right: 10px;
+        color: #1e3a8a;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .back-btn {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        flex: 1;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .back-btn:hover {
+        background-color: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    .proceed-btn {
+        background-color: #1e3a8a;
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .proceed-btn:hover {
+        background-color: #1e40af;
+        color: white;
+    }
+    .proceed-btn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="payment-panel">
+        <h3 class="payment-title">PAYMENT METHOD</h3>
+        
+        <!-- Order Summary -->
+        <div class="order-summary">
+            <h5>Order Summary</h5>
+            <div id="orderSummary">
+                <!-- Order details will be populated by JavaScript -->
+            </div>
+            <div class="total-amount">
+                <h4 id="totalAmount">₱0.00</h4>
+            </div>
+        </div>
+        
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <h5>Select Payment Method</h5>
+            
+            <div class="payment-method" onclick="selectPaymentMethod('cash')">
+                <input type="radio" id="cash" name="payment_method" value="cash" checked>
+                <i class="fas fa-money-bill-wave payment-icon"></i>
+                <label for="cash">Cash Payment</label>
+            </div>
+            
+            <div class="payment-method" onclick="selectPaymentMethod('gcash')">
+                <input type="radio" id="gcash" name="payment_method" value="gcash">
+                <i class="fas fa-mobile-alt payment-icon"></i>
+                <label for="gcash">GCash</label>
+            </div>
+            
+            <div class="payment-method" onclick="selectPaymentMethod('paymaya')">
+                <input type="radio" id="paymaya" name="payment_method" value="paymaya">
+                <i class="fas fa-credit-card payment-icon"></i>
+                <label for="paymaya">PayMaya</label>
+            </div>
+            
+            <div class="payment-method" onclick="selectPaymentMethod('bank_transfer')">
+                <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer">
+                <i class="fas fa-university payment-icon"></i>
+                <label for="bank_transfer">Bank Transfer</label>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'create_order' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Order
+            </a>
+            <button type="button" class="proceed-btn" id="proceedPayment" onclick="proceedToPayment()">
+                <i class="fas fa-credit-card"></i>
+                Proceed to Payment
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let orderData = null;
+    
+    // Load order data from sessionStorage
+    function loadOrderData() {
+        const storedOrder = sessionStorage.getItem('currentOrder');
+        if (storedOrder) {
+            orderData = JSON.parse(storedOrder);
+            displayOrderSummary();
+        } else {
+            // No order data found, redirect back to create order
+            window.location.href = '/orders/create/';
+        }
+    }
+    
+    // Display order summary
+    function displayOrderSummary() {
+        if (!orderData) return;
+        
+        const summaryDiv = document.getElementById('orderSummary');
+        const totalAmountDiv = document.getElementById('totalAmount');
+        
+        // Clear existing content
+        summaryDiv.innerHTML = '';
+        
+        // Add customer info
+        summaryDiv.innerHTML += `
+            <div class="order-item">
+                <span class="order-item-label">Customer:</span>
+                <span class="order-item-value">${orderData.customerName}</span>
+            </div>
+            <div class="order-item">
+                <span class="order-item-label">Mobile:</span>
+                <span class="order-item-value">${orderData.mobileNumber}</span>
+            </div>
+            <div class="order-item">
+                <span class="order-item-label">Order Type:</span>
+                <span class="order-item-value">${orderData.orderType.charAt(0).toUpperCase() + orderData.orderType.slice(1)}</span>
+            </div>
+        `;
+        
+        // Add order items
+        orderData.items.forEach((item, index) => {
+            summaryDiv.innerHTML += `
+                <div class="order-item">
+                    <span class="order-item-label">Item ${index + 1}:</span>
+                    <span class="order-item-value">Class ${item.class} - Qty ${item.quantity} - ₱${item.cost}</span>
+                </div>
+            `;
+        });
+        
+        // Display total amount
+        totalAmountDiv.textContent = `₱${orderData.totalCost.toFixed(2)}`;
+    }
+    
+    // Select payment method
+    function selectPaymentMethod(method) {
+        // Remove selected class from all payment methods
+        document.querySelectorAll('.payment-method').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Add selected class to clicked method
+        event.currentTarget.classList.add('selected');
+        
+        // Check the radio button
+        document.getElementById(method).checked = true;
+    }
+    
+    // Proceed to payment
+    function proceedToPayment() {
+        const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (!orderData) {
+            alert('No order data found. Please create an order first.');
+            return;
+        }
+        
+        // Store payment method in order data
+        orderData.paymentMethod = selectedPaymentMethod;
+        orderData.orderId = 'TS' + Date.now(); // Generate unique order ID
+        orderData.paymentDate = new Date().toISOString();
+        sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
+        
+        // Redirect to payment process page
+        window.location.href = '/orders/payment-process/';
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrderData();
+        
+        // Set default selected payment method
+        document.querySelector('.payment-method').classList.add('selected');
+    });
+</script>
+{% endblock %}

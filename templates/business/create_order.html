@@ -1,0 +1,966 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Create Order - TopStyle Business{% endblock %}
+{% block page_title %}Create Order{% endblock %}
+
+{% block extra_css %}
+<style>
+    .estimator-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .section-title {
+        color: #1e3a8a;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1e3a8a;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
+    }
+    
+    .cost-result-box {
+        background: rgba(255, 255, 255, 0.95);
+        color: #333;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 20px;
+    }
+    
+    .cost-result-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+        color: #1e3a8a;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .cost-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        font-size: 0.9rem;
+        color: #333;
+    }
+    
+    .cost-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1rem;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid rgba(0, 0, 0, 0.2);
+        color: #1e3a8a;
+    }
+    
+    .cost-label {
+        font-weight: 500;
+        color: #555;
+    }
+    
+    .cost-value {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    .btn-estimate {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-estimate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+        color: white;
+    }
+    
+    .add-more-btn {
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+    
+    .add-more-btn:hover {
+        background: #218838;
+        color: white;
+    }
+    
+    .btn-success, .btn-primary, .btn-info {
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+    }
+    
+    .btn-info:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="estimator-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-shopping-cart me-2"></i>Create Order</h2>
+        <a href="{% url 'orders' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+        </a>
+    </div>
+
+    <form id="estimatorForm">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h4 class="section-title">Basic Information</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Customer</label>
+                                <select class="form-select" id="customerSelect" name="customer_id">
+                                    <option value="">Select Existing Customer</option>
+                                    <!-- Customers will be populated by JavaScript -->
+                                </select>
+                                <small class="form-text text-muted">Or enter new customer details below</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">New Customer Name</label>
+                                <input type="text" class="form-control" id="customerName" name="customer_name" placeholder="Enter new customer name">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="customerPhone" name="customer_phone" placeholder="Enter phone number">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Email (Optional)</label>
+                                <input type="email" class="form-control" id="customerEmail" name="customer_email" placeholder="Enter email address">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label class="form-label">Address (Optional)</label>
+                                <textarea class="form-control" id="customerAddress" name="customer_address" rows="2" placeholder="Enter customer address"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Service Type</label>
+                                <select class="form-select" id="serviceType" name="service_type" required>
+                                    <option value="">Select Service Type</option>
+                                    <option value="rent">Rent</option>
+                                    <option value="repair">Repair</option>
+                                    <option value="customize">Customize</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rent Section -->
+                <div class="form-section hidden" id="rentSection">
+                    <h4 class="section-title">RENT</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Rent Type</label>
+                                <select class="form-select" id="rentType" name="rent_type">
+                                    <option value="">Select Rent Type</option>
+                                    <option value="coat">Coat</option>
+                                    <option value="pants">Pants</option>
+                                    <option value="barong">Barong</option>
+                                </select>
+                                <button type="button" class="add-more-btn" onclick="addRentType()">Add More</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Class</label>
+                                <select class="form-select" id="rentClass" name="rent_class">
+                                    <option value="">Select Class</option>
+                                    <option value="new_arrival">New Arrival</option>
+                                    <option value="old_stock">Old Stock</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Rent Quantity</label>
+                                <input type="number" class="form-control" id="rentQuantity" name="rent_quantity" min="1" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Date Rent</label>
+                                <input type="date" class="form-control" id="dateRent" name="date_rent" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">Return Date</label>
+                                <input type="date" class="form-control" id="returnDate" name="return_date" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repair Section -->
+                <div class="form-section hidden" id="repairSection">
+                    <h4 class="section-title">REPAIR</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Repair Type</label>
+                                <select class="form-select" id="repairType" name="repair_type">
+                                    <option value="">Select Repair Type</option>
+                                    <option value="zipper">Zipper</option>
+                                    <option value="patch">Patch</option>
+                                    <option value="buttons">Buttons</option>
+                                    <option value="general_repair">General Repair</option>
+                                    <option value="general_tshirt_repair">General Tshirt Repair</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Urgency</label>
+                                <select class="form-select" id="repairUrgency" name="repair_urgency">
+                                    <option value="not_urgent">Not Urgent</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zipper Sub-section -->
+                    <div class="hidden" id="zipperSection">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Zipper Size</label>
+                                    <select class="form-select" id="zipperSize" name="zipper_size">
+                                        <option value="">Select Zipper Size</option>
+                                        <option value="pants">Pants</option>
+                                        <option value="bag">Bag</option>
+                                        <option value="jacket">Jacket</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Zipper Provided</label>
+                                    <select class="form-select" id="zipperProvided" name="zipper_provided">
+                                        <option value="no">No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patch Sub-section -->
+                    <div class="hidden" id="patchSection">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Patch Type</label>
+                                    <select class="form-select" id="patchType" name="patch_type">
+                                        <option value="">Select Patch Type</option>
+                                        <option value="normal">Normal Patch</option>
+                                        <option value="logo">Logo Patch</option>
+                                        <option value="big_size">Big Size Patch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Patch Provided</label>
+                                    <select class="form-select" id="patchProvided" name="patch_provided">
+                                        <option value="no">No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buttons Sub-section -->
+                    <div class="hidden" id="buttonsSection">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" id="buttonType" name="button_type">
+                                        <option value="">Select Type</option>
+                                        <option value="pants">Pants</option>
+                                        <option value="polo">Polo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Class</label>
+                                    <select class="form-select" id="buttonClass" name="button_class">
+                                        <option value="">Select Class</option>
+                                        <option value="normal">Normal</option>
+                                        <option value="especial">Especial</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Buttons Provided</label>
+                                    <select class="form-select" id="buttonsProvided" name="buttons_provided">
+                                        <option value="no">No</option>
+                                        <option value="yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customize Section -->
+                <div class="form-section hidden" id="customizeSection">
+                    <h4 class="section-title">CUSTOMIZE</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Customization Type</label>
+                                <select class="form-select" id="customizeType" name="customize_type">
+                                    <option value="">Select Customization</option>
+                                    <option value="putol">Putol</option>
+                                    <option value="dagdag">Dagdag</option>
+                                    <option value="baston">Baston</option>
+                                    <option value="baston_putol">Baston Putol</option>
+                                    <option value="bawas">Bawas</option>
+                                    <option value="suklot">Suklot</option>
+                                    <option value="baston_suklot">Baston Suklot</option>
+                                    <option value="amble">Amble</option>
+                                    <option value="pasada">Pasada</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Urgency</label>
+                                <select class="form-select" id="customizeUrgency" name="customize_urgency">
+                                    <option value="not_urgent">Not Urgent</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="button" class="btn btn-estimate" onclick="calculateCost()">
+                        <i class="fas fa-calculator me-2"></i>Calculate Cost
+                    </button>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="cost-result-box hidden" id="costResultBox">
+                    <div class="cost-result-title">ORDER COST</div>
+                    <div id="costDetails"></div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="text-center mt-3" id="actionButtons" style="display: none;">
+                        <button type="button" class="btn btn-danger btn-sm w-100 mb-2" onclick="cancelOrder()">
+                            <i class="fas fa-times me-2"></i>Cancel Order
+                        </button>
+                        <button type="button" class="btn btn-primary btn-sm w-100 mb-2" onclick="createOrder()">
+                            <i class="fas fa-shopping-cart me-2"></i>Create Order
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm w-100" onclick="printEstimate()">
+                            <i class="fas fa-print me-2"></i>Print Estimate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load customers on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCustomers();
+    });
+
+    // Load customers from API
+    function loadCustomers() {
+        fetch('/api/customers/')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('customerSelect');
+                data.customers.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.textContent = `${customer.name} (${customer.phone})`;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error loading customers:', error));
+    }
+
+    // Handle customer selection
+    document.getElementById('customerSelect').addEventListener('change', function() {
+        const selectedCustomerId = this.value;
+        if (selectedCustomerId) {
+            // Fetch customer details and populate form
+            fetch(`/api/customers/${selectedCustomerId}/`)
+                .then(response => response.json())
+                .then(customer => {
+                    document.getElementById('customerName').value = customer.name;
+                    document.getElementById('customerPhone').value = customer.phone;
+                    document.getElementById('customerEmail').value = customer.email || '';
+                    document.getElementById('customerAddress').value = customer.address || '';
+                })
+                .catch(error => console.error('Error loading customer details:', error));
+        } else {
+            // Clear form fields
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerEmail').value = '';
+            document.getElementById('customerAddress').value = '';
+        }
+    });
+
+    // Pricing configuration
+    const pricing = {
+        rent: {
+            base_price: 500,
+            penalty_per_day: 10,
+            rent_days: 3
+        },
+        repair: {
+            zipper: {
+                pants: 100,
+                bag: 120,
+                jacket: 150,
+                discount_if_provided: 10
+            },
+            patch: {
+                normal: 50,
+                logo: 70,
+                big_size: 100,
+                discount_if_provided: 20
+            },
+            buttons: {
+                pants: {
+                    normal: { labor: 10, price: 50 },
+                    especial: { labor: 50, price: 50 }
+                },
+                polo: {
+                    normal: { labor: 10, price: 70 },
+                    especial: { labor: 50, price: 70 }
+                },
+                discount_if_provided: 20
+            },
+            general_repair: 450,
+            general_tshirt_repair: 150
+        },
+        customize: {
+            putol: 100,
+            dagdag: 120,
+            baston: 80,
+            baston_putol: 150,
+            bawas: 90,
+            suklot: 110,
+            baston_suklot: 140,
+            amble: 130,
+            pasada: 60,
+            urgent_surcharge: 20
+        }
+    };
+
+    // Show/hide form sections based on service type
+    document.getElementById('serviceType').addEventListener('change', function() {
+        const serviceType = this.value;
+        
+        // Hide all sections
+        document.getElementById('rentSection').classList.add('hidden');
+        document.getElementById('repairSection').classList.add('hidden');
+        document.getElementById('customizeSection').classList.add('hidden');
+        
+        // Show selected section
+        if (serviceType === 'rent') {
+            document.getElementById('rentSection').classList.remove('hidden');
+        } else if (serviceType === 'repair') {
+            document.getElementById('repairSection').classList.remove('hidden');
+        } else if (serviceType === 'customize') {
+            document.getElementById('customizeSection').classList.remove('hidden');
+        }
+    });
+
+    // Show/hide repair sub-sections
+    document.getElementById('repairType').addEventListener('change', function() {
+        const repairType = this.value;
+        
+        // Hide all sub-sections
+        document.getElementById('zipperSection').classList.add('hidden');
+        document.getElementById('patchSection').classList.add('hidden');
+        document.getElementById('buttonsSection').classList.add('hidden');
+        
+        // Show selected sub-section
+        if (repairType === 'zipper') {
+            document.getElementById('zipperSection').classList.remove('hidden');
+        } else if (repairType === 'patch') {
+            document.getElementById('patchSection').classList.remove('hidden');
+        } else if (repairType === 'buttons') {
+            document.getElementById('buttonsSection').classList.remove('hidden');
+        }
+    });
+
+    // Auto-calculate return date for rent
+    document.getElementById('dateRent').addEventListener('change', function() {
+        const rentDate = new Date(this.value);
+        if (rentDate) {
+            const returnDate = new Date(rentDate);
+            returnDate.setDate(returnDate.getDate() + pricing.rent.rent_days);
+            document.getElementById('returnDate').value = returnDate.toISOString().split('T')[0];
+        }
+    });
+
+    // Add more rent types
+    function addRentType() {
+        const newType = prompt('Enter new rent type:');
+        if (newType && newType.trim()) {
+            const select = document.getElementById('rentType');
+            const option = document.createElement('option');
+            option.value = newType.toLowerCase().replace(' ', '_');
+            option.textContent = newType;
+            select.appendChild(option);
+            select.value = option.value;
+        }
+    }
+
+    // Calculate cost
+    function calculateCost() {
+        const serviceType = document.getElementById('serviceType').value;
+        const customerName = document.getElementById('customerName').value;
+        const customerPhone = document.getElementById('customerPhone').value;
+        
+        // Enhanced validation
+        if (!serviceType) {
+            showAlert('Please select a service type', 'warning');
+            return;
+        }
+        
+        if (!customerName || customerName.trim() === '') {
+            showAlert('Please enter customer name', 'warning');
+            return;
+        }
+        
+        if (!customerPhone || customerPhone.trim() === '') {
+            showAlert('Please enter customer phone number', 'warning');
+            return;
+        }
+        
+        // Validate phone number format (basic validation)
+        const phoneRegex = /^[0-9+\-\s()]+$/;
+        if (!phoneRegex.test(customerPhone)) {
+            showAlert('Please enter a valid phone number', 'warning');
+            return;
+        }
+
+        let totalCost = 0;
+        let details = [];
+
+        if (serviceType === 'rent') {
+            const rentType = document.getElementById('rentType').value;
+            const rentClass = document.getElementById('rentClass').value;
+            const quantity = parseInt(document.getElementById('rentQuantity').value) || 1;
+            const dateRent = document.getElementById('dateRent').value;
+            const returnDate = document.getElementById('returnDate').value;
+
+            if (!rentType || !rentClass || !dateRent) {
+                alert('Please fill in all rent details');
+                return;
+            }
+
+            totalCost = pricing.rent.base_price * quantity;
+            
+            details.push(
+                { label: 'Customer Name', value: customerName },
+                { label: 'Service Type', value: 'Rent' },
+                { label: 'Item', value: rentType.charAt(0).toUpperCase() + rentType.slice(1) },
+                { label: 'QT', value: quantity },
+                { label: 'Total Cost', value: `₱${totalCost}` }
+            );
+
+        } else if (serviceType === 'repair') {
+            const repairType = document.getElementById('repairType').value;
+            const urgency = document.getElementById('repairUrgency').value;
+
+            if (!repairType) {
+                alert('Please select repair type');
+                return;
+            }
+
+            if (repairType === 'zipper') {
+                const size = document.getElementById('zipperSize').value;
+                const provided = document.getElementById('zipperProvided').value;
+                
+                if (!size) {
+                    alert('Please select zipper size');
+                    return;
+                }
+
+                totalCost = pricing.repair.zipper[size];
+                if (provided === 'yes') {
+                    totalCost -= pricing.repair.zipper.discount_if_provided;
+                }
+
+            } else if (repairType === 'patch') {
+                const type = document.getElementById('patchType').value;
+                const provided = document.getElementById('patchProvided').value;
+                
+                if (!type) {
+                    alert('Please select patch type');
+                    return;
+                }
+
+                totalCost = pricing.repair.patch[type];
+                if (provided === 'yes') {
+                    totalCost -= pricing.repair.patch.discount_if_provided;
+                }
+
+            } else if (repairType === 'buttons') {
+                const buttonType = document.getElementById('buttonType').value;
+                const buttonClass = document.getElementById('buttonClass').value;
+                const provided = document.getElementById('buttonsProvided').value;
+                
+                if (!buttonType || !buttonClass) {
+                    alert('Please select button type and class');
+                    return;
+                }
+
+                const buttonPricing = pricing.repair.buttons[buttonType][buttonClass];
+                totalCost = buttonPricing.labor + buttonPricing.price;
+                if (provided === 'yes') {
+                    totalCost -= pricing.repair.buttons.discount_if_provided;
+                }
+
+            } else if (repairType === 'general_repair') {
+                totalCost = pricing.repair.general_repair;
+            } else if (repairType === 'general_tshirt_repair') {
+                totalCost = pricing.repair.general_tshirt_repair;
+            }
+
+            if (urgency === 'urgent') {
+                totalCost *= 1.5; // 50% rush fee
+            }
+
+            details.push(
+                { label: 'Customer Name', value: customerName },
+                { label: 'Service Type', value: 'Repair' },
+                { label: 'Repair Type', value: repairType.replace('_', ' ').toUpperCase() },
+                { label: 'Urgent', value: urgency === 'urgent' ? 'Yes' : 'No' },
+                { label: 'Labor Cost', value: `₱${totalCost}` },
+                { label: 'Total Cost', value: `₱${totalCost}` }
+            );
+
+        } else if (serviceType === 'customize') {
+            const customizeType = document.getElementById('customizeType').value;
+            const urgency = document.getElementById('customizeUrgency').value;
+
+            if (!customizeType) {
+                alert('Please select customization type');
+                return;
+            }
+
+            totalCost = pricing.customize[customizeType];
+            if (urgency === 'urgent') {
+                totalCost += pricing.customize.urgent_surcharge;
+            }
+
+            details.push(
+                { label: 'Customer Name', value: customerName },
+                { label: 'Service Type', value: 'Customize' },
+                { label: 'Customize Type', value: customizeType.replace('_', ' ').toUpperCase() },
+                { label: 'Urgent', value: urgency === 'urgent' ? 'Yes' : 'No' },
+                { label: 'Labor Cost', value: `₱${totalCost}` },
+                { label: 'Total Cost', value: `₱${totalCost}` }
+            );
+        }
+
+        // Display cost details
+        displayCostDetails(details);
+    }
+
+    function displayCostDetails(details) {
+        const costDetailsDiv = document.getElementById('costDetails');
+        costDetailsDiv.innerHTML = '';
+
+        details.forEach(detail => {
+            const costItem = document.createElement('div');
+            costItem.className = 'cost-item';
+            costItem.innerHTML = `
+                <span class="cost-label">${detail.label}:</span>
+                <span class="cost-value">${detail.value}</span>
+            `;
+            costDetailsDiv.appendChild(costItem);
+        });
+
+        // Show cost box and action buttons
+        document.getElementById('costResultBox').classList.remove('hidden');
+        document.getElementById('actionButtons').style.display = 'block';
+    }
+
+    // Cancel order function
+    function cancelOrder() {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            // Clear the form
+            document.getElementById('estimatorForm').reset();
+            // Hide the cost result box
+            document.getElementById('costResultBox').classList.add('hidden');
+            document.getElementById('actionButtons').style.display = 'none';
+        }
+    }
+
+    // Create order function
+    function createOrder() {
+        const formData = new FormData(document.getElementById('estimatorForm'));
+        const data = Object.fromEntries(formData.entries());
+        
+        // Add mobile number default
+        data.mobile_number = '00000000000'; // Default mobile number
+        
+        // Store order data in sessionStorage for payment page
+        const orderData = {
+            items: [{
+                name: data.service_type === 'rent' ? data.rent_type : 
+                      data.service_type === 'repair' ? data.repair_type : 
+                      data.customize_type,
+                quantity: data.rent_quantity || 1,
+                cost: calculateTotalCost(data),
+                class: data.service_type === 'rent' ? data.rent_class : 
+                       data.service_type === 'repair' ? data.button_class : 
+                       'standard'
+            }],
+            customerName: data.customer_name,
+            mobileNumber: data.mobile_number,
+            orderType: data.service_type,
+            totalCost: calculateTotalCost(data)
+        };
+        
+        sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
+        
+        // Navigate directly to payment page
+        window.location.href = '{% url "payment_method" %}';
+    }
+    
+    // Helper function to calculate total cost
+    function calculateTotalCost(data) {
+        let totalCost = 0;
+        
+        if (data.service_type === 'rent') {
+            totalCost = pricing.rent.base_price * (parseInt(data.rent_quantity) || 1);
+        } else if (data.service_type === 'repair') {
+            if (data.repair_type === 'zipper') {
+                totalCost = pricing.repair.zipper[data.zipper_size] || 0;
+                if (data.zipper_provided === 'yes') {
+                    totalCost -= pricing.repair.zipper.discount_if_provided;
+                }
+            } else if (data.repair_type === 'patch') {
+                totalCost = pricing.repair.patch[data.patch_type] || 0;
+                if (data.patch_provided === 'yes') {
+                    totalCost -= pricing.repair.patch.discount_if_provided;
+                }
+            } else if (data.repair_type === 'buttons') {
+                const buttonPricing = pricing.repair.buttons[data.button_type][data.button_class];
+                totalCost = buttonPricing.labor + buttonPricing.price;
+                if (data.buttons_provided === 'yes') {
+                    totalCost -= pricing.repair.buttons.discount_if_provided;
+                }
+            } else if (data.repair_type === 'general_repair') {
+                totalCost = pricing.repair.general_repair;
+            } else if (data.repair_type === 'general_tshirt_repair') {
+                totalCost = pricing.repair.general_tshirt_repair;
+            }
+            
+            if (data.repair_urgency === 'urgent') {
+                totalCost *= 1.5;
+            }
+        } else if (data.service_type === 'customize') {
+            totalCost = pricing.customize[data.customize_type] || 0;
+            if (data.customize_urgency === 'urgent') {
+                totalCost += pricing.customize.urgent_surcharge;
+            }
+        }
+        
+        return totalCost;
+    }
+
+    // Print estimate function
+    function printEstimate() {
+        window.print();
+    }
+
+    // Show alert function
+    function showAlert(message, type = 'info') {
+        // Remove existing alerts
+        const existingAlerts = document.querySelectorAll('.alert-custom');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Create new alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show alert-custom`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+
+    // Enhanced form validation
+    function validateForm() {
+        const serviceType = document.getElementById('serviceType').value;
+        const customerName = document.getElementById('customerName').value;
+        const customerPhone = document.getElementById('customerPhone').value;
+        
+        let isValid = true;
+        let errorMessage = '';
+        
+        if (!serviceType) {
+            errorMessage = 'Please select a service type';
+            isValid = false;
+        } else if (!customerName || customerName.trim() === '') {
+            errorMessage = 'Please enter customer name';
+            isValid = false;
+        } else if (!customerPhone || customerPhone.trim() === '') {
+            errorMessage = 'Please enter customer phone number';
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            showAlert(errorMessage, 'warning');
+        }
+        
+        return isValid;
+    }
+
+    // Add real-time validation
+    document.getElementById('customerPhone').addEventListener('input', function() {
+        const phone = this.value;
+        const phoneRegex = /^[0-9+\-\s()]+$/;
+        
+        if (phone && !phoneRegex.test(phone)) {
+            this.classList.add('is-invalid');
+            showAlert('Please enter a valid phone number format', 'warning');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+
+    document.getElementById('customerEmail').addEventListener('input', function() {
+        const email = this.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (email && !emailRegex.test(email)) {
+            this.classList.add('is-invalid');
+            showAlert('Please enter a valid email address', 'warning');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,285 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Orders - TopStyle Business{% endblock %}
+{% block page_title %}Orders Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    
+    .filter-btn-all {
+        background-color: #1e3a8a !important;
+        border-color: #1e3a8a !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    }
+    .filter-btn-rental {
+        background-color: #6f42c1 !important;
+        border-color: #6f42c1 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    }
+    .filter-btn-repair {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    }
+    .filter-btn-customize {
+        background-color: #17a2b8 !important;
+        border-color: #17a2b8 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    }
+    .filter-btn-outline {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        color: #111827 !important;
+        border-color: #374151 !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+    .filter-btn-outline:hover {
+        background-color: #f8f9fa !important;
+        color: #495057 !important;
+    }
+    
+    /* Chart size adjustments */
+    #orderStatusChart {
+        max-width: 150px;
+        max-height: 150px;
+        margin: 0 auto;
+    }
+    
+    .chart-container {
+        padding: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-shopping-cart me-2"></i>ORDERS</h2>
+    <a href="{% url 'create_order' %}" class="btn btn-primary btn-lg">
+        <i class="fas fa-plus me-2"></i>ADD ORDERS
+    </a>
+</div>
+
+<!-- Filter Buttons -->
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="btn-group" role="group" aria-label="Order Type Filter">
+            <a href="?type=all" class="btn {% if current_filter == 'all' %}filter-btn-all{% else %}filter-btn-outline{% endif %}">
+                ALL Orders ({{ orders|length }})
+            </a>
+            <a href="?type=rental" class="btn {% if current_filter == 'rental' %}filter-btn-rental{% else %}filter-btn-outline{% endif %}">
+                Rent Orders ({{ rental_orders }})
+            </a>
+            <a href="?type=repair" class="btn {% if current_filter == 'repair' %}filter-btn-repair{% else %}filter-btn-outline{% endif %}">
+                Repair Orders ({{ repair_orders }})
+            </a>
+            <a href="?type=customize" class="btn {% if current_filter == 'customize' %}filter-btn-customize{% else %}filter-btn-outline{% endif %}">
+                Custom Orders ({{ customize_orders }})
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards and Pie Chart -->
+<div class="row mb-4 justify-content-center">
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-body text-center chart-container">
+                <canvas id="orderStatusChart" width="150" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card stat-card-blue">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ total_revenue|floatformat:2 }}</div>
+                <div>Total Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card stat-card-green">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ yearly_revenue|floatformat:2 }}</div>
+                <div>Yearly Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card stat-card-orange">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-month fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ monthly_revenue|floatformat:2 }}</div>
+                <div>Monthly Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card stat-card-purple">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-week fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ weekly_revenue|floatformat:2 }}</div>
+                <div>Weekly Revenue</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card stat-card stat-card-teal">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ daily_revenue|floatformat:2 }}</div>
+                <div>Daily Revenue</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">ORDERS</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Service Type</th>
+                        <th>Category</th>
+                        <th>QT</th>
+                        <th>DATE</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>{{ order.order_identifier|default:order.id }}</strong></td>
+                        <td>
+                            {% if order.order_type == 'rental' %}
+                                <span class="badge bg-primary">Rent</span>
+                            {% elif order.order_type == 'repair' %}
+                                <span class="badge bg-danger">Repair</span>
+                            {% elif order.order_type == 'customize' %}
+                                <span class="badge bg-info">Customize</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ order.get_order_type_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for item in order.items.all %}
+                                {{ item.product.category.name }}
+                                {% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                N/A
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for item in order.items.all %}
+                                {{ item.quantity }}
+                                {% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                0
+                            {% endfor %}
+                        </td>
+                        <td>{{ order.created_at|date:"n/j/y" }}</td>
+                        <td>
+                            {% if order.paid_amount > 0 %}
+                                FPD
+                            {% else %}
+                                DPD
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-danger">Pending</span>
+                            {% elif order.status == 'confirmed' %}
+                                <span class="badge bg-warning text-dark">Returned</span>
+                            {% elif order.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                                <a href="{% url 'order_items' order.id %}" class="btn btn-sm btn-outline-primary" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'complete_order' order.id %}" class="btn btn-sm btn-outline-success" title="Complete Order">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                            {% elif order.status == 'completed' %}
+                                <button class="btn btn-sm btn-outline-success" title="Completed">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                            <p>No orders found. <a href="{% url 'create_order' %}">Create your first order</a></p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Order Status Pie Chart
+    const ctx = document.getElementById('orderStatusChart').getContext('2d');
+    const orderStatusChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Completed', 'Pending', 'In Progress'],
+            datasets: [{
+                data: [
+                    {{ completed_orders }},
+                    {{ pending_orders }},
+                    {{ in_progress_orders }}
+                ],
+                backgroundColor: [
+                    '#28a745',  // Green for completed
+                    '#ffc107',  // Yellow for pending
+                    '#1e3a8a'   // Navy blue for in progress
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
+
+

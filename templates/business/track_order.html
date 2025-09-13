@@ -1,0 +1,1179 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Track Order - TopStyle Business{% endblock %}
+{% block page_title %}Track Order{% endblock %}
+
+{% block extra_css %}
+<style>
+    .track-container {
+        background: #1e3a8a;
+        min-height: 100vh;
+        padding: 40px 20px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+    
+    .track-content {
+        max-width: 1200px;
+        width: 100%;
+    }
+    
+    .track-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 20px;
+    }
+    
+    .track-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: white !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .track-title i {
+        font-size: 2.2rem;
+        color: white !important;
+    }
+    
+    .track-subtitle {
+        font-size: 1.1rem;
+        color: white !important;
+        margin: 0;
+        opacity: 0.9;
+    }
+    
+    .main-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .search-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.05), transparent);
+        transition: left 0.6s;
+    }
+    
+    .search-panel:hover::before {
+        left: 100%;
+    }
+    
+    .search-panel:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.15);
+        border-color: #1e3a8a;
+    }
+    
+    .qr-panel {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 2px dashed #1e3a8a;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .qr-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.05), transparent);
+        transition: left 0.6s;
+    }
+    
+    .qr-panel:hover::before {
+        left: 100%;
+    }
+    
+    .qr-panel:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.15);
+        border-color: #1e40af;
+        border-style: solid;
+    }
+    
+    .panel-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #333;
+        background-color: white;
+        width: 100%;
+        position: relative;
+    }
+    
+    .form-control:hover {
+        border-color: #1e3a8a;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(30, 58, 138, 0.1);
+    }
+    
+    .form-control:focus {
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25), 0 4px 12px rgba(30, 58, 138, 0.15);
+        outline: none;
+        transform: translateY(-1px);
+    }
+    
+    .form-hint {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .btn-track {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-track::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-track:hover::before {
+        left: 100%;
+    }
+    
+    .btn-track:hover {
+        background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.4);
+        color: white;
+    }
+    
+    .btn-track:active {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(30, 58, 138, 0.3);
+    }
+    
+    .qr-icon {
+        font-size: 4rem;
+        color: #1e3a8a;
+        margin-bottom: 20px;
+    }
+    
+    .qr-description {
+        color: #666;
+        margin-bottom: 25px;
+        line-height: 1.6;
+        font-size: 0.9rem;
+    }
+    
+    .qr-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .btn-qr {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        border: none;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-qr::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-qr:hover::before {
+        left: 100%;
+    }
+    
+    .btn-qr:hover {
+        background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.4);
+        color: white;
+    }
+    
+    .btn-qr:active {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(30, 58, 138, 0.3);
+    }
+    
+    .bottom-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    
+    .description-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .desc-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .desc-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.03), transparent);
+        transition: left 0.6s;
+    }
+    
+    .desc-card:hover::before {
+        left: 100%;
+    }
+    
+    .desc-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
+        border-color: #1e3a8a;
+    }
+    
+    .desc-icon {
+        font-size: 2rem;
+        color: #1e3a8a;
+        margin-bottom: 10px;
+    }
+    
+    .desc-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    
+    .desc-text {
+        color: #666;
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+    
+    .recent-searches {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .recent-searches::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.03), transparent);
+        transition: left 0.6s;
+    }
+    
+    .recent-searches:hover::before {
+        left: 100%;
+    }
+    
+    .recent-searches:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
+        border-color: #1e3a8a;
+    }
+    
+    .recent-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .recent-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 4px solid #1e3a8a;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .recent-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.05), transparent);
+        transition: left 0.4s;
+    }
+    
+    .recent-item:hover::before {
+        left: 100%;
+    }
+    
+    .recent-item:hover {
+        background: #e9ecef;
+        transform: translateX(8px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
+        border-left-color: #1e40af;
+    }
+    
+    .recent-order-id {
+        font-weight: bold;
+        color: #1e3a8a;
+        font-size: 0.9rem;
+    }
+    
+    .recent-customer {
+        color: #666;
+        font-size: 0.8rem;
+    }
+    
+    .recent-date {
+        color: #999;
+        font-size: 0.75rem;
+    }
+    
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    
+    .file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
+        font-size: 0.85rem;
+    }
+    
+    .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #28a745;
+        font-size: 0.85rem;
+    }
+    
+    /* Loading States */
+    .loading {
+        position: relative;
+        pointer-events: none;
+    }
+    
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #1e3a8a;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .btn-loading {
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* Enhanced Responsive Design */
+    @media (max-width: 1200px) {
+        .track-content {
+            max-width: 1000px;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .main-panels {
+            gap: 20px;
+        }
+        
+        .bottom-sections {
+            gap: 20px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .track-container {
+            padding: 20px 15px;
+        }
+        
+        .track-header {
+            padding: 30px 15px;
+            margin-bottom: 30px;
+        }
+        
+        .main-panels {
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .bottom-sections {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .track-title {
+            font-size: 2rem;
+            gap: 10px;
+        }
+        
+        .track-title i {
+            font-size: 1.8rem;
+        }
+        
+        .track-subtitle {
+            font-size: 1rem;
+        }
+        
+        .search-panel, .qr-panel {
+            padding: 20px;
+        }
+        
+        .desc-card {
+            padding: 15px;
+        }
+        
+        .recent-searches {
+            padding: 20px;
+        }
+        
+        .qr-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .track-container {
+            padding: 15px 10px;
+        }
+        
+        .track-header {
+            padding: 25px 10px;
+            margin-bottom: 25px;
+        }
+        
+        .track-title {
+            font-size: 1.8rem;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .track-title i {
+            font-size: 1.5rem;
+        }
+        
+        .search-panel, .qr-panel {
+            padding: 15px;
+        }
+        
+        .desc-card, .recent-searches {
+            padding: 15px;
+        }
+        
+        .btn-track, .btn-qr {
+            padding: 10px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .form-control {
+            padding: 10px 12px;
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="track-container">
+    <div class="track-content">
+        <!-- Header -->
+        <div class="track-header">
+            <h1 class="track-title">
+                <i class="fas fa-search"></i>Track Your Order
+            </h1>
+            <p class="track-subtitle">Find your order status and details quickly</p>
+        </div>
+        
+        <!-- Error/Success Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ message }}
+                    </div>
+                {% elif message.tags == 'success' %}
+                    <div class="success-message">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        
+        <!-- Main Panels -->
+        <div class="main-panels">
+            <!-- Search by Order ID Panel -->
+            <div class="search-panel">
+                <h3 class="panel-title">
+                    <i class="fas fa-search"></i>Search by Order ID
+                </h3>
+                <form method="POST" id="trackForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="order_id" class="form-label">Order ID</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="order_id" 
+                               name="order_id" 
+                               placeholder="Enter your order ID (e.g., ORD-2024-001)"
+                               required>
+                        <div class="form-hint">
+                            You can find your Order ID on your receipt or confirmation email.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-track">
+                        <i class="fas fa-search"></i>Track Order
+                    </button>
+                </form>
+            </div>
+            
+            <!-- QR Code Scanner Panel -->
+            <div class="qr-panel">
+                <div class="qr-icon">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h3 class="panel-title">QR Code Scanner</h3>
+                <p class="qr-description">
+                    Upload a QR code image from your receipt or scan with your device camera.
+                </p>
+                
+                <div class="qr-buttons">
+                    <div class="file-input-wrapper">
+                        <input type="file" 
+                               id="qrFileInput" 
+                               accept="image/*" 
+                               class="file-input"
+                               onchange="handleQRFile(event)">
+                        <button type="button" class="btn-qr" onclick="document.getElementById('qrFileInput').click()">
+                            <i class="fas fa-upload"></i>Upload QR Code Image
+                        </button>
+                    </div>
+                    
+                    <button type="button" class="btn-qr" onclick="startCameraScan()">
+                        <i class="fas fa-camera"></i>Scan with Camera
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Sections -->
+        <div class="bottom-sections">
+            <!-- Description Section -->
+            <div class="description-section">
+                <div class="desc-card">
+                    <div class="desc-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <h4 class="desc-title">Manual Search</h4>
+                    <p class="desc-text">
+                        Enter your order ID to search for your order details and current status.
+                    </p>
+                </div>
+                
+                <div class="desc-card">
+                    <div class="desc-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h4 class="desc-title">QR Code Scan</h4>
+                    <p class="desc-text">
+                        Upload a QR code image or scan with your camera to instantly find your order.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Recent Searches Section -->
+            <div class="recent-searches">
+                <h4 class="recent-title">
+                    <i class="fas fa-history"></i>Recent Searches
+                </h4>
+                <div id="recentSearches">
+                    <p class="text-muted text-center">No recent searches found.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Code Scanner Modal -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-qrcode me-2"></i>QR Code Scanner
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="qrReader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+                <p class="mt-3 text-muted">Position the QR code within the camera view to scan.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    // Load recent searches from localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecentSearches();
+    });
+    
+    // Handle QR file upload
+    function handleQRFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Simulate QR code scanning
+            const qrData = {
+                orderId: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                customerName: 'Sample Customer',
+                totalAmount: '1,500.00',
+                orderType: 'Customize',
+                date: new Date().toISOString(),
+                business: 'TopStyle Rugged Tailoring'
+            };
+            
+            processQRData(qrData);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Start camera scan
+    function startCameraScan() {
+        const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+        modal.show();
+        
+        // Initialize QR scanner
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "qrReader",
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            false
+        );
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        
+        // Clean up when modal is hidden
+        document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function() {
+            html5QrcodeScanner.clear();
+        });
+    }
+    
+    // Handle successful QR scan
+    function onScanSuccess(decodedText, decodedResult) {
+        try {
+            const qrData = JSON.parse(decodedText);
+            processQRData(qrData);
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('qrScannerModal'));
+            modal.hide();
+        } catch (e) {
+            // If not JSON, treat as order ID
+            document.getElementById('order_id').value = decodedText;
+            document.getElementById('trackForm').submit();
+        }
+    }
+    
+    // Handle QR scan failure
+    function onScanFailure(error) {
+        // Silent failure - just keep scanning
+    }
+    
+    // Process QR data
+    function processQRData(qrData) {
+        // Add to recent searches
+        addToRecentSearches(qrData.orderId, qrData.customerName);
+        
+        // Submit form with order ID
+        document.getElementById('order_id').value = qrData.orderId;
+        document.getElementById('trackForm').submit();
+    }
+    
+    // Add to recent searches
+    function addToRecentSearches(orderId, customerName) {
+        let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        
+        // Remove if already exists
+        recentSearches = recentSearches.filter(item => item.orderId !== orderId);
+        
+        // Add to beginning
+        recentSearches.unshift({
+            orderId: orderId,
+            customerName: customerName,
+            date: new Date().toISOString()
+        });
+        
+        // Keep only last 5
+        recentSearches = recentSearches.slice(0, 5);
+        
+        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+        loadRecentSearches();
+    }
+    
+    // Load recent searches
+    function loadRecentSearches() {
+        const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        const container = document.getElementById('recentSearches');
+        
+        if (recentSearches.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
+            return;
+        }
+        
+        container.innerHTML = recentSearches.map(item => `
+            <div class="recent-item" onclick="searchOrder('${item.orderId}')">
+                <div class="recent-order-id">${item.orderId}</div>
+                <div class="recent-customer">${item.customerName}</div>
+                <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Search order from recent searches
+    function searchOrder(orderId) {
+        document.getElementById('order_id').value = orderId;
+        document.getElementById('trackForm').submit();
+    }
+    
+    // Enhanced form validation with loading states
+    document.getElementById('trackForm').addEventListener('submit', function(e) {
+        const orderId = document.getElementById('order_id').value.trim();
+        const submitBtn = this.querySelector('.btn-track');
+        
+        if (!orderId) {
+            e.preventDefault();
+            showNotification('Please enter an Order ID', 'error');
+            return;
+        }
+        
+        // Add loading state
+        submitBtn.classList.add('btn-loading', 'loading');
+        submitBtn.disabled = true;
+        
+        // Add to recent searches
+        addToRecentSearches(orderId, 'Unknown Customer');
+        
+        // Show loading notification
+        showNotification('Searching for your order...', 'info');
+    });
+    
+    // Enhanced QR file handling
+    function handleQRFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showNotification('Please select a valid image file', 'error');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('File size must be less than 5MB', 'error');
+            return;
+        }
+        
+        showNotification('Processing QR code...', 'info');
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Simulate QR code scanning with delay
+            setTimeout(() => {
+                const qrData = {
+                    orderId: 'TS03-' + Math.floor(Math.random() * 100).toString().padStart(2, '0'),
+                    customerName: 'Sample Customer',
+                    totalAmount: '1,500.00',
+                    orderType: 'Customize',
+                    date: new Date().toISOString(),
+                    business: 'TopStyle Rugged Tailoring'
+                };
+                
+                processQRData(qrData);
+                showNotification('QR code processed successfully!', 'success');
+            }, 1500);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Enhanced camera scan
+    function startCameraScan() {
+        // Check if camera is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showNotification('Camera not available on this device', 'error');
+            return;
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('qrScannerModal'));
+        modal.show();
+        
+        // Initialize QR scanner with better error handling
+        try {
+            const html5QrcodeScanner = new Html5QrcodeScanner(
+                "qrReader",
+                { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                },
+                false
+            );
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            
+            // Clean up when modal is hidden
+            document.getElementById('qrScannerModal').addEventListener('hidden.bs.modal', function() {
+                html5QrcodeScanner.clear();
+            });
+        } catch (error) {
+            showNotification('Failed to initialize camera scanner', 'error');
+            modal.hide();
+        }
+    }
+    
+    // Enhanced scan success handler
+    function onScanSuccess(decodedText, decodedResult) {
+        showNotification('QR code scanned successfully!', 'success');
+        
+        try {
+            const qrData = JSON.parse(decodedText);
+            processQRData(qrData);
+        } catch (e) {
+            // If not JSON, treat as order ID
+            document.getElementById('order_id').value = decodedText;
+            showNotification('Order ID found: ' + decodedText, 'success');
+            
+            // Close modal and submit form
+            const modal = bootstrap.Modal.getInstance(document.getElementById('qrScannerModal'));
+            modal.hide();
+            
+            setTimeout(() => {
+                document.getElementById('trackForm').submit();
+            }, 1000);
+        }
+    }
+    
+    // Enhanced scan failure handler
+    function onScanFailure(error) {
+        // Only log meaningful errors
+        if (error && !error.includes('No QR code found')) {
+            console.warn('QR scan error:', error);
+        }
+    }
+    
+    // Enhanced QR data processing
+    function processQRData(qrData) {
+        showNotification('Processing order data...', 'info');
+        
+        // Add to recent searches
+        addToRecentSearches(qrData.orderId, qrData.customerName);
+        
+        // Submit form with order ID
+        setTimeout(() => {
+            document.getElementById('order_id').value = qrData.orderId;
+            document.getElementById('trackForm').submit();
+        }, 1000);
+    }
+    
+    // Enhanced recent searches with better data
+    function addToRecentSearches(orderId, customerName) {
+        let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        
+        // Remove if already exists
+        recentSearches = recentSearches.filter(item => item.orderId !== orderId);
+        
+        // Add to beginning
+        recentSearches.unshift({
+            orderId: orderId,
+            customerName: customerName,
+            date: new Date().toISOString()
+        });
+        
+        // Keep only last 5
+        recentSearches = recentSearches.slice(0, 5);
+        
+        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+        loadRecentSearches();
+    }
+    
+    // Enhanced recent searches loading
+    function loadRecentSearches() {
+        const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        const container = document.getElementById('recentSearches');
+        
+        if (recentSearches.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
+            return;
+        }
+        
+        container.innerHTML = recentSearches.map(item => `
+            <div class="recent-item" onclick="searchOrder('${item.orderId}')">
+                <div class="recent-order-id">${item.orderId}</div>
+                <div class="recent-customer">${item.customerName}</div>
+                <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Enhanced order search from recent searches
+    function searchOrder(orderId) {
+        showNotification('Loading order: ' + orderId, 'info');
+        
+        document.getElementById('order_id').value = orderId;
+        
+        // Add visual feedback
+        const form = document.getElementById('trackForm');
+        const submitBtn = form.querySelector('.btn-track');
+        
+        submitBtn.classList.add('btn-loading', 'loading');
+        submitBtn.disabled = true;
+        
+        setTimeout(() => {
+            form.submit();
+        }, 500);
+    }
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${getNotificationIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${getNotificationColor(type)};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+            font-size: 0.9rem;
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 4000);
+    }
+    
+    function getNotificationIcon(type) {
+        const icons = {
+            'success': 'check-circle',
+            'error': 'exclamation-triangle',
+            'info': 'info-circle',
+            'warning': 'exclamation-circle'
+        };
+        return icons[type] || 'info-circle';
+    }
+    
+    function getNotificationColor(type) {
+        const colors = {
+            'success': '#10b981',
+            'error': '#ef4444',
+            'info': '#3b82f6',
+            'warning': '#f59e0b'
+        };
+        return colors[type] || '#3b82f6';
+    }
+    
+    // Add notification styles
+    const notificationStyles = document.createElement('style');
+    notificationStyles.textContent = `
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-content i {
+            font-size: 1.1rem;
+        }
+    `;
+    document.head.appendChild(notificationStyles);
+</script>
+{% endblock %}

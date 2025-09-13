@@ -1,0 +1,453 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Order Tracking Result - TopStyle Business{% endblock %}
+{% block page_title %}Order Tracking Result{% endblock %}
+
+{% block extra_css %}
+<style>
+    .track-result-container {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 64, 175, 0.1) 100%);
+        min-height: 100vh;
+        padding: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .track-result-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        width: 100%;
+        max-width: 864px;
+        margin: 0 auto;
+    }
+    .status-timeline {
+        position: relative;
+        padding: 18px 0;
+    }
+    .status-timeline::before {
+        content: '';
+        position: absolute;
+        left: 27px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e9ecef;
+    }
+    .status-item {
+        position: relative;
+        padding-left: 54px;
+        margin-bottom: 27px;
+    }
+    .status-item::before {
+        content: '';
+        position: absolute;
+        left: 19px;
+        top: 7px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #e9ecef;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #e9ecef;
+    }
+    .status-item.completed::before {
+        background: #28a745;
+        box-shadow: 0 0 0 2px #28a745;
+    }
+    .status-item.current::before {
+        background: #1e3a8a;
+        box-shadow: 0 0 0 2px #1e3a8a;
+    }
+    .status-content {
+        background: white;
+        padding: 18px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .status-title {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+    }
+    .status-description {
+        color: #666;
+        font-size: 0.81rem;
+    }
+    .status-date {
+        color: #999;
+        font-size: 0.72rem;
+        margin-top: 4px;
+    }
+    .order-progress {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        color: white !important;
+        padding: 27px;
+        text-align: center;
+    }
+    .order-progress h2,
+    .order-progress h4,
+    .order-progress p {
+        color: white !important;
+    }
+    .progress-bar-custom {
+        height: 7px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 18px 0;
+    }
+    .progress-fill {
+        height: 100%;
+        background: white;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 14px;
+        margin-top: 20px;
+    }
+    .btn-action {
+        flex: 1;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        font-size: 0.85rem;
+    }
+    .btn-primary-action {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        color: white;
+    }
+    .btn-primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 58, 138, 0.3);
+        color: white;
+    }
+    .btn-secondary-action {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary-action:hover {
+        background: #5a6268;
+        color: white;
+    }
+    .not-found-container {
+        text-align: center;
+        padding: 54px 18px;
+    }
+    .not-found-icon {
+        font-size: 3.6rem;
+        color: #dc3545;
+        margin-bottom: 18px;
+    }
+    .not-found-title {
+        font-size: 1.35rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 9px;
+    }
+    .not-found-description {
+        color: #666;
+        margin-bottom: 27px;
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .track-result-container {
+            padding: 10px;
+            align-items: flex-start;
+        }
+        .track-result-card {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+        .order-progress {
+            padding: 20px;
+        }
+        .action-buttons {
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-action {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="track-result-container">
+    <div class="track-result-card">
+        {% if found %}
+            <!-- Order Found -->
+            <div class="order-progress">
+                <h2 class="mb-3" style="font-size: 1.8rem;">
+                    <i class="fas fa-check-circle me-2"></i>Order Found!
+                </h2>
+                <h4 class="mb-2" style="font-size: 1.44rem;">{{ order.order_identifier|default:order.order_id }}</h4>
+                <p class="mb-0" style="font-size: 0.9rem;">{{ order.customer.name }} • {{ order.get_order_type_display }}</p>
+                
+                <!-- Progress Bar -->
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: 
+                        {% if order.status == 'pending' %}25%
+                        {% elif order.status == 'confirmed' %}50%
+                        {% elif order.status == 'in_progress' %}75%
+                        {% elif order.status == 'completed' %}100%
+                        {% elif order.status == 'cancelled' %}0%
+                        {% endif %}">
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-3">
+                        <small style="font-size: 0.72rem;">Ordered</small>
+                    </div>
+                    <div class="col-3">
+                        <small style="font-size: 0.72rem;">Confirmed</small>
+                    </div>
+                    <div class="col-3">
+                        <small style="font-size: 0.72rem;">Processing</small>
+                    </div>
+                    <div class="col-3">
+                        <small style="font-size: 0.72rem;">Completed</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4" style="padding: 1.8rem !important;">
+                <div class="row">
+                    <!-- Left Column: Order Timeline -->
+                    <div class="col-lg-6">
+                        <h5 class="mb-4" style="font-size: 1.08rem;">
+                            <i class="fas fa-list me-2"></i>Order Timeline
+                        </h5>
+                        <div class="status-timeline">
+                            <div class="status-item completed">
+                                <div class="status-content">
+                                    <div class="status-title">
+                                        <i class="fas fa-shopping-cart me-2"></i>Order Placed
+                                    </div>
+                                    <div class="status-description">Your order has been received and is being processed.</div>
+                                    <div class="status-date">{{ order.created_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if order.status in 'confirmed,in_progress,completed' %}
+                            <div class="status-item completed">
+                                <div class="status-content">
+                                    <div class="status-title">
+                                        <i class="fas fa-check-circle me-2"></i>Order Confirmed
+                                    </div>
+                                    <div class="status-description">Your order has been confirmed and payment received.</div>
+                                    <div class="status-date">{{ order.updated_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if order.status in 'in_progress,completed' %}
+                            <div class="status-item {% if order.status == 'in_progress' %}current{% else %}completed{% endif %}">
+                                <div class="status-content">
+                                    <div class="status-title">
+                                        <i class="fas fa-cogs me-2"></i>In Progress
+                                    </div>
+                                    <div class="status-description">Your order is currently being processed by our team.</div>
+                                    <div class="status-date">{{ order.updated_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if order.status == 'completed' %}
+                            <div class="status-item completed">
+                                <div class="status-content">
+                                    <div class="status-title">
+                                        <i class="fas fa-check-circle me-2"></i>Order Completed
+                                    </div>
+                                    <div class="status-description">Your order has been completed and is ready for pickup.</div>
+                                    <div class="status-date">{{ order.updated_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if order.status == 'cancelled' %}
+                            <div class="status-item">
+                                <div class="status-content">
+                                    <div class="status-title text-danger">
+                                        <i class="fas fa-times-circle me-2"></i>Order Cancelled
+                                    </div>
+                                    <div class="status-description">This order has been cancelled.</div>
+                                    <div class="status-date">{{ order.updated_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Information Cards -->
+                    <div class="col-lg-6">
+                        <!-- Order Information -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0" style="font-size: 0.9rem;">
+                                    <i class="fas fa-info-circle me-2"></i>Order Information
+                                </h6>
+                            </div>
+                            <div class="card-body" style="font-size: 0.81rem;">
+                                <p class="mb-2"><strong>Order ID:</strong> {{ order.order_identifier|default:order.order_id }}</p>
+                                <p class="mb-2"><strong>Order Type:</strong> {{ order.get_order_type_display }}</p>
+                                <p class="mb-2"><strong>Status:</strong> 
+                                    <span class="badge bg-{% if order.status == 'completed' %}success{% elif order.status == 'pending' %}warning{% elif order.status == 'cancelled' %}danger{% else %}info{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </p>
+                                <p class="mb-2"><strong>Created:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                                {% if order.due_date %}
+                                <p class="mb-0"><strong>Due Date:</strong> {{ order.due_date|date:"M d, Y H:i" }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Customer Information -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0" style="font-size: 0.9rem;">
+                                    <i class="fas fa-user me-2"></i>Customer Information
+                                </h6>
+                            </div>
+                            <div class="card-body" style="font-size: 0.81rem;">
+                                <p class="mb-2"><strong>Name:</strong> {{ order.customer.name }}</p>
+                                <p class="mb-2"><strong>Phone:</strong> {{ order.customer.phone }}</p>
+                                {% if order.customer.email %}
+                                <p class="mb-2"><strong>Email:</strong> {{ order.customer.email }}</p>
+                                {% endif %}
+                                {% if order.customer.address %}
+                                <p class="mb-0"><strong>Address:</strong> {{ order.customer.address }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Order Items -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0" style="font-size: 0.9rem;">
+                                    <i class="fas fa-list me-2"></i>Order Items
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Type</th>
+                                                <th>Quantity</th>
+                                                <th>Unit Price</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order.items.all %}
+                                            <tr>
+                                                <td>{{ item.product.name }}</td>
+                                                <td>
+                                                    <span class="badge bg-info">{{ item.product.get_product_type_display }}</span>
+                                                </td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                                                <td>₱{{ item.total_price|floatformat:2 }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot class="table-primary">
+                                            <tr>
+                                                <th colspan="4">Total Amount</th>
+                                                <th>₱{{ order.total_amount|floatformat:2 }}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Information -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0" style="font-size: 0.9rem;">
+                                    <i class="fas fa-credit-card me-2"></i>Payment Information
+                                </h6>
+                            </div>
+                            <div class="card-body" style="font-size: 0.81rem;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Total Amount:</strong> ₱{{ order.total_amount|floatformat:2 }}</p>
+                                        <p class="mb-2"><strong>Amount Paid:</strong> ₱{{ order.paid_amount|floatformat:2 }}</p>
+                                        {% if order.balance > 0 %}
+                                        <p class="mb-0"><strong>Balance:</strong> <span class="text-danger">₱{{ order.balance|floatformat:2 }}</span></p>
+                                        {% else %}
+                                        <p class="mb-0"><strong>Balance:</strong> <span class="text-success">₱0.00</span></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes -->
+                        {% if order.notes %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0" style="font-size: 0.9rem;">
+                                    <i class="fas fa-sticky-note me-2"></i>Notes
+                                </h6>
+                            </div>
+                            <div class="card-body" style="font-size: 0.81rem;">
+                                <p class="mb-0">{{ order.notes }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a href="{% url 'track_order' %}" class="btn-action btn-secondary-action">
+                                <i class="fas fa-search me-2"></i>Track Another Order
+                            </a>
+                            <a href="{% url 'order_receipt' order.id %}" class="btn-action btn-primary-action">
+                                <i class="fas fa-receipt me-2"></i>View Receipt
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        {% else %}
+            <!-- Order Not Found -->
+            <div class="not-found-container">
+                <div class="not-found-icon">
+                    <i class="fas fa-search"></i>
+            </div>
+                <h3 class="not-found-title">Order Not Found</h3>
+                <p class="not-found-description">
+                    We couldn't find an order with ID "{{ order_id }}". Please check your Order ID and try again.
+                </p>
+                <div class="action-buttons">
+                    <a href="{% url 'track_order' %}" class="btn-action btn-primary-action">
+                        <i class="fas fa-search me-2"></i>Try Again
+                    </a>
+                    <a href="{% url 'orders' %}" class="btn-action btn-secondary-action">
+                        <i class="fas fa-list me-2"></i>View All Orders
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

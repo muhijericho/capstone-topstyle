@@ -1,0 +1,218 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Order Payment - TopStyle Business{% endblock %}
+{% block page_title %}Process Payment{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Payment for Order: {{ order.order_id|truncatechars:12 }}
+                </h5>
+                <span class="badge bg-primary">{{ order.get_order_type_display }}</span>
+            </div>
+            <div class="card-body">
+                <!-- Order Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <p class="mb-1"><strong>Name:</strong> {{ order.customer.name }}</p>
+                        <p class="mb-1"><strong>Phone:</strong> {{ order.customer.phone }}</p>
+                        {% if order.customer.email %}
+                        <p class="mb-1"><strong>Email:</strong> {{ order.customer.email }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Order Summary</h6>
+                        <p class="mb-1"><strong>Total Amount:</strong> ₱{{ order.total_amount|floatformat:2 }}</p>
+                        <p class="mb-1"><strong>Items Count:</strong> {{ order.items.count }}</p>
+                        {% if order.due_date %}
+                        <p class="mb-1"><strong>Due Date:</strong> {{ order.due_date|date:"M d, Y" }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Order Items -->
+                <h6>Order Items</h6>
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ item.product.get_product_type_display }}</span>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                                <td>₱{{ item.total_price|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-primary">
+                                <th colspan="4">Total Amount</th>
+                                <th>₱{{ order.total_amount|floatformat:2 }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <!-- Payment Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="paid_amount" class="form-label">Amount Paid</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₱</span>
+                                <input type="number" name="paid_amount" id="paid_amount" 
+                                       class="form-control" step="0.01" min="0" 
+                                       max="{{ order.total_amount }}" 
+                                       value="{{ order.total_amount }}" required>
+                            </div>
+                            <div class="form-text">
+                                Maximum: ₱{{ order.total_amount|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="payment_method" class="form-label">Payment Method</label>
+                            <select name="payment_method" id="payment_method" class="form-select" required>
+                                <option value="cash">Cash</option>
+                                <option value="card">Credit/Debit Card</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="mobile_money">Mobile Money</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6>Payment Summary</h6>
+                                    <p class="mb-1">Total Amount: <strong>₱{{ order.total_amount|floatformat:2 }}</strong></p>
+                                    <p class="mb-1">Amount Paid: <strong id="paid-display">₱{{ order.total_amount|floatformat:2 }}</strong></p>
+                                    <p class="mb-0">Balance: <strong id="balance-display">₱0.00</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'order_items' order.id %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Items
+                        </a>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>Confirm Payment & Complete Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Payment Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Order Details</h6>
+                    <p class="mb-1"><strong>Order ID:</strong></p>
+                    <code>{{ order.order_id }}</code>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Customer</h6>
+                    <p class="mb-1">{{ order.customer.name }}</p>
+                    <p class="mb-1">{{ order.customer.phone }}</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Order Type</h6>
+                    <span class="badge bg-primary">{{ order.get_order_type_display }}</span>
+                </div>
+                
+                {% if order.notes %}
+                <div class="mb-3">
+                    <h6>Notes</h6>
+                    <p class="small">{{ order.notes }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Order Process</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <i class="fas fa-check small"></i>
+                    </div>
+                    <span class="small">Order Information</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <i class="fas fa-check small"></i>
+                    </div>
+                    <span class="small">Add Items</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <span class="small">3</span>
+                    </div>
+                    <span class="small">Payment</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <span class="small">4</span>
+                    </div>
+                    <span class="small text-muted">Receipt & QR Code</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const totalAmount = {{ order.total_amount }};
+    const paidAmountInput = document.getElementById('paid_amount');
+    const paidDisplay = document.getElementById('paid-display');
+    const balanceDisplay = document.getElementById('balance-display');
+    
+    function updatePaymentSummary() {
+        const paidAmount = parseFloat(paidAmountInput.value) || 0;
+        const balance = totalAmount - paidAmount;
+        
+        paidDisplay.textContent = '₱' + paidAmount.toFixed(2);
+        balanceDisplay.textContent = '₱' + balance.toFixed(2);
+        
+        if (balance > 0) {
+            balanceDisplay.className = 'text-danger';
+        } else {
+            balanceDisplay.className = 'text-success';
+        }
+    }
+    
+    paidAmountInput.addEventListener('input', updatePaymentSummary);
+    updatePaymentSummary();
+</script>
+{% endblock %}

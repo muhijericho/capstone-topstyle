@@ -1,0 +1,207 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Order Items - TopStyle Business{% endblock %}
+{% block page_title %}Add Items to Order{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    Order: {{ order.order_id|truncatechars:12 }}
+                </h5>
+                <span class="badge bg-primary">{{ order.get_order_type_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Customer:</strong> {{ order.customer.name }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Status:</strong> 
+                        <span class="status-badge status-{{ order.status }}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Add Items Form -->
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="product_id" class="form-label">Select Product</label>
+                            <select name="product_id" id="product_id" class="form-select" required>
+                                <option value="">Choose a product...</option>
+                                {% for product in products %}
+                                <option value="{{ product.id }}" 
+                                        data-price="{{ product.price }}"
+                                        data-quantity="{{ product.quantity }}"
+                                        data-type="{{ product.product_type }}">
+                                    {{ product.name }} - ₱{{ product.price }} 
+                                    (Stock: {{ product.quantity }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Order Items List -->
+                <h6>Order Items</h6>
+                {% if order_items %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total</th>
+                                    <th>Stock Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order_items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ item.product.get_product_type_display }}</span>
+                                    </td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                                    <td>₱{{ item.total_price|floatformat:2 }}</td>
+                                    <td>
+                                        {% if item.product.is_available %}
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle"></i> Available
+                                            </span>
+                                        {% else %}
+                                            <span class="text-danger">
+                                                <i class="fas fa-times-circle"></i> Out of Stock
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <h5>Total Amount: <span class="text-primary">₱{{ order.total_amount|floatformat:2 }}</span></h5>
+                        </div>
+                        <div>
+                            <a href="{% url 'order_payment' order.id %}" class="btn btn-success">
+                                <i class="fas fa-credit-card me-2"></i>Proceed to Payment
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                        <p>No items added to this order yet.</p>
+                        <p>Select a product above to get started.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Order Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Order ID:</strong><br>
+                    <code>{{ order.order_id }}</code>
+                </div>
+                <div class="mb-3">
+                    <strong>Customer:</strong><br>
+                    {{ order.customer.name }}<br>
+                    <small class="text-muted">{{ order.customer.phone }}</small>
+                </div>
+                <div class="mb-3">
+                    <strong>Order Type:</strong><br>
+                    <span class="badge bg-primary">{{ order.get_order_type_display }}</span>
+                </div>
+                {% if order.due_date %}
+                <div class="mb-3">
+                    <strong>Due Date:</strong><br>
+                    {{ order.due_date|date:"M d, Y H:i" }}
+                </div>
+                {% endif %}
+                {% if order.notes %}
+                <div class="mb-3">
+                    <strong>Notes:</strong><br>
+                    <small>{{ order.notes }}</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Order Process</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <i class="fas fa-check small"></i>
+                    </div>
+                    <span class="small">Order Information</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <span class="small">2</span>
+                    </div>
+                    <span class="small">Add Items</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <span class="small">3</span>
+                    </div>
+                    <span class="small text-muted">Payment</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
+                        <span class="small">4</span>
+                    </div>
+                    <span class="small text-muted">Receipt & QR Code</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('product_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const quantityInput = document.getElementById('quantity');
+        
+        if (selectedOption.value) {
+            const maxQuantity = parseInt(selectedOption.dataset.quantity);
+            quantityInput.max = maxQuantity;
+            quantityInput.value = Math.min(1, maxQuantity);
+        }
+    });
+</script>
+{% endblock %}

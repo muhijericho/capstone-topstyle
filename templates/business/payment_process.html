@@ -1,0 +1,530 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Payment Process - TopStyle Business{% endblock %}
+{% block page_title %}Payment Process{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-process-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 5px;
+    }
+    
+    .payment-display {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+        border: 2px solid #e9ecef;
+    }
+    
+    .payment-header {
+        text-align: center;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1e3a8a;
+    }
+    
+    .payment-header h2 {
+        color: #1e3a8a;
+        font-weight: bold;
+        margin-bottom: 3px;
+        font-size: 1.3rem;
+    }
+    
+    .payment-header p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .order-amount-container {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .order-details {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 10px;
+        flex: 1;
+        max-width: none;
+        margin: 0;
+    }
+    
+    .amount-display {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        color: white !important;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        width: 150px;
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
+    }
+    
+    .amount-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+        opacity: 0.9;
+        color: white !important;
+    }
+    
+    .amount-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-bottom: 0;
+        color: white !important;
+    }
+    
+    .payment-input-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .payment-input-section h4 {
+        color: #333;
+        margin-bottom: 10px;
+        text-align: center;
+        font-size: 1rem;
+    }
+    
+    .amount-input-group {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    
+    .peso-symbol {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #1e3a8a;
+        margin-right: 8px;
+    }
+    
+    .amount-input {
+        font-size: 1.3rem;
+        font-weight: bold;
+        text-align: center;
+        border: 2px solid #1e3a8a;
+        border-radius: 8px;
+        padding: 8px 12px;
+        width: 150px;
+        color: #1e3a8a;
+        background: white;
+    }
+    
+    .amount-input:focus {
+        outline: none;
+        border-color: #1e40af;
+        box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
+    }
+    
+    .quick-amount-buttons {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 10px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .quick-amount-btn {
+        background: white;
+        border: 2px solid #1e3a8a;
+        color: #1e3a8a;
+        padding: 6px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-amount-btn:hover {
+        background: #1e3a8a;
+        color: white;
+    }
+    
+    .payment-summary {
+        background: white;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #e9ecef;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+    }
+    
+    .summary-row:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1rem;
+        color: #1e3a8a;
+        margin-top: 5px;
+        padding-top: 8px;
+        border-top: 2px solid #1e3a8a;
+    }
+    
+    .summary-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .summary-value {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .change-display {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        margin-bottom: 15px;
+        display: none;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .change-display.show {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .change-label {
+        font-size: 0.9rem;
+        margin-bottom: 3px;
+        opacity: 0.9;
+    }
+    
+    .change-value {
+        font-size: 1.3rem;
+        font-weight: bold;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .btn-clear {
+        background: #dc3545;
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        max-width: 120px;
+    }
+    
+    .btn-clear:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+    }
+    
+    .btn-process {
+        background: #28a745;
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        max-width: 160px;
+    }
+    
+    .btn-process:hover {
+        background: #218838;
+        transform: translateY(-2px);
+    }
+    
+    .btn-process:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .order-details h5 {
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0;
+        color: #666;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-process-container">
+    <div class="payment-display">
+        <!-- Header -->
+        <div class="payment-header">
+            <h2><i class="fas fa-credit-card me-2"></i>Payment Process</h2>
+            <p>Enter the amount received from customer</p>
+        </div>
+        
+        <!-- Order Details and Amount Container -->
+        <div class="order-amount-container">
+            <!-- Order Details -->
+            <div class="order-details">
+                <h5><i class="fas fa-receipt me-2"></i>Order Details</h5>
+                <div id="orderDetails">
+                    <!-- Order details will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Amount to Pay Display -->
+            <div class="amount-display">
+                <div class="amount-label">Amount to Pay</div>
+                <div class="amount-value" id="amountToPay">₱0.00</div>
+            </div>
+        </div>
+        
+        <!-- Payment Input Section -->
+        <div class="payment-input-section">
+            <h4><i class="fas fa-money-bill-wave me-2"></i>Enter Amount Received</h4>
+            
+            <div class="amount-input-group">
+                <span class="peso-symbol">₱</span>
+                <input type="number" class="amount-input" id="amountReceived" placeholder="0.00" step="0.01" min="0">
+            </div>
+            
+            <!-- Quick Amount Buttons -->
+            <div class="quick-amount-buttons">
+                <button class="quick-amount-btn" onclick="setQuickAmount(100)">₱100</button>
+                <button class="quick-amount-btn" onclick="setQuickAmount(200)">₱200</button>
+                <button class="quick-amount-btn" onclick="setQuickAmount(500)">₱500</button>
+                <button class="quick-amount-btn" onclick="setQuickAmount(1000)">₱1,000</button>
+                <button class="quick-amount-btn" onclick="setQuickAmount(2000)">₱2,000</button>
+                <button class="quick-amount-btn" onclick="setQuickAmount(5000)">₱5,000</button>
+            </div>
+        </div>
+        
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <div class="summary-row">
+                <span class="summary-label">Amount to Pay:</span>
+                <span class="summary-value" id="summaryAmountToPay">₱0.00</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Amount Received:</span>
+                <span class="summary-value" id="summaryAmountReceived">₱0.00</span>
+            </div>
+            <div class="summary-row" id="changeRow" style="display: none;">
+                <span class="summary-label">Change:</span>
+                <span class="summary-value" id="summaryChange">₱0.00</span>
+            </div>
+        </div>
+        
+        <!-- Change Display -->
+        <div class="change-display" id="changeDisplay">
+            <div class="change-label">Change to Give</div>
+            <div class="change-value" id="changeAmount">₱0.00</div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-clear" onclick="clearAmount()">
+                <i class="fas fa-eraser me-2"></i>Clear
+            </button>
+            <button class="btn-process" id="processPaymentBtn" onclick="processPayment()" disabled>
+                <i class="fas fa-check me-2"></i>Process Payment
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let orderData = null;
+    let amountToPay = 0;
+    let amountReceived = 0;
+    let change = 0;
+    
+    // Load order data from sessionStorage
+    function loadOrderData() {
+        const storedOrder = sessionStorage.getItem('currentOrder');
+        if (storedOrder) {
+            orderData = JSON.parse(storedOrder);
+            amountToPay = orderData.totalCost;
+            displayOrderDetails();
+            updateAmountDisplay();
+        } else {
+            // No order data found, redirect back to create order
+            window.location.href = '/orders/create/';
+        }
+    }
+    
+    // Display order details
+    function displayOrderDetails() {
+        if (!orderData) return;
+        
+        const detailsDiv = document.getElementById('orderDetails');
+        
+        detailsDiv.innerHTML = `
+            <div class="detail-row">
+                <span>Customer:</span>
+                <span>${orderData.customerName}</span>
+            </div>
+            <div class="detail-row">
+                <span>Mobile:</span>
+                <span>${orderData.mobileNumber}</span>
+            </div>
+            <div class="detail-row">
+                <span>Order Type:</span>
+                <span>${orderData.orderType.charAt(0).toUpperCase() + orderData.orderType.slice(1)}</span>
+            </div>
+            <div class="detail-row">
+                <span>Payment Method:</span>
+                <span>${orderData.paymentMethod ? orderData.paymentMethod.charAt(0).toUpperCase() + orderData.paymentMethod.slice(1) : 'Cash'}</span>
+            </div>
+        `;
+    }
+    
+    // Update amount display
+    function updateAmountDisplay() {
+        document.getElementById('amountToPay').textContent = `₱${amountToPay.toFixed(2)}`;
+        document.getElementById('summaryAmountToPay').textContent = `₱${amountToPay.toFixed(2)}`;
+    }
+    
+    // Set quick amount
+    function setQuickAmount(amount) {
+        document.getElementById('amountReceived').value = amount;
+        calculateChange();
+    }
+    
+    // Calculate change
+    function calculateChange() {
+        const receivedInput = document.getElementById('amountReceived');
+        amountReceived = parseFloat(receivedInput.value) || 0;
+        change = amountReceived - amountToPay;
+        
+        // Update summary
+        document.getElementById('summaryAmountReceived').textContent = `₱${amountReceived.toFixed(2)}`;
+        
+        // Show/hide change row and display
+        const changeRow = document.getElementById('changeRow');
+        const changeDisplay = document.getElementById('changeDisplay');
+        const processBtn = document.getElementById('processPaymentBtn');
+        
+        if (amountReceived > 0) {
+            if (change >= 0) {
+                // Sufficient payment
+                changeRow.style.display = 'flex';
+                document.getElementById('summaryChange').textContent = `₱${change.toFixed(2)}`;
+                
+                if (change > 0) {
+                    // Show change display
+                    changeDisplay.classList.add('show');
+                    document.getElementById('changeAmount').textContent = `₱${change.toFixed(2)}`;
+                } else {
+                    // Exact payment
+                    changeDisplay.classList.remove('show');
+                }
+                
+                processBtn.disabled = false;
+            } else {
+                // Insufficient payment
+                changeRow.style.display = 'none';
+                changeDisplay.classList.remove('show');
+                processBtn.disabled = true;
+            }
+        } else {
+            changeRow.style.display = 'none';
+            changeDisplay.classList.remove('show');
+            processBtn.disabled = true;
+        }
+    }
+    
+    // Clear amount
+    function clearAmount() {
+        document.getElementById('amountReceived').value = '';
+        amountReceived = 0;
+        change = 0;
+        calculateChange();
+    }
+    
+    // Process payment
+    function processPayment() {
+        if (amountReceived < amountToPay) {
+            alert('Insufficient payment amount!');
+            return;
+        }
+        
+        // Update order data with payment information
+        orderData.amountReceived = amountReceived;
+        orderData.change = change;
+        orderData.paymentDate = new Date().toISOString();
+        orderData.orderId = 'TS' + Date.now(); // Generate unique order ID
+        
+        // Store updated order data
+        sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
+        
+        // Redirect to receipt generation page
+        window.location.href = '/orders/receipt/';
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrderData();
+        
+        // Add event listener to amount input
+        document.getElementById('amountReceived').addEventListener('input', calculateChange);
+        
+        // Add event listener for Enter key
+        document.getElementById('amountReceived').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('processPaymentBtn').disabled) {
+                processPayment();
+            }
+        });
+    });
+</script>
+{% endblock %}

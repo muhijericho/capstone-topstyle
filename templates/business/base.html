@@ -1,0 +1,872 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{% block title %}TopStyle Business Management{% endblock %}</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Complete business management system for tailoring, rental, and repair services with order tracking and inventory management">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TopStyle">
+    <meta name="msapplication-TileColor" content="#1e3a8a">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="TopStyle">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/icon-96x96.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/icon-72x72.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/icon-192x192.png' %}">
+    <link rel="apple-touch-icon" sizes="167x167" href="{% static 'images/icon-192x192.png' %}">
+    
+    <!-- External CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s ease, transform 0.3s ease;
+            transform: translateX(-130px);
+        }
+        
+        /* Collapsed state - show only 70px */
+        .sidebar.collapsed {
+            width: 70px;
+            transform: translateX(0);
+        }
+        
+        /* Expanded state on hover */
+        .sidebar:hover {
+            transform: translateX(0);
+            width: 200px;
+        }
+        
+        /* Hide text when collapsed */
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .logo-text-left,
+        .sidebar.collapsed .logo-text-right,
+        .sidebar.collapsed .logo-tagline,
+        .sidebar.collapsed .btn span {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        /* Show text when expanded or on hover */
+        .sidebar:hover .nav-link span,
+        .sidebar:hover .logo-text-left,
+        .sidebar:hover .logo-text-right,
+        .sidebar:hover .logo-tagline,
+        .sidebar:hover .btn span {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            width: auto;
+        }
+        
+        /* Ensure logo text is visible when not collapsed */
+        .sidebar .nav-link span,
+        .sidebar .logo-text-left,
+        .sidebar .logo-text-right,
+        .sidebar .logo-tagline,
+        .sidebar .btn span {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            width: auto;
+        }
+        
+        /* Center icons when collapsed */
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            margin: 0;
+        }
+        
+        /* Logo adjustments for collapsed state */
+        .sidebar.collapsed .logo-wrapper {
+            max-width: 50px;
+            padding: 8px;
+        }
+        
+        .sidebar.collapsed .logo-main {
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .logo-icon {
+            margin: 0;
+        }
+        
+        /* Logo adjustments for expanded state */
+        .sidebar:hover .logo-wrapper {
+            max-width: 180px;
+            padding: 12px 16px;
+        }
+        
+        .sidebar:hover .logo-main {
+            justify-content: center;
+        }
+        
+        .sidebar:hover .logo-icon {
+            margin: 0 8px;
+        }
+        
+        /* Logout button adjustments */
+        .sidebar.collapsed .logout-btn .btn {
+            padding: 12px;
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .logout-btn .btn i {
+            margin: 0;
+        }
+        
+        /* Navbar enhancement */
+        .navbar {
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            /* Mobile-specific touch optimizations */
+            .btn, button, a {
+                min-height: 44px;
+                min-width: 44px;
+                touch-action: manipulation;
+            }
+            
+            /* Prevent zoom on input focus */
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+        
+        /* iOS-specific optimizations */
+        @supports (-webkit-touch-callout: none) {
+            .btn, button, a {
+                -webkit-tap-highlight-color: rgba(30, 58, 138, 0.3);
+            }
+            
+            input, select, textarea {
+                -webkit-appearance: none;
+                border-radius: 8px;
+            }
+        }
+        
+        /* Android-specific optimizations */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: .001dpcm) {
+            .btn, button, a {
+                -webkit-tap-highlight-color: rgba(30, 58, 138, 0.3);
+            }
+        }
+        
+        /* PWA-specific styles */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
+            
+            .main-content {
+                padding-top: 20px;
+            }
+        }
+        
+        /* Desktop behavior */
+        @media (min-width: 769px) {
+            .sidebar.collapsed {
+                width: 70px;
+                transform: translateX(0);
+            }
+            .sidebar.collapsed .nav-link span,
+            .sidebar.collapsed .logo-text-left,
+            .sidebar.collapsed .logo-text-right,
+            .sidebar.collapsed .logo-tagline,
+            .sidebar.collapsed .btn span {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+            }
+            .sidebar:hover {
+                transform: translateX(0);
+                width: 200px;
+            }
+            .sidebar:hover .nav-link span,
+            .sidebar:hover .logo-text-left,
+            .sidebar:hover .logo-text-right,
+            .sidebar:hover .logo-tagline,
+            .sidebar:hover .btn span {
+                opacity: 1;
+                width: auto;
+            }
+            /* Ensure logo is visible when not collapsed */
+            .sidebar .logo-text-left,
+            .sidebar .logo-text-right,
+            .sidebar .logo-tagline {
+                opacity: 1;
+                width: auto;
+            }
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .main-content {
+            background-color: #9ca3af;
+            min-height: 100vh;
+            margin-left: 70px;
+            width: calc(100% - 70px);
+            position: relative;
+        }
+        
+        .main-content > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Global text visibility improvements */
+        .main-content {
+            color: #1f2937;
+        }
+        
+        .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
+            color: #111827;
+            font-weight: 600;
+        }
+        
+        .main-content p, .main-content span, .main-content div {
+            color: #374151;
+        }
+        
+        .main-content .text-muted {
+            color: #6b7280 !important;
+        }
+        
+        .main-content .text-dark {
+            color: #111827 !important;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card {
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 120px;
+            min-height: 120px;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            color: white !important;
+        }
+        
+        .stat-card-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .stat-card-orange {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+        
+        .stat-card-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .stat-card-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .stat-card-teal {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        }
+        
+        @media (max-width: 768px) {
+            .stat-card {
+                height: 100px;
+                min-height: 100px;
+            }
+            .stat-number {
+                font-size: 1.5rem;
+                color: white !important;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+        }
+        .stat-card .card-body {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+        
+        .stat-card .card-body i {
+            color: white !important;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .stat-card .card-body div:last-child {
+            color: white !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 0.25rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        .table thead th {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+            color: white;
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-pending { background-color: #ffc107; color: #000; }
+        .status-confirmed { background-color: #17a2b8; color: white; }
+        .status-in-progress { background-color: #007bff; color: white; }
+        .status-completed { background-color: #28a745; color: white; }
+        .status-cancelled { background-color: #dc3545; color: white; }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .sidebar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-nav {
+            flex: 1;
+        }
+        .logout-btn {
+            margin-top: auto;
+            padding: 20px;
+        }
+        
+        /* Logo Styles */
+        .logo-wrapper {
+            border: 1px solid #000;
+            padding: 12px 16px;
+            background: white;
+            max-width: 180px;
+            margin: 0 auto;
+            display: inline-block;
+        }
+        .logo-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+        .logo-text-left, .logo-text-right {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #000;
+            line-height: 1;
+        }
+        .logo-icon {
+            margin: 0 8px;
+        }
+        .star-container {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .star-container:before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .star {
+            width: 16px;
+            height: 16px;
+            background: #000;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            position: relative;
+            z-index: 2;
+        }
+        .logo-tagline {
+            font-family: Arial, sans-serif;
+            font-size: 0.6rem;
+            font-weight: normal;
+            letter-spacing: 1.5px;
+            color: #000;
+            text-align: center;
+            line-height: 1;
+            margin-top: 2px;
+        }
+        
+        /* Enhanced form styling */
+        .form-control:focus, .form-select:focus {
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
+        }
+        
+        .is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+        
+        /* Notification styles */
+        .notification-item.show {
+            opacity: 1 !important;
+            transform: translateX(0) !important;
+        }
+        
+        .notification-item.hide {
+            opacity: 0 !important;
+            transform: translateX(100%) !important;
+        }
+        
+        /* Loading spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        /* Enhanced button styles */
+        .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        /* Table enhancements */
+        .table-hover tbody tr:hover {
+            background-color: rgba(30, 58, 138, 0.05);
+        }
+        
+        /* Card hover effects */
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-content">
+            <div class="p-3">
+                <div class="logo-container text-center mb-4">
+                    <div class="logo-wrapper">
+                        <div class="logo-main">
+                            <span class="logo-text-left">TOP</span>
+                            <div class="logo-icon">
+                                <div class="star-container">
+                                    <div class="star"></div>
+                                </div>
+                            </div>
+                            <span class="logo-text-right">STYLE</span>
+                        </div>
+                        <div class="logo-tagline">RUGGED TAILORING</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav flex-column sidebar-nav px-3">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i class="fas fa-tachometer-alt me-2"></i> <span>Dashboard</span>
+                </a>
+
+                <a class="nav-link {% if request.resolver_match.url_name == 'orders' %}active{% endif %}" href="{% url 'orders' %}">
+                    <i class="fas fa-shopping-cart me-2"></i> <span>Orders</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'sales' %}active{% endif %}" href="{% url 'sales' %}">
+                    <i class="fas fa-chart-line me-2"></i> <span>Sales</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'inventory' %}active{% endif %}" href="{% url 'inventory' %}">
+                    <i class="fas fa-boxes me-2"></i> <span>Inventory</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'customer_list' %}active{% endif %}" href="{% url 'customer_list' %}">
+                    <i class="fas fa-users me-2"></i> <span>Customers</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'rental_management' %}active{% endif %}" href="{% url 'rental_management' %}">
+                    <i class="fas fa-tshirt me-2"></i> <span>Rentals</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'track_order' %}active{% endif %}" href="{% url 'track_order' %}">
+                    <i class="fas fa-search me-2"></i> <span>Track Order</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}" href="{% url 'activity_log' %}">
+                    <i class="fas fa-history me-2"></i> <span>Activity Log</span>
+                </a>
+            </nav>
+            <div class="logout-btn">
+                <a href="{% url 'logout' %}" class="btn btn-outline-light w-100">
+                    <i class="fas fa-sign-out-alt me-2"></i> <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+            <div class="container-fluid">
+                <!-- Mobile menu button -->
+                <button class="btn btn-link d-lg-none" type="button" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <span class="navbar-brand mb-0 h1">{% block page_title %}Dashboard{% endblock %}</span>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text">
+                        Welcome, {{ user.username }}!
+                    </span>
+                </div>
+            </div>
+        </nav>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                        <div class="container-fluid mt-3">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/offline.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    
+    <!-- PWA Installation Script -->
+    <script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            // Initialize sidebar state - start collapsed on desktop
+            if (window.innerWidth > 768) {
+                sidebar.classList.add('collapsed');
+            }
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth <= 768) {
+                        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                            sidebar.classList.remove('show');
+                        }
+                    }
+                });
+            }
+            
+            // Handle window resize for mobile responsiveness
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768) {
+                    // Mobile: show full sidebar
+                    sidebar.classList.remove('collapsed');
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebar.style.width = '200px';
+                } else {
+                    // Desktop: collapsed sidebar (CSS hover will handle expanding it)
+                    sidebar.classList.add('collapsed');
+                }
+            });
+        });
+
+        // PWA Installation Prompt
+        let deferredPrompt;
+        const installButton = document.createElement('button');
+        installButton.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
+        installButton.className = 'btn btn-success btn-sm position-fixed';
+        installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; display: none;';
+        document.body.appendChild(installButton);
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`PWA install prompt was ${outcome}`);
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            }
+        });
+
+        // PWA Installation Success
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installButton.style.display = 'none';
+        });
+
+        // Update available notification
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                // Show update notification
+                const updateNotification = document.createElement('div');
+                updateNotification.className = 'alert alert-info alert-dismissible fade show position-fixed';
+                updateNotification.style.cssText = 'top: 20px; right: 20px; z-index: 1000; max-width: 300px;';
+                updateNotification.innerHTML = `
+                    <i class="fas fa-sync-alt me-2"></i>
+                    App update available! 
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(updateNotification);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    if (updateNotification.parentNode) {
+                        updateNotification.remove();
+                    }
+                }, 5000);
+            });
+        }
+        
+        // PWA Installation Functionality
+        let deferredPrompt;
+        let installButton;
+        
+        // Create install button
+        function createInstallButton() {
+            if (installButton) return;
+            
+            installButton = document.createElement('button');
+            installButton.className = 'btn btn-primary position-fixed';
+            installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);';
+            installButton.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
+            installButton.onclick = installApp;
+            
+            document.body.appendChild(installButton);
+        }
+        
+        // Install app function
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        showInstallSuccess();
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                    hideInstallButton();
+                });
+            }
+        }
+        
+        // Hide install button
+        function hideInstallButton() {
+            if (installButton) {
+                installButton.remove();
+                installButton = null;
+            }
+        }
+        
+        // Show install success message
+        function showInstallSuccess() {
+            const successNotification = document.createElement('div');
+            successNotification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            successNotification.style.cssText = 'top: 20px; right: 20px; z-index: 1000; max-width: 300px;';
+            successNotification.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                App installed successfully! 
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(successNotification);
+            
+            setTimeout(() => {
+                if (successNotification.parentNode) {
+                    successNotification.remove();
+                }
+            }, 5000);
+        }
+        
+        // Check if app is already installed
+        function isAppInstalled() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+        
+        // Handle beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt triggered');
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Only show install button if app is not already installed
+            if (!isAppInstalled()) {
+                createInstallButton();
+            }
+        });
+        
+        // Handle app installed event
+        window.addEventListener('appinstalled', (e) => {
+            console.log('PWA was installed');
+            hideInstallButton();
+            showInstallSuccess();
+        });
+        
+        // Check installation status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isAppInstalled()) {
+                console.log('App is already installed');
+                hideInstallButton();
+            } else {
+                console.log('App is not installed, waiting for install prompt');
+            }
+        });
+        
+        // iOS Safari specific installation
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+        
+        function showIOSInstallInstructions() {
+            const iosInstructions = document.createElement('div');
+            iosInstructions.className = 'alert alert-info alert-dismissible fade show position-fixed';
+            iosInstructions.style.cssText = 'top: 20px; left: 20px; right: 20px; z-index: 1000;';
+            iosInstructions.innerHTML = `
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Install TopStyle App:</strong><br>
+                Tap <i class="fas fa-share"></i> Share button, then "Add to Home Screen"
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(iosInstructions);
+            
+            setTimeout(() => {
+                if (iosInstructions.parentNode) {
+                    iosInstructions.remove();
+                }
+            }, 10000);
+        }
+        
+        // Show iOS install instructions if on iOS and not installed
+        if (isIOS() && !isAppInstalled()) {
+            setTimeout(showIOSInstallInstructions, 2000);
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

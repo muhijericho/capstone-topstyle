@@ -1,0 +1,191 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Sales - TopStyle Business{% endblock %}
+{% block page_title %}Sales Analytics{% endblock %}
+
+{% block content %}
+<!-- Sales Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card stat-card-blue">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ total_sales|floatformat:2 }}</div>
+                <div>Total Sales</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card stat-card-orange">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-month fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ monthly_sales|floatformat:2 }}</div>
+                <div>This Month</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card stat-card-green">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                <div class="stat-number">{{ recent_sales|length }}</div>
+                <div>Total Transactions</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card stat-card-purple">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <div class="stat-number">
+                    ₱{{ average_sale|floatformat:2 }}
+                </div>
+                <div>Average Sale</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Sales by Payment Method</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="paymentMethodChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Export Reports</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'pdf_report' 'sales' %}" class="btn btn-outline-danger">
+                        <i class="fas fa-file-pdf me-2"></i>Export PDF Report
+                    </a>
+                    <a href="{% url 'excel_report' 'sales' %}" class="btn btn-outline-success">
+                        <i class="fas fa-file-excel me-2"></i>Export Excel Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sales -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recent Sales</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_sales %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in recent_sales %}
+                        <tr>
+                            <td>
+                                <strong>{{ sale.sales_identifier|default:sale.order.order_id|truncatechars:12 }}</strong>
+                            </td>
+                            <td>{{ sale.order.customer.name }}</td>
+                            <td>
+                                <span class="text-success fw-bold">₱{{ sale.amount|floatformat:2 }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ sale.payment_method|title }}</span>
+                            </td>
+                            <td>{{ sale.created_at|date:"M d, Y H:i" }}</td>
+                            <td>
+                                <a href="{% url 'order_receipt' sale.order.id %}" class="btn btn-sm btn-outline-primary" title="View Receipt">
+                                    <i class="fas fa-receipt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-chart-line fa-3x mb-3"></i>
+                <p>No sales data available yet.</p>
+                <p>Start creating orders to see sales analytics.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Payment Method Chart
+    const paymentData = [
+        {% for method in sales_by_method %}
+        {
+            method: '{{ method.payment_method|title }}',
+            total: {{ method.total }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    const ctx = document.getElementById('paymentMethodChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: paymentData.map(item => item.method),
+            datasets: [{
+                data: paymentData.map(item => item.total),
+                backgroundColor: [
+                    '#667eea',
+                    '#764ba2',
+                    '#f093fb',
+                    '#f5576c',
+                    '#4facfe',
+                    '#00f2fe'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `₱{label}: ₱₱{value.toFixed(2)} (₱{percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

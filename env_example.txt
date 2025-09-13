@@ -1,0 +1,5 @@
+SECRET_KEY=django-insecure-your-secret-key-here-change-in-production
+DEBUG=True
+SMS_API_KEY=your-sms-api-key-here
+SMS_SENDER_ID=TopStyle
+

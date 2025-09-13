@@ -1,0 +1,124 @@
+{
+  "name": "TopStyle Business Management System",
+  "short_name": "TopStyle",
+  "description": "Complete business management system for tailoring, rental, and repair services with order tracking and inventory management",
+  "start_url": "/dashboard/",
+  "display": "standalone",
+  "background_color": "#1e3a8a",
+  "theme_color": "#1e3a8a",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["business", "productivity", "utilities", "finance"],
+  "dir": "ltr",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "icons": [
+    {
+      "src": "/static/images/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/screenshot-dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TopStyle Dashboard - Business Overview"
+    },
+    {
+      "src": "/static/images/screenshot-orders.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Order Management - Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Order",
+      "short_name": "New Order",
+      "description": "Create a new order",
+      "url": "/orders/create/",
+      "icons": [
+        {
+          "src": "/static/images/shortcut-order.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Track Order",
+      "short_name": "Track",
+      "description": "Track an existing order",
+      "url": "/track/",
+      "icons": [
+        {
+          "src": "/static/images/shortcut-track.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "short_name": "Inventory",
+      "description": "Manage inventory",
+      "url": "/inventory/",
+      "icons": [
+        {
+          "src": "/static/images/shortcut-inventory.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

@@ -1,0 +1,205 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Rental Management - TopStyle Business{% endblock %}
+{% block page_title %}Rental Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tshirt me-2"></i>Rental Management</h2>
+    <a href="{% url 'inventory' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Inventory
+    </a>
+</div>
+
+<!-- Rental Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                <h5 class="card-title">{{ available_rentals }}</h5>
+                <p class="card-text">Available</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-user-tie fa-2x text-warning mb-2"></i>
+                <h5 class="card-title">{{ rented_items }}</h5>
+                <p class="card-text">Rented</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                <h5 class="card-title">{{ overdue_items }}</h5>
+                <p class="card-text">Overdue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-tools fa-2x text-info mb-2"></i>
+                <h5 class="card-title">{{ maintenance_items }}</h5>
+                <p class="card-text">Maintenance</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rental Items Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Rental Items</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Rental Start</th>
+                        <th>Due Date</th>
+                        <th>Days Overdue</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in rental_products %}
+                    <tr>
+                        <td>
+                            <strong>{{ product.name }}</strong>
+                            {% if product.description %}
+                                <br><small class="text-muted">{{ product.description|truncatechars:50 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.rental_status == 'available' %}
+                                <span class="badge bg-success">Available</span>
+                            {% elif product.rental_status == 'rented' %}
+                                {% if product.is_overdue %}
+                                    <span class="badge bg-danger">Overdue</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Rented</span>
+                                {% endif %}
+                            {% elif product.rental_status == 'maintenance' %}
+                                <span class="badge bg-info">Maintenance</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.current_rental_order %}
+                                {{ product.current_rental_order.customer.name }}
+                                <br><small class="text-muted">{{ product.current_rental_order.customer.phone }}</small>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.rental_start_date %}
+                                {{ product.rental_start_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.rental_due_date %}
+                                {{ product.rental_due_date|date:"M d, Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if product.is_overdue %}
+                                <span class="text-danger">
+                                    {{ product.rental_due_date|timesince }} overdue
+                                </span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                {% if product.rental_status == 'rented' %}
+                                    <button class="btn btn-sm btn-outline-success" onclick="returnProduct({{ product.id }}, '{{ product.name }}')" title="Return Item">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    {% if product.is_overdue %}
+                                        <button class="btn btn-sm btn-outline-warning" onclick="notifyCustomer({{ product.id }}, '{{ product.name }}')" title="Send Overdue Notification">
+                                            <i class="fas fa-bell"></i>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                <a href="{% url 'inventory' %}" class="btn btn-sm btn-outline-primary" title="View in Inventory">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            <i class="fas fa-tshirt fa-3x mb-3"></i>
+                            <p>No rental items found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function returnProduct(productId, productName) {
+        if (confirm(`Are you sure you want to mark "${productName}" as returned? This will make it available for rental again.`)) {
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/inventory/${productId}/return/`;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function notifyCustomer(productId, productName) {
+        if (confirm(`Send overdue notification to customer for "${productName}"?`)) {
+            // Create a form and submit it
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/inventory/${productId}/notify/`;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

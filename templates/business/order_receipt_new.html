@@ -1,0 +1,751 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Order Receipt - TopStyle Business{% endblock %}
+{% block page_title %}Order Receipt{% endblock %}
+
+{% block extra_css %}
+<style>
+    .receipt-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    /* Success Banner */
+    .success-banner {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .success-banner i {
+        margin-right: 8px;
+        font-size: 1.1rem;
+    }
+    
+    /* Main Layout Container */
+    .main-layout {
+        display: flex;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Left Panel - Receipt */
+    .receipt-panel {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        flex: 1;
+        max-width: 500px;
+    }
+    
+    /* Right Panel - QR Section */
+    .qr-panel {
+        background: white;
+        border: 2px dashed #1e3a8a;
+        border-radius: 8px;
+        padding: 20px;
+        flex: 1;
+        max-width: 400px;
+        min-height: 600px;
+    }
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #1e3a8a;
+        padding-bottom: 15px;
+    }
+    .receipt-title {
+        font-weight: bold;
+        font-size: 1.4rem;
+        color: #1e3a8a;
+        margin-bottom: 8px;
+    }
+    .receipt-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .order-info {
+        margin-bottom: 20px;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+    }
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #333;
+    }
+    .info-value {
+        color: #666;
+    }
+    .order-items {
+        margin-bottom: 20px;
+    }
+    .items-header {
+        background: #1e3a8a;
+        color: white !important;
+        padding: 10px;
+        border-radius: 6px 6px 0 0;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    .items-header span {
+        color: white !important;
+    }
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #f8f9fa;
+        font-size: 0.8rem;
+    }
+    .item-row:last-child {
+        border-bottom: none;
+        border-radius: 0 0 6px 6px;
+    }
+    .item-details {
+        flex: 1;
+    }
+    .item-price {
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+    .total-section {
+        background: #1e3a8a;
+        color: white !important;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .total-amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+        color: white !important;
+    }
+    .qr-section {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .qr-section h5 {
+        color: #1e3a8a;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .qr-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+    .qr-code {
+        margin: 10px 0;
+    }
+    .qr-text {
+        color: #666;
+        font-size: 0.8rem;
+        margin-top: 8px;
+    }
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .print-btn {
+        background-color: #28a745;
+        border: none;
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .print-btn:hover {
+        background-color: #218838;
+        color: white !important;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    .done-btn {
+        background-color: #1e3a8a;
+        border: none;
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .done-btn:hover {
+        background-color: #1e40af;
+        color: white !important;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+    .back-to-orders-btn {
+        background-color: #6c757d;
+        border: none;
+        color: white !important;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .back-to-orders-btn:hover {
+        background-color: #5a6268;
+        color: white !important;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .main-layout {
+            flex-direction: column;
+        }
+        
+        .receipt-panel,
+        .qr-panel {
+            max-width: 100%;
+        }
+        
+        .success-banner {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+        }
+    }
+    .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="receipt-container">
+    <!-- Success Banner -->
+    <div class="success-banner">
+        <i class="fas fa-check-circle"></i>
+        Order Created Successfully!
+    </div>
+    
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Left Panel - Receipt -->
+        <div class="receipt-panel">
+        
+        <!-- Receipt Header -->
+        <div class="receipt-header">
+            <h2 class="receipt-title">TOPSTYLE RUGGED TAILORING</h2>
+            <p class="receipt-subtitle">Official Receipt</p>
+        </div>
+        
+        <!-- Order Information -->
+        <div class="order-info">
+            <div class="info-row">
+                <span class="info-label">Order ID:</span>
+                <span class="info-value" id="orderId">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date:</span>
+                <span class="info-value" id="orderDate">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Customer:</span>
+                <span class="info-value" id="customerName">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Mobile:</span>
+                <span class="info-value" id="mobileNumber">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Payment Method:</span>
+                <span class="info-value" id="paymentMethod">-</span>
+            </div>
+        </div>
+        
+        <!-- Order Items -->
+        <div class="order-items">
+            <div class="items-header">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: white !important;">Item Details</span>
+                    <span style="color: white !important;">Amount</span>
+                </div>
+            </div>
+            <div id="orderItemsList">
+                <!-- Order items will be populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Total Amount -->
+        <div class="total-section">
+            <h3 class="total-amount" id="totalAmount">₱0.00</h3>
+        </div>
+        
+        </div>
+        
+        <!-- Right Panel - QR Section -->
+        <div class="qr-panel">
+            <!-- QR Code Section -->
+            <div class="qr-section">
+                <h5>Order Tracking QR Code</h5>
+                <div class="qr-code" id="qrCode" style="text-align: center;">
+                    <div style="width: 150px; height: 150px; border: 2px dashed #1e3a8a; display: flex; align-items: center; justify-content: center; margin: 0 auto; background: #f8f9fa; border-radius: 8px;">
+                        <span style="color: #1e3a8a; font-size: 0.8rem;">Loading QR Code...</span>
+                    </div>
+                </div>
+                <p class="qr-text">Scan this QR code to track your order status</p>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="generateQRCode()" style="margin-top: 10px;">
+                    <i class="fas fa-qrcode me-1"></i>Generate QR Code
+                </button>
+                
+                <!-- QR Code Scanner Section -->
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
+                    <h6 style="margin-bottom: 10px; color: #333;">Scan QR Code to Track Order</h6>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                        <input type="file" id="qrFileInput" accept="image/*" style="display: none;" onchange="handleQRFile(event)">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('qrFileInput').click()">
+                            <i class="fas fa-camera me-1"></i>Upload Image
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="scanCurrentQR()">
+                            <i class="fas fa-qrcode me-1"></i>Test Scan
+                        </button>
+                    </div>
+                    <div id="qrScanResult" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="button" class="print-btn" onclick="printReceipt()">
+                    <i class="fas fa-print"></i>
+                    Print Receipt
+                </button>
+                <button type="button" class="done-btn" onclick="generateNewReceipt()">
+                    <i class="fas fa-receipt"></i>
+                    Generate New Receipt
+                </button>
+                <a href="{% url 'orders' %}" class="back-to-orders-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+    let orderData = null;
+    
+    // Load order data from sessionStorage
+    function loadOrderData() {
+        const storedOrder = sessionStorage.getItem('currentOrder');
+        if (storedOrder) {
+            orderData = JSON.parse(storedOrder);
+            console.log('Order data loaded:', orderData);
+            displayReceipt();
+            
+            // Add a delay to ensure DOM is ready and QRCode library is loaded
+            setTimeout(() => {
+                console.log('Attempting to generate QR code...');
+                if (typeof QRCode !== 'undefined') {
+                    generateQRCode();
+                } else {
+                    console.error('QRCode library not loaded');
+                    showQRCodeError('QR Code library not available');
+                }
+            }, 500);
+            
+            saveOrderToDatabase();
+        } else {
+            console.log('No order data found in sessionStorage');
+            // No order data found, redirect back to create order
+            window.location.href = '/orders/create/';
+        }
+    }
+    
+    // Display receipt information
+    function displayReceipt() {
+        if (!orderData) return;
+        
+        // Update order information
+        document.getElementById('orderId').textContent = orderData.orderId;
+        document.getElementById('orderDate').textContent = new Date(orderData.paymentDate).toLocaleDateString();
+        document.getElementById('customerName').textContent = orderData.customerName;
+        document.getElementById('mobileNumber').textContent = orderData.mobileNumber;
+        document.getElementById('paymentMethod').textContent = orderData.paymentMethod.charAt(0).toUpperCase() + orderData.paymentMethod.slice(1);
+        document.getElementById('totalAmount').textContent = `₱${orderData.totalCost.toFixed(2)}`;
+        
+        // Display order items
+        const itemsList = document.getElementById('orderItemsList');
+        itemsList.innerHTML = '';
+        
+        orderData.items.forEach((item, index) => {
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div class="item-details">
+                    ${orderData.orderType.charAt(0).toUpperCase() + orderData.orderType.slice(1)} - Class ${item.class} - Qty ${item.quantity}
+                </div>
+                <div class="item-price">₱${item.cost.toFixed(2)}</div>
+            `;
+            itemsList.appendChild(itemRow);
+        });
+    }
+    
+    // Generate QR Code
+    function generateQRCode() {
+        if (!orderData) {
+            console.log('No order data available for QR code generation');
+            showQRCodeError('No order data available');
+            return;
+        }
+        
+        console.log('Generating QR code with order data:', orderData);
+        
+        // Ensure we have all required fields with fallbacks
+        const orderId = orderData.orderId || orderData.order_identifier || 'TS' + Date.now();
+        
+        const qrData = {
+            orderId: orderId,
+            customerName: orderData.customerName || 'Customer',
+            totalAmount: orderData.totalCost || 0,
+            orderType: orderData.orderType || 'rental',
+            date: orderData.paymentDate || new Date().toISOString(),
+            business: "TOPSTYLE RUGGED TAILORING"
+        };
+        
+        const qrString = JSON.stringify(qrData);
+        console.log('QR Code data string:', qrString);
+        console.log('Order ID used for QR code:', orderId);
+        
+        // Clear any existing QR code
+        const qrContainer = document.getElementById('qrCode');
+        if (!qrContainer) {
+            console.error('QR code container not found');
+            showQRCodeError('QR code container not found');
+            return;
+        }
+        
+        // Show loading state
+        qrContainer.innerHTML = '<div style="width: 150px; height: 150px; border: 2px dashed #1e3a8a; display: flex; align-items: center; justify-content: center; margin: 0 auto; background: #f8f9fa;"><span style="color: #1e3a8a; font-size: 0.8rem;">Generating QR Code...</span></div>';
+        
+        console.log('Starting QR code generation...');
+        
+        // Try image method first (more reliable)
+        QRCode.toDataURL(qrString, {
+            width: 150,
+            height: 150,
+            margin: 2,
+            color: {
+                dark: '#1e3a8a',
+                light: '#ffffff'
+            },
+            errorCorrectionLevel: 'M'
+        }, function (error, url) {
+            if (error) {
+                console.error('QR Code generation error:', error);
+                // Try with simple text as fallback
+                console.log('Trying fallback QR code generation...');
+                generateSimpleQRCode(orderId, qrContainer);
+            } else {
+                console.log('QR Code generated successfully');
+                qrContainer.innerHTML = '<img src="' + url + '" alt="Order Tracking QR Code" style="display: block; margin: 0 auto; width: 150px; height: 150px; border: 1px solid #ddd; border-radius: 4px;">';
+            }
+        });
+    }
+    
+    // Show QR code error
+    function showQRCodeError(message) {
+        const qrContainer = document.getElementById('qrCode');
+        if (qrContainer) {
+            qrContainer.innerHTML = '<div style="width: 150px; height: 150px; border: 2px dashed #dc3545; display: flex; align-items: center; justify-content: center; margin: 0 auto; background: #f8f9fa;"><span style="color: #dc3545; font-size: 0.7rem; text-align: center; padding: 10px;">' + message + '</span></div>';
+        }
+    }
+    
+    // Generate simple QR code as fallback
+    function generateSimpleQRCode(orderId, container) {
+        console.log('Generating simple QR code for order ID:', orderId);
+        
+        QRCode.toDataURL(orderId, {
+            width: 150,
+            height: 150,
+            margin: 1,
+            color: {
+                dark: '#1e3a8a',
+                light: '#ffffff'
+            }
+        }, function (error, url) {
+            if (error) {
+                console.error('Simple QR code generation also failed:', error);
+                container.innerHTML = '<div style="width: 150px; height: 150px; border: 2px solid #1e3a8a; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto; background: #f8f9fa; border-radius: 8px;"><span style="color: #1e3a8a; font-weight: bold; font-size: 0.7rem;">Order ID</span><span style="color: #1e3a8a; font-size: 0.6rem; text-align: center; padding: 5px;">' + orderId + '</span></div>';
+            } else {
+                console.log('Simple QR code generated successfully');
+                container.innerHTML = '<img src="' + url + '" alt="Order Tracking QR Code" style="display: block; margin: 0 auto; width: 150px; height: 150px; border: 1px solid #ddd; border-radius: 4px;">';
+            }
+        });
+    }
+    
+    // Fallback method to generate QR code as image
+    function generateQRCodeAsImage(qrString, container) {
+        console.log('Trying QR code generation as image...');
+        
+        QRCode.toDataURL(qrString, {
+            width: 150,
+            height: 150,
+            margin: 2,
+            color: {
+                dark: '#1e3a8a',
+                light: '#ffffff'
+            },
+            errorCorrectionLevel: 'M'
+        }, function (error, url) {
+            if (error) {
+                console.error('QR Code image generation error:', error);
+                container.innerHTML = '<p style="color: #dc3545; font-size: 0.8rem; text-align: center;">QR Code generation failed: ' + error.message + '</p>';
+            } else {
+                console.log('QR Code generated successfully as image');
+                container.innerHTML = '<img src="' + url + '" alt="QR Code" style="display: block; margin: 0 auto; width: 150px; height: 150px;">';
+            }
+        });
+    }
+    
+    // Save order to database
+    function saveOrderToDatabase() {
+        if (!orderData) return;
+        
+        fetch('/api/orders/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+                    if (data.success) {
+            console.log('Order saved successfully:', data);
+            // Update order ID with the one from database
+            orderData.orderId = data.order_identifier || data.order_id;
+            orderData.salesId = data.sales_identifier;
+            document.getElementById('orderId').textContent = data.order_identifier || data.order_id;
+        } else {
+                console.error('Error saving order:', data.error);
+                alert('Error saving order: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving order:', error);
+            alert('Error saving order. Please try again.');
+        });
+    }
+    
+    // Print receipt
+    function printReceipt() {
+        window.print();
+    }
+    
+    // Generate new receipt
+    function generateNewReceipt() {
+        if (!orderData) {
+            alert('No order data found. Please create an order first.');
+            return;
+        }
+        
+        // Generate new order ID and timestamp
+        orderData.orderId = 'TS' + Date.now();
+        orderData.paymentDate = new Date().toISOString();
+        
+        // Store updated order data
+        sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
+        
+        // Update the display and generate new QR code
+        displayReceipt();
+        generateQRCode();
+        
+        // Show success message
+        alert('New receipt generated successfully!');
+    }
+    
+    // Get CSRF token (helper function for AJAX calls)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrderData();
+    });
+    
+    // Handle QR code file upload and scanning
+    function handleQRFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const resultDiv = document.getElementById('qrScanResult');
+        resultDiv.innerHTML = '<p style="color: #666; font-size: 0.8rem;">Processing QR code...</p>';
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // For now, we'll simulate QR code scanning
+                // In a real implementation, you would use a QR code scanning library
+                simulateQRScan(resultDiv);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Simulate QR code scanning (replace with actual QR scanning library)
+    function simulateQRScan(resultDiv) {
+        // This is a simulation - in real implementation, use a library like jsQR
+        setTimeout(() => {
+            if (orderData) {
+                // Simulate scanning the current order's QR code
+                const qrData = {
+                    orderId: orderData.orderId,
+                    customerName: orderData.customerName,
+                    totalAmount: orderData.totalCost,
+                    orderType: orderData.orderType,
+                    date: orderData.paymentDate,
+                    business: "TOPSTYLE RUGGED TAILORING"
+                };
+                
+                // Send QR data to track order endpoint
+                fetch('/orders/track/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(qrData)
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Open tracking result in new window
+                    const newWindow = window.open('', '_blank');
+                    newWindow.document.write(html);
+                    newWindow.document.close();
+                })
+                .catch(error => {
+                    console.error('Error tracking order:', error);
+                    resultDiv.innerHTML = '<p style="color: #dc3545; font-size: 0.8rem;">Error processing QR code</p>';
+                });
+            } else {
+                resultDiv.innerHTML = '<p style="color: #dc3545; font-size: 0.8rem;">No order data available</p>';
+            }
+        }, 1000);
+    }
+    
+    // Test scan current QR code
+    function scanCurrentQR() {
+        const resultDiv = document.getElementById('qrScanResult');
+        resultDiv.innerHTML = '<p style="color: #666; font-size: 0.8rem;">Scanning current QR code...</p>';
+        
+        if (orderData) {
+            const qrData = {
+                orderId: orderData.orderId,
+                customerName: orderData.customerName,
+                totalAmount: orderData.totalCost,
+                orderType: orderData.orderType,
+                date: orderData.paymentDate,
+                business: "TOPSTYLE RUGGED TAILORING"
+            };
+            
+            // Send QR data to track order endpoint
+            fetch('/orders/track/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(qrData)
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Open tracking result in new window
+                const newWindow = window.open('', '_blank', 'width=600,height=800');
+                newWindow.document.write(html);
+                newWindow.document.close();
+                resultDiv.innerHTML = '<p style="color: #28a745; font-size: 0.8rem;">QR code scanned successfully! Check the new window.</p>';
+            })
+            .catch(error => {
+                console.error('Error tracking order:', error);
+                resultDiv.innerHTML = '<p style="color: #dc3545; font-size: 0.8rem;">Error processing QR code</p>';
+            });
+        } else {
+            resultDiv.innerHTML = '<p style="color: #dc3545; font-size: 0.8rem;">No order data available</p>';
+        }
+    }
+    
+    // Clear session storage when leaving the page
+    window.addEventListener('beforeunload', function() {
+        sessionStorage.removeItem('currentOrder');
+    });
+</script>
+{% endblock %}

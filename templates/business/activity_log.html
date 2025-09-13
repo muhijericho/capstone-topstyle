@@ -1,0 +1,343 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Activity Log - TopStyle Business{% endblock %}
+{% block page_title %}Activity Log{% endblock %}
+
+{% block extra_css %}
+<style>
+    .activity-container {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+        padding: 10px;
+    }
+    .activity-panel {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .activity-header {
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #1e3a8a;
+        padding-bottom: 15px;
+    }
+    .activity-title {
+        font-weight: bold;
+        font-size: 1.3rem;
+        color: #1e3a8a;
+        margin-bottom: 8px;
+    }
+    .activity-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .filters-section {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .filters-row {
+        display: flex;
+        gap: 15px;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    .filter-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.9rem;
+    }
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+    .filter-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    .btn-filter {
+        background-color: #1e3a8a;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-filter:hover {
+        background-color: #1e40af;
+        color: white;
+        text-decoration: none;
+    }
+    .btn-clear {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-clear:hover {
+        background-color: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    .activity-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    .activity-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    .activity-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #1e3a8a;
+    }
+    .activity-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .activity-type {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .activity-type-order_created {
+        background: #d4edda;
+        color: #155724;
+    }
+    .activity-type-order_updated {
+        background: #cce5ff;
+        color: #004085;
+    }
+    .activity-type-order_completed {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    .activity-type-product_added {
+        background: #fff3cd;
+        color: #856404;
+    }
+    .activity-type-product_updated {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    .activity-type-sales_created {
+        background: #d4edda;
+        color: #155724;
+    }
+    .activity-type-customer_created {
+        background: #e2e3e5;
+        color: #383d41;
+    }
+    .activity-type-inventory_transaction {
+        background: #cce5ff;
+        color: #004085;
+    }
+    .activity-time {
+        color: #666;
+        font-size: 0.8rem;
+    }
+    .activity-description {
+        color: #333;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    .activity-user {
+        color: #666;
+        font-size: 0.8rem;
+        font-style: italic;
+    }
+    .activity-metadata {
+        background: #f8f9fa;
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 8px;
+        font-size: 0.8rem;
+        color: #666;
+    }
+    .metadata-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+    .metadata-item:last-child {
+        margin-bottom: 0;
+    }
+    .metadata-label {
+        font-weight: 600;
+    }
+    .no-activities {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+    .no-activities i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #ddd;
+    }
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    .stat-card {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 15px;
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #1e3a8a;
+        margin-bottom: 5px;
+    }
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="activity-container">
+    <div class="activity-panel">
+        <!-- Header -->
+        <div class="activity-header">
+            <h2 class="activity-title">SYSTEM ACTIVITY LOG</h2>
+            <p class="activity-subtitle">Track all system activities and transactions</p>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number">{{ activities|length }}</div>
+                <div class="stat-label">Total Activities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ activities|length }}</div>
+                <div class="stat-label">Recent Activities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ activities|length }}</div>
+                <div class="stat-label">This Session</div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters-section">
+            <form method="GET" class="filters-row">
+                <div class="filter-group">
+                    <label for="type">Activity Type</label>
+                    <select name="type" id="type">
+                        <option value="">All Activities</option>
+                        {% for type_code, type_name in activity_types %}
+                        <option value="{{ type_code }}" {% if selected_type == type_code %}selected{% endif %}>
+                            {{ type_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="date_from">From Date</label>
+                    <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
+                </div>
+                <div class="filter-group">
+                    <label for="date_to">To Date</label>
+                    <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
+                </div>
+                <div class="filter-buttons">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-filter"></i>Filter
+                    </button>
+                    <a href="{% url 'activity_log' %}" class="btn-clear">
+                        <i class="fas fa-times"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Activity List -->
+        <div class="activity-list">
+            {% if activities %}
+                {% for activity in activities %}
+                <div class="activity-item">
+                    <div class="activity-header-row">
+                        <span class="activity-type activity-type-{{ activity.activity_type }}">
+                            {{ activity.get_activity_type_display }}
+                        </span>
+                        <span class="activity-time">
+                            {{ activity.created_at|date:"M d, Y H:i" }}
+                        </span>
+                    </div>
+                    <div class="activity-description">
+                        {{ activity.description }}
+                    </div>
+                    {% if activity.user %}
+                    <div class="activity-user">
+                        By: {{ activity.user.username }}
+                    </div>
+                    {% endif %}
+                    {% if activity.metadata %}
+                    <div class="activity-metadata">
+                        {% for key, value in activity.metadata.items %}
+                        <div class="metadata-item">
+                            <span class="metadata-label">{{ key|title }}:</span>
+                            <span>{{ value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-activities">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h4>No Activities Found</h4>
+                    <p>No activities match your current filters.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
