@@ -799,7 +799,7 @@
                                                     <button type="submit" class="btn btn-success btn-sm">
                                                         <i class="fas fa-check"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEditItem({{ item.id }})">
+                                                    <button type="button" class="btn btn-secondary btn-sm cancel-edit-btn" data-item-id="{{ item.id }}">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </div>
@@ -821,10 +821,10 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <button type="button" class="btn btn-primary btn-sm" onclick="editItem({{ item.id }})" title="Edit Quantity">
+                                            <button type="button" class="btn btn-primary btn-sm edit-item-btn" data-item-id="{{ item.id }}" title="Edit Quantity">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteItem({{ item.id }}, {{ order.id }}, '{{ item.product.name|escapejs }}')" title="Delete Item">
+                                            <button type="button" class="btn btn-danger btn-sm delete-item-btn" data-item-id="{{ item.id }}" data-order-id="{{ order.id }}" data-product-name="{{ item.product.name|escapejs }}" title="Delete Item">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -2317,5 +2317,40 @@
             form.submit();
         }
     };
+    
+    // Add event listeners for edit, cancel, and delete buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Edit item buttons
+        document.querySelectorAll('.edit-item-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                if (itemId) {
+                    editItem(parseInt(itemId));
+                }
+            });
+        });
+        
+        // Cancel edit buttons
+        document.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                if (itemId) {
+                    cancelEditItem(parseInt(itemId));
+                }
+            });
+        });
+        
+        // Delete item buttons
+        document.querySelectorAll('.delete-item-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                const orderId = this.getAttribute('data-order-id');
+                const productName = this.getAttribute('data-product-name');
+                if (itemId && orderId && productName) {
+                    deleteItem(parseInt(itemId), parseInt(orderId), productName);
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}
