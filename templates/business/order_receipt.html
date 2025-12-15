@@ -1,545 +1,755 @@
 {% extends 'business/base.html' %}
 
-{% block title %}Order Receipt - TopStyle Business{% endblock %}
+{% block title %}Order Receipt - TOPSTYLE{% endblock %}
 {% block page_title %}Order Receipt{% endblock %}
 
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 10px;
+    }
+
+    .receipt-container {
+        max-width: 700px;
+        width: 100%;
+        margin: 0 auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .success-banner {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        padding: 12px;
+        text-align: center;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .checkmark {
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #11998e;
+        font-weight: bold;
+    }
+
+    .content-wrapper {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 0;
+    }
+
+    .receipt-section {
+        padding: 15px;
+        background: white;
+    }
+
+    .qr-section {
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-left: 2px dashed #cbd5e0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .company-name {
+        font-size: 20px;
+        font-weight: 800;
+        color: #2d3748;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
+    }
+
+    .receipt-title {
+        color: #718096;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .order-info {
+        background: #f7fafc;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #718096;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .items-section {
+        margin-bottom: 15px;
+    }
+
+    .items-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        font-weight: 700;
+    }
+
+    .item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-top: none;
+    }
+
+    .item-row:last-child {
+        border-radius: 0 0 8px 8px;
+    }
+
+    .total-section {
+        background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .total-label {
+        font-size: 12px;
+        margin-bottom: 6px;
+        opacity: 0.9;
+        color: #ffffff !important;
+    }
+
+    .total-amount {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #ffffff !important;
+    }
+
+    .qr-header {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .qr-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+
+    .qr-container {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .qr-placeholder {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 10px;
+        border: 2px dashed #cbd5e0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #e53e3e;
+        font-size: 11px;
+        text-align: center;
+        padding: 15px;
+    }
+
+    .qr-image {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .qr-instruction {
+        color: #718096;
+        font-size: 12px;
+        margin-bottom: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);
+        color: white;
+    }
+
+    .btn-outline {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .btn-group .btn {
+        margin-bottom: 0;
+    }
+
+    .claim-stub-section {
+        margin-bottom: 30px;
+    }
+
+    .claim-stub-card {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .claim-logo-wrapper {
+        border: 1px solid #000;
+        padding: 8px 12px;
+        background: white;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+
+    .claim-logo-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .claim-logo-left, .claim-logo-right {
+        font-weight: bold;
+    }
+
+    .claim-logo-icon {
+        margin: 0 8px;
+        color: #000;
+    }
+
+    .claim-logo-tagline {
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 2px;
+    }
+
+    .claim-business-info {
+        font-size: 11px;
+        line-height: 1.3;
+        margin-bottom: 15px;
+    }
+
+    .claim-qr-container {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .claim-qr-image {
+        width: 80px;
+        height: 80px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .claim-qr-placeholder {
+        width: 80px;
+        height: 80px;
+        border: 1px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .claim-qr-text {
+        font-size: 10px;
+        color: #666;
+    }
+
+    .claim-stub-footer {
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+
+    .claim-customer-info, .claim-order-info {
+        margin-bottom: 5px;
+    }
+
+    .claim-label {
+        font-weight: bold;
+    }
+
+    .claim-value {
+        margin-left: 5px;
+    }
+
+    .claim-stub-note {
+        text-align: center;
+        padding-top: 10px;
+        border-top: 1px dashed #ccc;
+        font-size: 10px;
+        color: #666;
+    }
+
+    .scan-result {
+        background: #e6fffa;
+        border: 1px solid #81e6d9;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .scan-result.show {
+        display: block;
+    }
+
+    @media (max-width: 968px) {
+        .content-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .qr-section {
+            border-left: none;
+            border-top: 3px dashed #cbd5e0;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .receipt-section, .qr-section {
+            padding: 25px;
+        }
+
+        .company-name {
+            font-size: 24px;
+        }
+
+        .total-amount {
+            font-size: 36px;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-receipt me-2"></i>
-                    Order Receipt: {{ order.order_identifier|default:order.order_id|truncatechars:12 }}
-                </h5>
-                <div>
-                    <span class="badge bg-success">{{ order.get_status_display }}</span>
-                    <button onclick="window.print()" class="btn btn-sm btn-outline-primary ms-2">
-                        <i class="fas fa-print me-1"></i>Print
+<div class="receipt-container">
+    <div class="success-banner">
+        <div class="checkmark">✓</div>
+        <span>Order Created Successfully!</span>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="receipt-section">
+            <div class="header">
+                <div class="company-name">TOPSTYLE RUGGED TAILORING</div>
+                <div class="receipt-title">Official Receipt</div>
+            </div>
+
+            <div class="order-info">
+                <div class="info-row">
+                    <span class="info-label">Order ID:</span>
+                    <span class="info-value">{{ order.order_identifier|default:order.order_id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date:</span>
+                    <span class="info-value">{{ order.created_at|date:"m/d/Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Customer:</span>
+                    <span class="info-value">{{ order.customer.name|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Mobile:</span>
+                    <span class="info-value">{{ order.customer.phone|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Payment Method:</span>
+                    <span class="info-value">{% if order.sales %}{{ order.sales.payment_method|title }}{% else %}Cash{% endif %}</span>
+                </div>
+            </div>
+
+            <div class="items-section">
+                <div class="items-header">
+                    <span>Item Details</span>
+                    <span>Amount</span>
+                </div>
+                {% for item in order.items.all %}
+                <div class="item-row">
+                    <span>{{ item.product.name }} - Qty {{ item.quantity }}</span>
+                    <span>₱{{ item.total_price|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="total-section">
+                <div class="total-label">Total Amount</div>
+                <div class="total-amount">₱{{ order.total_amount|floatformat:2 }}</div>
+            </div>
+
+            <!-- Claim Stub Section -->
+            <div class="claim-stub-section">
+                <div class="claim-stub-card">
+                    <div class="claim-logo-wrapper">
+                        <div class="claim-logo-main">
+                            <span class="claim-logo-left">TOP</span>
+                            <div class="claim-logo-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="claim-logo-right">STYLE</span>
+                        </div>
+                        <div class="claim-logo-tagline">RUGGED TAILORING</div>
+                    </div>
+                    
+                    <div class="claim-business-info">
+                        <div>San Fernando cor. Enriquez St., Lucena City</div>
+                        <div><strong>MR. VON ALDRICH M. AMAR - Prop,</strong></div>
+                        <div>Contact No: 09399196159</div>
+                    </div>
+                    
+                    <div class="claim-qr-container">
+                        {% if qr_code %}
+                            <img src="{{ qr_code.qr_code_image.url }}" alt="QR Code" class="claim-qr-image">
+                        {% else %}
+                            <div class="claim-qr-placeholder">
+                                <div class="claim-qr-text">QR Code</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="claim-stub-footer">
+                        <div class="claim-customer-info">
+                            <span class="claim-label">Costumer:</span>
+                            <span class="claim-value">{{ order.customer.name|default:"N/A" }}</span>
+                        </div>
+                        <div class="claim-order-info">
+                            <span class="claim-label">Order Id:</span>
+                            <span class="claim-value">{{ order.order_identifier|default:order.order_id }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="claim-stub-note">
+                        Present this stub to claim your order
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="qr-section">
+            <div>
+                <div class="qr-header">
+                    <div class="qr-title">Order Tracking QR Code</div>
+                </div>
+
+                <div class="qr-container">
+                    {% if qr_code %}
+                        <img src="{{ qr_code.qr_code_image.url }}" alt="QR Code" class="qr-image">
+                    {% else %}
+                        <div class="qr-placeholder">
+                            QR Code unavailable
+                        </div>
+                    {% endif %}
+                    <div class="qr-instruction">
+                        Scan this QR code to track your order status
+                    </div>
+                    <button class="btn btn-primary" onclick="generateQRCode()">
+                        <i class="fas fa-qrcode"></i> Generate QR Code
                     </button>
                 </div>
-            </div>
-            <div class="card-body">
-                <!-- Receipt Header -->
-                <div class="text-center mb-4">
-                    <div class="logo-container mb-3">
-                        <div class="logo-wrapper">
-                            <div class="logo-main">
-                                <span class="logo-text-left">TOP</span>
-                                <div class="logo-icon">
-                                    <div class="star-container">
-                                        <div class="star"></div>
-                                    </div>
-                                </div>
-                                <span class="logo-text-right">STYLE</span>
-                            </div>
-                            <div class="logo-tagline">RUGGED TAILORING</div>
-                        </div>
-                    </div>
-                    <hr>
+
+                <div class="qr-title" style="margin-bottom: 15px;">Scan QR Code to Track Order</div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="document.getElementById('qrFileInput').click()">
+                        <i class="fas fa-upload"></i> Upload Image
+                    </button>
+                    <button class="btn btn-outline" onclick="testScan()">
+                        <i class="fas fa-search"></i> Test Scan
+                    </button>
                 </div>
                 
-                <!-- Order Information -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h6>Order Information</h6>
-                        <p class="mb-1"><strong>Order ID:</strong> {{ order.order_identifier|default:order.order_id }}</p>
-                        <p class="mb-1"><strong>Order Type:</strong> {{ order.get_order_type_display }}</p>
-                        <p class="mb-1"><strong>Status:</strong> 
-                            <span class="badge bg-success">{{ order.get_status_display }}</span>
-                        </p>
-                        <p class="mb-1"><strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
-                        {% if order.due_date %}
-                        <p class="mb-1"><strong>Due Date:</strong> {{ order.due_date|date:"M d, Y H:i" }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Customer Information</h6>
-                        <p class="mb-1"><strong>Name:</strong> {{ order.customer.name }}</p>
-                        <p class="mb-1"><strong>Phone:</strong> {{ order.customer.phone }}</p>
-                        {% if order.customer.email %}
-                        <p class="mb-1"><strong>Email:</strong> {{ order.customer.email }}</p>
-                        {% endif %}
-                        {% if order.customer.address %}
-                        <p class="mb-1"><strong>Address:</strong> {{ order.customer.address }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Order Items -->
-                <h6>Order Items</h6>
-                <div class="table-responsive mb-4">
-                    <table class="table table-bordered">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Product</th>
-                                <th>Type</th>
-                                <th>Quantity</th>
-                                <th>Unit Price</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in order.items.all %}
-                            <tr>
-                                <td>{{ item.product.name }}</td>
-                                <td>
-                                    <span class="badge bg-info">{{ item.product.get_product_type_display }}</span>
-                                </td>
-                                <td>{{ item.quantity }}</td>
-                                <td>₱{{ item.unit_price|floatformat:2 }}</td>
-                                <td>₱{{ item.total_price|floatformat:2 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                        <tfoot class="table-primary">
-                            <tr>
-                                <th colspan="4">Total Amount</th>
-                                <th>₱{{ order.total_amount|floatformat:2 }}</th>
-                            </tr>
-                            <tr>
-                                <th colspan="4">Amount Paid</th>
-                                <th>₱{{ order.paid_amount|floatformat:2 }}</th>
-                            </tr>
-                            {% if order.balance > 0 %}
-                            <tr>
-                                <th colspan="4">Balance</th>
-                                <th class="text-danger">₱{{ order.balance|floatformat:2 }}</th>
-                            </tr>
-                            {% endif %}
-                        </tfoot>
-                    </table>
-                </div>
-                
-                <!-- QR Code Section -->
-                <div class="qr-receipt-section mb-4">
-                    <div class="qr-receipt-card">
-                        <div class="qr-receipt-header">
-                            <div class="qr-logo-container">
-                                <div class="qr-logo-wrapper">
-                                    <div class="qr-logo-main">
-                                        <span class="qr-logo-text-left">TOP</span>
-                                        <div class="qr-logo-icon">
-                                            <div class="qr-star-container">
-                                                <div class="qr-star"></div>
-                                            </div>
-                                        </div>
-                                        <span class="qr-logo-text-right">STYLE</span>
-                                    </div>
-                                    <div class="qr-logo-tagline">RUGGED TAILORING</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="qr-receipt-content">
-                            <div class="qr-business-info">
-                                <div class="qr-address">San Fernando cor. Enriquez St., Lucena City</div>
-                                <div class="qr-proprietor"><strong>MR. VON ALDRICH M. AMAR - Prop,</strong></div>
-                                <div class="qr-contact">Contact No: 09399196159</div>
-                            </div>
-                            
-                            <div class="qr-code-container">
-                                {% if qr_code %}
-                                    <img src="{{ qr_code.qr_code_image.url }}" alt="QR Code" class="qr-code-image">
-                                {% else %}
-                                    <div class="qr-code-placeholder">
-                                        <div class="qr-placeholder-text">QR Code</div>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="qr-receipt-footer">
-                            <div class="qr-customer-info">
-                                <span class="qr-label"><strong>Costumer:</strong></span>
-                                <span class="qr-value">{{ order.customer.name }}</span>
-                            </div>
-                            <div class="qr-order-info">
-                                <span class="qr-label"><strong>Order Id:</strong></span>
-                                <span class="qr-value">{{ order.order_identifier|default:order.order_id }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Notes -->
-                {% if order.notes %}
-                <div class="mb-4">
-                    <h6>Notes</h6>
-                    <p class="text-muted">{{ order.notes }}</p>
-                </div>
-                {% endif %}
-                
-                <!-- Footer -->
-                <div class="text-center text-muted">
-                    <hr>
-                    <p class="mb-1">Thank you for choosing TopStyle Business!</p>
-                    <p class="small">For inquiries, call: +1 (555) 123-4567</p>
-                    <p class="small">Email: info@topstylebusiness.com</p>
+                <div id="scanResult" class="scan-result">
+                    <strong>Scan Result:</strong> <span id="scanResultText"></span>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Order Completed</h5>
-            </div>
-            <div class="card-body text-center">
-                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h5 class="text-success">Order Confirmed!</h5>
-                <p class="text-muted">Your order has been successfully processed and confirmed.</p>
-                
-                <div class="mt-4">
-                    <h6>Order Summary</h6>
-                    <p class="mb-1"><strong>Order ID:</strong></p>
-                    <code>{{ order.order_identifier|default:order.order_id }}</code>
-                    <p class="mt-2 mb-1"><strong>Total Amount:</strong></p>
-                    <h5 class="text-primary">₱{{ order.total_amount|floatformat:2 }}</h5>
-                </div>
-                
-                <div class="mt-4">
-                    <a href="{% url 'orders' %}" class="btn btn-primary w-100 mb-2">
-                        <i class="fas fa-list me-2"></i>View All Orders
-                    </a>
-                    <a href="{% url 'create_order' %}" class="btn btn-outline-primary w-100">
-                        <i class="fas fa-plus me-2"></i>Create New Order
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card mt-3">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-list-ol me-2"></i>Order Process</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-2">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
-                        <i class="fas fa-check small"></i>
-                    </div>
-                    <span class="small">Order Information</span>
-                </div>
-                <div class="d-flex align-items-center mb-2">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
-                        <i class="fas fa-check small"></i>
-                    </div>
-                    <span class="small">Add Items</span>
-                </div>
-                <div class="d-flex align-items-center mb-2">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
-                        <i class="fas fa-check small"></i>
-                    </div>
-                    <span class="small">Payment</span>
-                </div>
-                <div class="d-flex align-items-center">
-                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 30px; height: 30px;">
-                        <i class="fas fa-check small"></i>
-                    </div>
-                    <span class="small">Receipt & QR Code</span>
-                </div>
+
+            <div>
+                <button class="btn btn-success" onclick="printReceipt()">
+                    <i class="fas fa-print"></i> Print Receipt
+                </button>
+                <button class="btn btn-primary" onclick="generateNewReceipt()">
+                    <i class="fas fa-file-alt"></i> Generate New Receipt
+                </button>
+                <button class="btn btn-secondary" onclick="goBackToOrders()">
+                    <i class="fas fa-arrow-left"></i> Back to Orders
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Logo Styles -->
-<style>
-/* Receipt Container - Reduce overall size */
-.card-body {
-    padding: 0.75rem !important;
-}
+<!-- Hidden file input for QR upload -->
+<input type="file" id="qrFileInput" accept="image/*" style="display: none;" onchange="handleQRUpload(event)">
+{% csrf_token %}
 
-/* Reduce spacing and font sizes throughout */
-.mb-4 {
-    margin-bottom: 1rem !important;
-}
-
-.mb-3 {
-    margin-bottom: 0.75rem !important;
-}
-
-.mb-2 {
-    margin-bottom: 0.5rem !important;
-}
-
-.mb-1 {
-    margin-bottom: 0.25rem !important;
-}
-
-h6 {
-    font-size: 0.9rem !important;
-    margin-bottom: 0.5rem !important;
-}
-
-p {
-    font-size: 0.8rem !important;
-    margin-bottom: 0.25rem !important;
-}
-
-.table {
-    font-size: 0.8rem !important;
-}
-
-.table th, .table td {
-    padding: 0.4rem !important;
-}
-
-.btn {
-    font-size: 0.8rem !important;
-    padding: 0.4rem 0.8rem !important;
-}
-
-.text-muted {
-    font-size: 0.75rem !important;
-}
-
-.small {
-    font-size: 0.7rem !important;
-}
-
-/* Logo Styles - Reduced by 20% */
-.logo-wrapper { 
-    border: 1px solid #000; 
-    padding: 9px 12px; 
-    background: white; 
-    max-width: 144px; 
-    margin: 0 auto; 
-    display: inline-block; 
-}
-.logo-main { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin-bottom: 4px; 
-}
-.logo-text-left, .logo-text-right { 
-    font-family: 'Times New Roman', serif; 
-    font-weight: bold; 
-    font-size: 0.88rem; 
-    color: #000; 
-    line-height: 1; 
-}
-.logo-icon { 
-    margin: 0 6px; 
-}
-.star-container { 
-    width: 19px; 
-    height: 19px; 
-    border: 1px solid #000; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    position: relative; 
-}
-.star-container:before { 
-    content: ''; 
-    width: 16px; 
-    height: 16px; 
-    border: 1px solid #000; 
-    border-radius: 50%; 
-    position: absolute; 
-}
-.star { 
-    width: 13px; 
-    height: 13px; 
-    background: #000; 
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); 
-    position: relative; 
-    z-index: 2; 
-}
-.logo-tagline { 
-    font-family: Arial, sans-serif; 
-    font-size: 0.48rem; 
-    font-weight: normal; 
-    letter-spacing: 1.2px; 
-    color: #000; 
-    text-align: center; 
-    line-height: 1; 
-    margin-top: 2px; 
-}
-
-/* QR Receipt Styles - Reduced by 20% */
-.qr-receipt-section {
-    display: flex;
-    justify-content: center;
-    margin: 16px 0;
-}
-
-.qr-receipt-card {
-    background: white;
-    border: 1px solid #000;
-    border-radius: 0;
-    padding: 16px;
-    max-width: 320px;
-    width: 100%;
-    font-family: Arial, sans-serif;
-}
-
-.qr-receipt-header {
-    text-align: center;
-    margin-bottom: 12px;
-}
-
-.qr-logo-wrapper {
-    border: none;
-    padding: 0;
-    background: transparent;
-    max-width: none;
-    margin: 0;
-    display: inline-block;
-}
-
-.qr-logo-main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 3px;
-}
-
-.qr-logo-text-left, .qr-logo-text-right {
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    font-size: 1.12rem;
-    color: #000;
-    line-height: 1;
-}
-
-.qr-logo-icon {
-    margin: 0 6px;
-}
-
-.qr-star-container {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #000;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-}
-
-.qr-star-container:before {
-    content: '';
-    width: 13px;
-    height: 13px;
-    border: 1px solid #000;
-    border-radius: 50%;
-    position: absolute;
-}
-
-.qr-star {
-    width: 10px;
-    height: 10px;
-    background: #000;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    position: relative;
-    z-index: 2;
-}
-
-.qr-logo-tagline {
-    font-family: Arial, sans-serif;
-    font-size: 0.56rem;
-    font-weight: normal;
-    letter-spacing: 0.8px;
-    color: #000;
-    text-align: center;
-    line-height: 1;
-    margin-top: 2px;
-}
-
-.qr-receipt-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.qr-business-info {
-    flex: 1;
-    font-size: 0.72rem;
-    line-height: 1.2;
-}
-
-.qr-address {
-    margin-bottom: 4px;
-}
-
-.qr-proprietor {
-    margin-bottom: 4px;
-}
-
-.qr-contact {
-    margin-bottom: 0;
-}
-
-.qr-code-container {
-    margin-left: 12px;
-}
-
-.qr-code-image {
-    width: 64px;
-    height: 64px;
-    border: 1px solid #000;
-}
-
-.qr-code-placeholder {
-    width: 64px;
-    height: 64px;
-    border: 1px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-}
-
-.qr-placeholder-text {
-    font-size: 0.56rem;
-    color: #666;
-}
-
-.qr-receipt-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.72rem;
-}
-
-.qr-customer-info, .qr-order-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.qr-label {
-    margin-bottom: 2px;
-}
-
-.qr-value {
-    font-weight: normal;
-}
-</style>
-
-<!-- Print Styles -->
-<style>
-@media print {
-    .sidebar, .navbar, .btn, .card-header .btn {
-        display: none !important;
+<script>
+function generateQRCode() {
+    const orderId = '{{ order.id }}';
+    const orderIdentifier = '{{ order.order_identifier|default:order.order_id }}';
+    
+    console.log('[QR DEBUG] Starting QR code generation');
+    console.log('[QR DEBUG] Order ID:', orderId);
+    console.log('[QR DEBUG] Order Identifier:', orderIdentifier);
+    
+    // Show loading state
+    const placeholder = document.querySelector('.qr-placeholder');
+    if (placeholder) {
+        placeholder.textContent = 'Generating QR Code...';
     }
-    .main-content {
-        margin-left: 0 !important;
-    }
-    .card {
-        border: 1px solid #000 !important;
-        box-shadow: none !important;
-    }
-    .table {
-        border-collapse: collapse !important;
-    }
-    .table th, .table td {
-        border: 1px solid #000 !important;
+    
+    const requestData = {
+        order_id: orderId,
+        order_identifier: orderIdentifier
+    };
+    
+    console.log('[QR DEBUG] Request data:', requestData);
+    
+    // Make API call to generate QR code
+    fetch(`/api/generate-qr-code-for-order/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('QR code generated successfully:', data);
+            
+            // Update QR code image smoothly
+            const qrContainer = document.querySelector('.qr-container');
+            if (qrContainer) {
+                qrContainer.innerHTML = `
+                    <img src="${data.qr_code}" alt="QR Code" class="qr-image" style="animation: fadeIn 0.5s ease-in;">
+                    <div class="qr-instruction">
+                        Scan this QR code to track your order status
+                    </div>
+                `;
+            }
+            
+            // Update claim stub QR code too
+            const claimQrContainer = document.querySelector('.claim-qr-container');
+            if (claimQrContainer) {
+                claimQrContainer.innerHTML = `<img src="${data.qr_code}" alt="QR Code" class="claim-qr-image" style="animation: fadeIn 0.5s ease-in;">`;
+            }
+            
+            // No alert, no reload - smooth transition
+        } else {
+            console.error('Failed to generate QR code:', data.error);
+            // Silent error handling
+            if (placeholder) {
+                placeholder.textContent = 'QR Code unavailable';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Silent error handling
+        if (placeholder) {
+            placeholder.textContent = 'QR Code unavailable';
+        }
+    });
+}
+
+function handleQRUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // For now, just show a message that upload is not implemented
+        alert('QR Code scanning from uploaded image is not yet implemented. Please use the Test Scan button for demo purposes.');
     }
 }
-</style>
+
+function testScan() {
+    // Simulate QR code scan and redirect to track result page with proper layout
+    const orderIdentifier = '{{ order.order_identifier|default:order.order_id }}';
+    const orderId = '{{ order.id }}';
+    
+    // Show notification that scanning is in progress
+    const scanResult = document.getElementById('scanResult');
+    const scanResultText = document.getElementById('scanResultText');
+    
+    scanResultText.textContent = `Scanning QR code... Found Order ${orderIdentifier}`;
+    scanResult.classList.add('show');
+    
+    // Redirect to track result page after a short delay
+    setTimeout(function() {
+        // Create a form to submit to track order
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "track_order" %}';
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        form.appendChild(csrfInput);
+        
+        const orderIdInput = document.createElement('input');
+        orderIdInput.type = 'hidden';
+        orderIdInput.name = 'order_id';
+        orderIdInput.value = orderIdentifier || orderId;
+        form.appendChild(orderIdInput);
+        
+        // Mark as from QR scan
+        const fromQrInput = document.createElement('input');
+        fromQrInput.type = 'hidden';
+        fromQrInput.name = 'from_qr';
+        fromQrInput.value = 'true';
+        form.appendChild(fromQrInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }, 1000);
+}
+
+function printReceipt() {
+    window.print();
+}
+
+function generateNewReceipt() {
+    // Reload the page to generate a new receipt
+    window.location.reload();
+}
+
+function goBackToOrders() {
+    window.location.href = '{% url "orders" %}';
+}
+
+// Auto-generate QR code automatically on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if QR code already exists in the template
+    const qrCodeExists = document.querySelector('.qr-image');
+    const qrCodeInPlaceholder = document.querySelector('.qr-placeholder');
+    
+    // If no QR code image exists, auto-generate it immediately
+    if (!qrCodeExists) {
+        console.log('[QR AUTO] No QR code found, auto-generating...');
+        // Small delay to ensure page is fully loaded
+        setTimeout(function() {
+            generateQRCode();
+        }, 300);
+    } else {
+        console.log('[QR AUTO] QR code already exists, skipping auto-generation');
+    }
+});
+</script>
 {% endblock %}

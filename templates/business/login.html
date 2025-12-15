@@ -3,207 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - TopStyle Business</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>TopStyle Business Login</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2e4a8f 0%, #1a2d5f 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
-        .login-card {
+        .login-container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 3rem;
+            padding: 50px 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        .login-header {
+        .logo-section {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
-        .login-header h2 {
-            color: #333;
-            font-weight: bold;
+        .logo-box {
+            border: 2px solid #333;
+            display: inline-block;
+            padding: 15px 30px;
+            margin-bottom: 20px;
         }
-        .login-header p {
-            color: #666;
-            margin-top: 0.5rem;
-        }
-        .form-control {
-            border-radius: 10px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-            margin-bottom: 1rem;
-        }
-        .btn-login {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 12px;
+        .logo-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 18px;
             font-weight: 600;
-            width: 100%;
-            color: white;
-            transition: transform 0.3s;
+            letter-spacing: 2px;
+            color: #333;
         }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            color: white;
+        .logo-star {
+            width: 25px;
+            height: 25px;
+            background: #2e4a8f;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .tagline {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 35px;
         }
         .input-group {
-            margin-bottom: 1rem;
-        }
-        .input-group-text {
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-right: 1px solid #e9ecef;
-            border-radius: 10px 0 0 10px;
-            padding: 12px 12px;
-            min-width: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #6c757d;
-            margin-right: -1px;
-        }
-        .input-group .form-control {
-            border: 2px solid #e9ecef;
-            border-left: 1px solid #e9ecef;
-            border-radius: 0 10px 10px 0;
-            padding: 12px 15px;
-            background: white;
-            margin-left: -1px;
-        }
-        .input-group .form-control:focus {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
-            z-index: 3;
-        }
-        
-        /* Logo Styles for Login */
-        .login-logo-wrapper {
-            border: 1px solid #1e3a8a;
-            padding: 12px 16px;
-            background: white;
-            max-width: 180px;
-            margin: 0 auto 1rem auto;
-            display: inline-block;
-        }
-        .login-logo-main {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 6px;
-        }
-        .login-logo-text-left, .login-logo-text-right {
-            font-family: 'Times New Roman', serif;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #1e3a8a;
-            line-height: 1;
-        }
-        .login-logo-icon {
-            margin: 0 8px;
-        }
-        .login-star-container {
-            width: 24px;
-            height: 24px;
-            border: 1px solid #1e3a8a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
+            margin-bottom: 20px;
         }
-        .login-star-container:before {
-            content: '';
+        .input-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 50px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px 0 0 5px;
+            color: #666;
+            font-size: 18px;
+            z-index: 1;
+        }
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 65px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #2e4a8f;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 25px;
+        }
+        .forgot-password a {
+            color: #2e4a8f;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        .forgot-password a:hover {
+            color: #1a2d5f;
+            text-decoration: underline;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #2e4a8f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .login-btn:hover {
+            background: #1a2d5f;
+        }
+        .info-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-icon {
             width: 20px;
             height: 20px;
-            border: 1px solid #1e3a8a;
+            background: #6c757d;
+            color: white;
             border-radius: 50%;
-            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
         }
-        .login-star {
-            width: 16px;
-            height: 16px;
-            background: #1e3a8a;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            position: relative;
-            z-index: 2;
+        .info-text {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
         }
-        .login-logo-tagline {
-            font-family: Arial, sans-serif;
-            font-size: 0.6rem;
-            font-weight: normal;
-            letter-spacing: 1.5px;
-            color: #1e3a8a;
-            text-align: center;
-            line-height: 1;
-            margin-top: 2px;
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid transparent;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2e4a8f;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+        .back-button:hover {
+            background-color: #f5f5f5;
+            color: #1a2d5f;
+            text-decoration: none;
+        }
+        .back-button i {
+            font-size: 16px;
         }
     </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-header">
-            <div class="login-logo-wrapper">
-                <div class="login-logo-main">
-                    <span class="login-logo-text-left">TOP</span>
-                    <div class="login-logo-icon">
-                        <div class="login-star-container">
-                            <div class="login-star"></div>
-                        </div>
-                    </div>
-                    <span class="login-logo-text-right">STYLE</span>
+    <div class="login-container">
+        <a href="{% url 'landing' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+        </a>
+        <div class="logo-section">
+            <div class="logo-box">
+                <div class="logo-text">
+                    TOP <div class="logo-star"></div> STYLE
                 </div>
-                <div class="login-logo-tagline">RUGGED TAILORING</div>
+                <div class="tagline">RUGGED TAILORING</div>
             </div>
-            <h2>TopStyle Business</h2>
-            <p>Rugged & Tailor Management System</p>
+            <h1>TopStyle Business</h1>
+            <p class="subtitle">Rugged & Tailor Management System</p>
         </div>
-        
+
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }}">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
-        
-        <form method="post">
+
+        <form method="post" id="loginForm">
             {% csrf_token %}
-            <div class="input-group mb-3">
-                <span class="input-group-text">
-                    <i class="fas fa-user"></i>
-                </span>
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
+            <div class="input-group">
+                <div class="input-icon">👤</div>
+                <input type="text" name="username" id="username" placeholder="Username" required autofocus>
             </div>
-            
-            <div class="input-group mb-4">
-                <span class="input-group-text">
-                    <i class="fas fa-lock"></i>
-                </span>
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
+            <div class="input-group">
+                <div class="input-icon">🔒</div>
+                <input type="password" name="password" id="password" placeholder="Password" required>
             </div>
-            
-            <button type="submit" class="btn btn-login">
-                <i class="fas fa-sign-in-alt me-2"></i> Login
+            <div class="forgot-password">
+                <a href="{% url 'forgot_password' %}">Forgot Password?</a>
+            </div>
+            <button type="submit" class="login-btn">
+                <span>➜</span> Login
             </button>
         </form>
-        
-        <div class="text-center mt-4">
-            <small class="text-muted">
-                <i class="fas fa-info-circle me-1"></i>
+
+        <div class="info-box">
+            <div class="info-icon">i</div>
+            <div class="info-text">
                 Use your superuser credentials to access the system
-            </small>
+            </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

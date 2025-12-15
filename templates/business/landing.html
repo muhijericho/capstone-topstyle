@@ -1,0 +1,817 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopStyle - Rugged Tailoring</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+        
+        /* Header */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #000;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        
+        .logo-star {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .track-btn {
+            background: #28a745;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .track-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+        
+        .login-btn {
+            background: #1e3a8a;
+            color: white;
+            padding: 0.6rem 2rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .login-btn:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+            color: white;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+        
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .hero-text h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #1e3a8a;
+        }
+        
+        .hero-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        /* Services Section */
+        .services-section {
+            background: #f8f9fa;
+            padding: 4rem 0;
+            margin-top: 4rem;
+        }
+        
+        .section-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #1e3a8a;
+            font-weight: bold;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .service-item {
+            text-align: center;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .service-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .service-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* About Section */
+        .about-section {
+            padding: 4rem 0;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .about-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .about-text h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #1e3a8a;
+        }
+        
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        /* Fabrics Section */
+        .fabrics-section {
+            background: #f8f9fa;
+            padding: 4rem 0;
+        }
+        
+        .fabrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 2rem;
+        }
+        
+        .fabric-item {
+            text-align: center;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .fabric-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .fabric-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .header-content > div {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .track-btn,
+            .login-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .hero-content,
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .services-grid,
+            .fabrics-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+        
+        .placeholder-image {
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        /* Large Logo Section */
+        .logo-section-large {
+            text-align: center;
+            padding: 3rem 0;
+            margin: 4rem 0;
+        }
+        
+        .logo-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-large-text {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #000;
+        }
+        
+        .logo-large-star {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        
+        .logo-large-tagline {
+            font-size: 1rem;
+            letter-spacing: 4px;
+            color: #333;
+            margin-top: 0.5rem;
+        }
+        
+        /* Location/About Section */
+        .location-section {
+            padding: 4rem 0;
+            background: #fff;
+        }
+        
+        .location-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        
+        .location-text h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #1e3a8a;
+            font-weight: bold;
+        }
+        
+        .location-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        .location-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        /* Carousel Styles */
+        .location-carousel,
+        .shop-carousel {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .location-carousel .carousel-item img,
+        .shop-carousel .carousel-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+        
+        .shop-carousel .carousel-item img {
+            height: 400px;
+        }
+        
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px;
+            height: 50px;
+            background: rgba(30, 58, 138, 0.8);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+        
+        .carousel-control-prev {
+            left: 20px;
+        }
+        
+        .carousel-control-next {
+            right: 20px;
+        }
+        
+        .carousel-control-prev:hover,
+        .carousel-control-next:hover {
+            opacity: 1;
+            background: rgba(30, 58, 138, 1);
+        }
+        
+        .carousel-indicators {
+            bottom: 20px;
+        }
+        
+        .carousel-indicators button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid #fff;
+        }
+        
+        .carousel-indicators button.active {
+            background: #1e3a8a;
+        }
+        
+        /* Shop Gallery Section */
+        .shop-gallery-section {
+            background: #f8f9fa;
+            padding: 4rem 0;
+        }
+        
+        .shop-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .shop-gallery-item {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .shop-gallery-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            .logo-large-text {
+                font-size: 2rem;
+            }
+            
+            .logo-large-star {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .location-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .location-carousel .carousel-item img,
+            .shop-carousel .carousel-item img {
+                height: 300px;
+            }
+            
+            .carousel-control-prev,
+            .carousel-control-next {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .carousel-control-prev {
+                left: 10px;
+            }
+            
+            .carousel-control-next {
+                right: 10px;
+            }
+            
+            .shop-gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-star">★</div>
+                <div>
+                    <div class="logo-text">TOP STYLE</div>
+                    <div style="font-size: 0.8rem; letter-spacing: 3px; margin-top: -5px;">RUGGED TAILORING</div>
+                </div>
+            </a>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="{% url 'public_track_order' %}" class="track-btn">
+                    <i class="fas fa-search me-2"></i>Track My Order
+                </a>
+                <a href="{% url 'login' %}" class="login-btn">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>TopStyle</h1>
+                <p>TopStyle is a long-standing and respected tailoring business that has proudly served its community since the early 2000s. Known for its rugged craftsmanship and attention to detail, TopStyle has built a solid reputation for delivering high-quality clothing repair services that restore garments to their best condition.</p>
+                <p>In addition to expert repairs, the business also offers a wide selection of well-maintained and stylish rental formal wear, making it a reliable choice for customers seeking both function and fashion for weddings, special events, and other important occasions.</p>
+            </div>
+            <div>
+                {% if hero_image %}
+                    <img src="{{ hero_image.image.url }}" alt="{{ hero_image.alt_text|default:'TopStyle Workshop' }}" class="hero-image">
+                {% else %}
+                    <div class="hero-image placeholder-image">Hero Image Placeholder</div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section">
+        <div class="section-container">
+            <h2 class="section-title">Services</h2>
+            <div class="services-grid">
+                <div class="service-item">
+                    {% if service_repair %}
+                        <img src="{{ service_repair.image.url }}" alt="{{ service_repair.alt_text|default:'Repair Service' }}" class="service-image">
+                    {% else %}
+                        <div class="service-image placeholder-image">Repair Image</div>
+                    {% endif %}
+                    <div class="service-label">Repair</div>
+                </div>
+                <div class="service-item">
+                    {% if service_customize %}
+                        <img src="{{ service_customize.image.url }}" alt="{{ service_customize.alt_text|default:'Customize Service' }}" class="service-image">
+                    {% else %}
+                        <div class="service-image placeholder-image">Customize Image</div>
+                    {% endif %}
+                    <div class="service-label">Customize</div>
+                </div>
+                <div class="service-item">
+                    {% if service_uniform %}
+                        <img src="{{ service_uniform.image.url }}" alt="{{ service_uniform.alt_text|default:'Uniform Making Service' }}" class="service-image">
+                    {% else %}
+                        <div class="service-image placeholder-image">Uniform Making Image</div>
+                    {% endif %}
+                    <div class="service-label">Uniform making</div>
+                </div>
+                <div class="service-item">
+                    {% if service_patches %}
+                        <img src="{{ service_patches.image.url }}" alt="{{ service_patches.alt_text|default:'Patches Service' }}" class="service-image">
+                    {% else %}
+                        <div class="service-image placeholder-image">Patches Image</div>
+                    {% endif %}
+                    <div class="service-label">Patches</div>
+                </div>
+                <div class="service-item">
+                    {% if service_rental %}
+                        <img src="{{ service_rental.image.url }}" alt="{{ service_rental.alt_text|default:'Rental Service' }}" class="service-image">
+                    {% else %}
+                        <div class="service-image placeholder-image">Rental Image</div>
+                    {% endif %}
+                    <div class="service-label">Rental</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="section-container">
+            <div class="about-content">
+                <div>
+                    {% if about_workshop %}
+                        <img src="{{ about_workshop.image.url }}" alt="{{ about_workshop.alt_text|default:'TopStyle Workshop' }}" class="about-image">
+                    {% else %}
+                        <div class="about-image placeholder-image">Workshop Image</div>
+                    {% endif %}
+                </div>
+                <div class="about-text">
+                    <h2>TopStyle offers expert repair and customization services,</h2>
+                    <p>ensuring that every garment is tailored to meet your exact needs. With a highly skilled tailor who brings years of hands-on experience to every stitch, you can trust that the craftsmanship is nothing short of excellent. Whether you need alterations, detailed repairs, or personalized adjustments,</p>
+                    <p><strong>TopStyle delivers quality you can see and feel.</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fabrics Section -->
+    <section class="fabrics-section">
+        <div class="section-container">
+            <h2 class="section-title">High Quality Fabrics</h2>
+            <div class="fabrics-grid">
+                <div class="fabric-item">
+                    {% if fabric_cotton %}
+                        <img src="{{ fabric_cotton.image.url }}" alt="{{ fabric_cotton.alt_text|default:'Cotton Fabric' }}" class="fabric-image">
+                    {% else %}
+                        <div class="fabric-image placeholder-image">Cotton Image</div>
+                    {% endif %}
+                    <div class="fabric-label">Cotton</div>
+                </div>
+                <div class="fabric-item">
+                    {% if fabric_linen %}
+                        <img src="{{ fabric_linen.image.url }}" alt="{{ fabric_linen.alt_text|default:'Linen Fabric' }}" class="fabric-image">
+                    {% else %}
+                        <div class="fabric-image placeholder-image">Linen Image</div>
+                    {% endif %}
+                    <div class="fabric-label">Linen</div>
+                </div>
+                <div class="fabric-item">
+                    {% if fabric_wool %}
+                        <img src="{{ fabric_wool.image.url }}" alt="{{ fabric_wool.alt_text|default:'Wool Fabric' }}" class="fabric-image">
+                    {% else %}
+                        <div class="fabric-image placeholder-image">Wool Image</div>
+                    {% endif %}
+                    <div class="fabric-label">Wool</div>
+                </div>
+                <div class="fabric-item">
+                    {% if fabric_leather %}
+                        <img src="{{ fabric_leather.image.url }}" alt="{{ fabric_leather.alt_text|default:'Leather Fabric' }}" class="fabric-image">
+                    {% else %}
+                        <div class="fabric-image placeholder-image">Leather Image</div>
+                    {% endif %}
+                    <div class="fabric-label">Leather</div>
+                </div>
+                <div class="fabric-item">
+                    {% if fabric_silk %}
+                        <img src="{{ fabric_silk.image.url }}" alt="{{ fabric_silk.alt_text|default:'Silk Fabric' }}" class="fabric-image">
+                    {% else %}
+                        <div class="fabric-image placeholder-image">Silk Image</div>
+                    {% endif %}
+                    <div class="fabric-label">Silk</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location/About Section with Logo -->
+    <section class="location-section">
+        <div class="section-container">
+            <div class="logo-section-large">
+                <div class="logo-large">
+                    <div class="logo-large-text">TOP</div>
+                    <div class="logo-large-star">★</div>
+                    <div class="logo-large-text">STYLE</div>
+                </div>
+                <div class="logo-large-tagline">RUGGED TAILORING</div>
+            </div>
+            <div class="location-content">
+                <div class="location-text">
+                    <h2>TopStyle is a well-established and resilient tailoring shop located in Lucena City, Quezon Province, Philippines,</h2>
+                    <p>has built a strong reputation over the years for providing high-quality tailoring and garment repair services to the local community. Known for its exceptional sewing skills, attention to detail, and fast turnaround time, TopStyle has become a trusted name among residents who rely on its craftsmanship for both everyday clothing needs and special occasions.</p>
+                    <p><strong>With a commitment to excellence and customer satisfaction, the shop continues to uphold its legacy as a cornerstone of dependable tailoring in the region.</strong></p>
+                </div>
+                <div>
+                    <div id="locationCarousel" class="carousel slide location-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+                        <div class="carousel-inner">
+                            {% if about_tailor %}
+                                <div class="carousel-item active">
+                                    <img src="{{ about_tailor.image.url }}" alt="{{ about_tailor.alt_text|default:'TopStyle Tailor' }}" class="d-block w-100">
+                                </div>
+                            {% endif %}
+                            {% if about_workshop %}
+                                <div class="carousel-item {% if not about_tailor %}active{% endif %}">
+                                    <img src="{{ about_workshop.image.url }}" alt="{{ about_workshop.alt_text|default:'TopStyle Workshop' }}" class="d-block w-100">
+                                </div>
+                            {% endif %}
+                            {% if not about_tailor and not about_workshop %}
+                                <div class="carousel-item active">
+                                    <div class="location-image placeholder-image">Tailor/Workshop Image</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if about_tailor and about_workshop %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#locationCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#locationCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#locationCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                <button type="button" data-bs-target="#locationCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shop Gallery Section with Logo -->
+    <section class="shop-gallery-section">
+        <div class="section-container">
+            <div class="logo-section-large">
+                <div class="logo-large">
+                    <div class="logo-large-text">TOP</div>
+                    <div class="logo-large-star">★</div>
+                    <div class="logo-large-text">STYLE</div>
+                </div>
+                <div class="logo-large-tagline">RUGGED TAILORING</div>
+            </div>
+            <div id="shopCarousel" class="carousel slide shop-carousel" data-bs-ride="carousel" data-bs-interval="3000">
+                <div class="carousel-inner">
+                    {% if shop_exterior %}
+                        <div class="carousel-item active">
+                            <img src="{{ shop_exterior.image.url }}" alt="{{ shop_exterior.alt_text|default:'Shop Exterior' }}" class="d-block w-100">
+                        </div>
+                    {% else %}
+                        <div class="carousel-item active">
+                            <div class="shop-gallery-item placeholder-image" style="height: 400px;">Shop Exterior</div>
+                        </div>
+                    {% endif %}
+                    {% if shop_exterior_2 %}
+                        <div class="carousel-item">
+                            <img src="{{ shop_exterior_2.image.url }}" alt="{{ shop_exterior_2.alt_text|default:'Shop Exterior 2' }}" class="d-block w-100">
+                        </div>
+                    {% else %}
+                        <div class="carousel-item">
+                            <div class="shop-gallery-item placeholder-image" style="height: 400px;">Shop Exterior 2</div>
+                        </div>
+                    {% endif %}
+                    {% if shop_interior %}
+                        <div class="carousel-item">
+                            <img src="{{ shop_interior.image.url }}" alt="{{ shop_interior.alt_text|default:'Shop Interior' }}" class="d-block w-100">
+                        </div>
+                    {% else %}
+                        <div class="carousel-item">
+                            <div class="shop-gallery-item placeholder-image" style="height: 400px;">Shop Interior</div>
+                        </div>
+                    {% endif %}
+                    {% if shop_interior_2 %}
+                        <div class="carousel-item">
+                            <img src="{{ shop_interior_2.image.url }}" alt="{{ shop_interior_2.alt_text|default:'Shop Interior 2' }}" class="d-block w-100">
+                        </div>
+                    {% else %}
+                        <div class="carousel-item">
+                            <div class="shop-gallery-item placeholder-image" style="height: 400px;">Shop Interior 2</div>
+                        </div>
+                    {% endif %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#shopCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#shopCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    <button type="button" data-bs-target="#shopCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <p>&copy; 2025 TopStyle Rugged Tailoring. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

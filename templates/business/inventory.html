@@ -4,6 +4,9 @@
 {% block page_title %}Inventory Management{% endblock %}
 
 {% block extra_css %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
     /* Custom styles to match the design */
     .inventory-header {
@@ -13,6 +16,7 @@
         margin-bottom: 20px;
         border-radius: 12px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.4);
     }
@@ -23,6 +27,48 @@
         align-items: center;
         gap: 15px;
         justify-content: flex-end;
+    }
+    
+    .view-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 15px;
+    }
+    
+    .view-toggle-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    .view-toggle-buttons {
+        display: flex;
+        background: #f3f4f6;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    
+    .view-toggle-btn {
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    .view-toggle-btn.active {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    .view-toggle-btn:hover:not(.active) {
+        background: #e5e7eb;
+        color: #374151;
     }
     
     .search-bar {
@@ -102,54 +148,597 @@
     
     .stat-card {
         flex: 1;
-        background: rgba(255, 255, 255, 0.98);
         padding: 20px;
-        border-radius: 12px;
+        border-radius: 15px;
         text-align: center;
-        min-height: 120px;
+        min-height: 140px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(20px);
-        transition: transform 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background: radial-gradient(circle at top right, rgba(255,255,255,0.4), transparent);
     }
     
     .stat-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+    
+    .stat-card-blue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .stat-card-green {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .stat-card-orange {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+    }
+    
+    .stat-card-purple {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+    }
+    
+    .stat-card-blue {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
     }
     
     .stat-card h3 {
         margin: 0;
-        font-size: 24px;
-        font-weight: bold;
-        color: #1e40af;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
     }
     
     .stat-card p {
-        margin: 5px 0 0 0;
-        color: #374151;
-        font-size: 14px;
-        font-weight: 500;
+        margin: 8px 0 0 0;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .products-cards {
+        display: block;
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    
+    .products-cards.active {
+        display: block;
+    }
+    
+    .products-table.active {
+        display: block;
     }
     
     .products-table {
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 12px;
+        display: none;
+    }
+    
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    @media (min-width: 1200px) {
+        .cards-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+    
+    @media (min-width: 992px) and (max-width: 1199px) {
+        .cards-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+    
+    @media (min-width: 768px) and (max-width: 991px) {
+        .cards-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    
+    @media (min-width: 576px) and (max-width: 767px) {
+        .cards-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @media (max-width: 575px) {
+        .cards-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 8px;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        height: 280px;
+        display: block;
         overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        backdrop-filter: blur(20px);
+        cursor: pointer;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-card.rented {
+        border: 3px solid #ff8c00 !important;
+        box-shadow: 0 4px 16px rgba(255, 140, 0, 0.6) !important;
+        position: relative;
+    }
+    
+    .product-card.rented::before {
+        content: "RENTED";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff8c00;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 0;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 10;
+    }
+    
+    .product-card.rented:hover {
+        box-shadow: 0 8px 24px rgba(255, 140, 0, 0.6) !important;
+        transform: translateY(-4px);
+    }
+    
+    .product-card.overdue {
+        border: 3px solid rgba(220, 53, 69, 0.9) !important;
+        box-shadow: 0 4px 16px rgba(220, 53, 69, 0.9) !important;
+        position: relative;
+        background: rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .product-card.overdue::before {
+        content: "OVERDUE";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 0;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 10;
+    }
+    
+    .product-card.overdue:hover {
+        box-shadow: 0 8px 24px rgba(220, 53, 69, 0.9) !important;
+        transform: translateY(-4px);
+        background: rgba(220, 53, 69, 0.15) !important;
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0;
+        margin: 0;
+        display: block;
+    }
+    
+    .card-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 48px;
+        margin: 0;
+    }
+    
+    /* Overlay elements on image - minimal design */
+    .card-product-info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .card-product-name {
+        background: rgba(255, 255, 255, 0.95);
+        color: #111827;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-type-overlay {
+        padding: 4px 8px;
+        border-radius: 0;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-type-overlay.rental {
+        background: rgba(59, 130, 246, 0.95);
+        color: white;
+    }
+    
+    .card-type-overlay.material {
+        background: rgba(16, 185, 129, 0.95);
+        color: white;
+    }
+    
+    .card-type-overlay.service {
+        background: rgba(245, 158, 11, 0.95);
+        color: white;
+    }
+    
+    .card-status-overlay {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        z-index: 5;
+    }
+    
+    .card-status-overlay .badge {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+    
+    /* Product Detail Modal */
+    .product-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.85);
+        -webkit-backdrop-filter: blur(5px);
+        backdrop-filter: blur(5px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .product-modal[style*="display: flex"] {
+        display: flex !important;
+    }
+    
+    .product-modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+    
+    .product-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .product-modal-content {
+        background-color: white;
+        margin: auto;
+        max-width: 1100px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        animation: modalSlideIn 0.3s ease;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .product-modal-header {
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 0;
+    }
+    
+    .product-modal-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: white;
+    }
+    
+    .product-modal-close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+    
+    .product-modal-close:hover {
+        transform: rotate(90deg);
+    }
+    
+    .product-modal-body {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+    
+    #editProductModal .product-modal-body,
+    #adjustStockModal .product-modal-body {
+        display: block;
+        grid-template-columns: 1fr;
+    }
+    
+    .product-modal-image-container {
+        position: relative;
+        width: 100%;
+        min-height: 650px;
+        max-height: 800px;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+    }
+    
+    .product-modal-image {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: 800px;
+        min-height: 400px;
+        object-fit: contain;
+        border-radius: 0;
+        cursor: zoom-in;
+        transition: transform 0.3s ease;
+        display: none;
+        margin: 0 auto;
+        background: transparent;
+    }
+    
+    .product-modal-image.loaded {
+        display: block !important;
+    }
+    
+    .product-modal-image:hover {
+        transform: scale(1.05);
+    }
+    
+    .product-modal-image[src=""],
+    .product-modal-image:not([src]) {
+        display: none !important;
+    }
+    
+    .product-modal-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 72px;
+    }
+    
+    .product-modal-details {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .product-modal-detail-section {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 0;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .product-modal-detail-section h3 {
+        margin: 0 0 15px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 10px;
+    }
+    
+    .product-modal-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .product-modal-detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .product-modal-detail-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .product-modal-detail-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+    }
+    
+    .product-modal-description {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 0;
+        border-left: 4px solid #10b981;
+    }
+    
+    .product-modal-description h3 {
+        margin: 0 0 15px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 10px;
+    }
+    
+    .product-modal-description p {
+        margin: 0;
+        font-size: 14px;
+        color: #374151;
+        line-height: 1.6;
+    }
+    
+    .product-modal-actions {
+        padding: 20px 30px;
+        background: #f8f9fa;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    
+    .product-modal-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 0;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .product-modal-btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .product-modal-btn-success {
+        background: #10b981;
+        color: white;
+    }
+    
+    .product-modal-btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .product-modal-btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+    
+    .product-modal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+        .product-modal-body {
+            grid-template-columns: 1fr;
+        }
+        
+        .product-modal-image-container {
+            min-height: 400px;
+            max-height: 500px;
+        }
     }
     
     .table-header {
-        background: #1f2937;
-        color: white;
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        color: #ffffff;
         padding: 20px 24px;
         font-weight: 600;
         font-size: 18px;
     }
+    .table-header h5 { color: #ffffff !important; }
     
     .table {
         margin: 0;
@@ -158,16 +747,18 @@
     }
     
     .table thead th {
-        background: #1f2937;
-        color: white;
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        color: #ffffff;
         border: none;
         padding: 16px 12px;
         font-weight: 700;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        position: relative;
+        position: sticky;
+        top: 0;
         text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        z-index: 1;
     }
     
     .table thead th:first-child {
@@ -181,16 +772,68 @@
     .table tbody td {
         padding: 16px 12px;
         vertical-align: middle;
-        border-bottom: 1px solid #f3f4f6;
-        background: white;
-        color: #111827;
+        border-bottom: 1px solid #eef2f7;
+        background: #ffffff;
+        color: #0f172a;
         font-weight: 500;
     }
     
-    .table tbody tr:hover {
-        background-color: #f9fafb;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    .table tbody tr:nth-child(even) td {
+        background: #f8fafc;
+    }
+    
+    .table tbody tr:hover td {
+        background-color: #eef2ff !important;
+    }
+    
+    .table tbody tr.rented {
+        background-color: #fff8f0 !important;
+        border-left: 4px solid #ff8c00 !important;
+    }
+    
+    .table tbody tr.rented:hover {
+        background-color: #ffe6cc !important;
+        box-shadow: 0 2px 8px rgba(255, 140, 0, 0.15);
+    }
+    
+    .table tbody tr.rented td {
+        color: #ff8c00;
+        font-weight: 600;
+    }
+    
+    .table tbody tr.rented .badge.bg-warning {
+        background: #ff8c00 !important;
+        color: white !important;
+    }
+    
+    .table tbody tr.rented .badge.bg-danger {
+        background: #e67e22 !important;
+        color: white !important;
+    }
+    
+    .table tbody tr.overdue {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+        border-left: 4px solid rgba(220, 53, 69, 0.9) !important;
+    }
+    
+    .table tbody tr.overdue:hover {
+        background-color: rgba(220, 53, 69, 0.15) !important;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+    }
+    
+    .table tbody tr.overdue td {
+        color: rgba(220, 53, 69, 0.9);
+        font-weight: 600;
+    }
+    
+    .table tbody tr.overdue .badge.bg-warning {
+        background: rgba(220, 53, 69, 0.9) !important;
+        color: white !important;
+    }
+    
+    .table tbody tr.overdue .badge.bg-danger {
+        background: rgba(220, 53, 69, 0.9) !important;
+        color: white !important;
     }
     
     .table tbody tr:last-child td {
@@ -244,9 +887,9 @@
     }
     
     .badge {
-        padding: 6px 12px;
-        border-radius: 16px;
-        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 9px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.3px;
@@ -342,28 +985,294 @@
         color: #374151;
         font-size: 13px;
     }
+    
+    /* Customize Product Section */
+    .customize-products-section {
+        margin-top: 40px;
+        padding: 35px 30px;
+        background: transparent;
+        border-radius: 16px;
+        box-shadow: none;
+        border: none;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .customize-products-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    }
+    
+    .customize-products-header {
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .customize-products-header h3 {
+        font-size: 26px;
+        font-weight: 700;
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.5);
+        margin: 0;
+        padding-bottom: 12px;
+        border-bottom: 3px solid #3b82f6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        letter-spacing: -0.5px;
+    }
+    
+    .customize-products-header h3 i {
+        color: #ffffff;
+        font-size: 28px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    
+    .customize-products-container {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        padding: 30px 0 20px 0;
+        background: transparent;
+        border-radius: 12px;
+    }
+    
+    .customize-products-row {
+        display: flex;
+        gap: 24px;
+        padding: 15px 0;
+        transition: none; /* Remove transition for smooth continuous animation */
+        will-change: transform;
+    }
+    
+    .customize-product-item {
+        flex: 0 0 auto;
+        width: 200px;
+        height: 280px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        background: white;
+        border: 2px solid transparent;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        position: relative;
+    }
+    
+    .customize-product-item::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        border-radius: 12px;
+    }
+    
+    .customize-product-item:hover {
+        transform: translateY(-12px) rotateY(8deg) scale(1.08);
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2), 0 8px 16px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        border-color: #3b82f6;
+    }
+    
+    .customize-product-item:hover::after {
+        opacity: 1;
+    }
+    
+    .customize-product-item:active {
+        transform: translateY(-8px) rotateY(5deg) scale(1.05);
+    }
+    
+    .carousel-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-top: 25px;
+        padding-top: 20px;
+    }
+    
+    .carousel-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 2px solid #3b82f6;
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        color: #3b82f6;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 20px;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .carousel-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s ease, height 0.3s ease;
+    }
+    
+    .carousel-btn i {
+        position: relative;
+        z-index: 1;
+        transition: color 0.3s ease;
+    }
+    
+    .carousel-btn:hover {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        transform: scale(1.15);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        border-color: #2563eb;
+    }
+    
+    .carousel-btn:hover::before {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .carousel-btn:hover i {
+        color: white;
+    }
+    
+    .carousel-btn:active {
+        transform: scale(1.05);
+    }
+    
+    .carousel-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .carousel-btn:disabled:hover {
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        color: #3b82f6;
+        transform: none;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    
+    .carousel-btn:disabled::before {
+        display: none;
+    }
+    
+    .customize-product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s ease;
+    }
+    
+    .customize-product-item:hover .customize-product-image {
+        transform: scale(1.1);
+    }
+    
+    .customize-product-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 48px;
+        transition: all 0.3s ease;
+    }
+    
+    .customize-product-item:hover .customize-product-placeholder {
+        background: linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+        color: #6366f1;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .customize-product-item {
+            width: 160px;
+            height: 220px;
+        }
+        
+        .customize-products-section {
+            padding: 25px 20px;
+        }
+        
+        .customize-products-header h3 {
+            font-size: 22px;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 {% csrf_token %}
 
-<!-- Header Section -->
-<div class="inventory-header">
+<!-- Header Section with Search and View Toggle -->
+<div class="inventory-header mb-4">
     <div class="search-section">
+        <div class="view-toggle">
+            <span class="view-toggle-label">View:</span>
+            <div class="view-toggle-buttons">
+                <button class="view-toggle-btn" onclick="switchView('table')" data-view="table">
+                    <i class="fas fa-table"></i> Table
+                </button>
+                <button class="view-toggle-btn active" onclick="switchView('cards')" data-view="cards">
+                    <i class="fas fa-th-large"></i> Cards
+                </button>
+            </div>
+        </div>
         <div class="search-bar">
             <input type="text" placeholder="Search by name..." id="searchInput">
             <i class="fas fa-search search-icon"></i>
         </div>
-        <button class="add-product-btn" onclick="window.location.href='{% url 'add_product' %}'">
-            <i class="fas fa-plus"></i>
-            <span>Add Product</span>
-        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards - Positioned before tabs -->
+<div class="stats-cards mb-4">
+    <div class="stat-card stat-card-green">
+        <h3>{{ available_items }}</h3>
+        <p>Available Items</p>
+    </div>
+    <div class="stat-card stat-card-blue">
+        <h3>{{ rental_products }}</h3>
+        <p>Rental Items</p>
+    </div>
+    <div class="stat-card stat-card-orange">
+        <h3>{{ material_products }}</h3>
+        <p>Materials</p>
+    </div>
+    <div class="stat-card stat-card-purple">
+        <h3>{{ total_products }}</h3>
+        <p>Total Products</p>
     </div>
 </div>
 
 <!-- Tabs Section -->
-<div class="tabs-container">
+<div class="tabs-container mb-4">
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link {% if current_filter == 'all' %}active{% endif %}" href="?type=all">
@@ -383,34 +1292,14 @@
     </ul>
 </div>
 
-<!-- Statistics Cards -->
-<div class="stats-cards">
-    <div class="stat-card">
-        <h3>{{ products|length }}</h3>
-        <p>Total Products</p>
-    </div>
-    <div class="stat-card">
-        <h3>{{ rental_products }}</h3>
-        <p>Rental Items</p>
-    </div>
-    <div class="stat-card">
-        <h3>{{ material_products }}</h3>
-        <p>Materials</p>
-    </div>
-    <div class="stat-card">
-        <h3>{{ products|length|add:"-1" }}</h3>
-        <p>Available Items</p>
-    </div>
-</div>
-
 <!-- Products Table -->
-<div class="products-table">
+<div class="products-table" id="productsTable">
     <div class="table-header">
         <h5 style="margin: 0; font-weight: 600;">Products</h5>
     </div>
     
     <div class="table-responsive">
-        <table class="table" id="productsTable">
+        <table class="table" id="productsTableContent">
             <thead>
                 <tr>
                     <th>Image</th>
@@ -427,7 +1316,7 @@
             </thead>
             <tbody>
                 {% for product in products %}
-                <tr data-category="{{ product.category.name }}" data-type="{{ product.product_type }}" data-status="{% if product.product_type == 'rental' %}{% if product.rental_status == 'available' %}available{% elif product.rental_status == 'rented' %}{% if product.is_overdue %}overdue{% else %}rented{% endif %}{% elif product.rental_status == 'maintenance' %}maintenance{% endif %}{% else %}{% if product.is_available %}{% if product.is_low_stock %}low_stock{% else %}available{% endif %}{% else %}out_of_stock{% endif %}{% endif %}">
+                <tr class="{% if product.product_type == 'rental' and product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% endif %}" data-category="{{ product.category.name }}" data-type="{{ product.product_type }}" data-status="{% if product.product_type == 'rental' %}{% if product.rental_status == 'available' %}available{% elif product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% elif product.rental_status == 'maintenance' %}maintenance{% endif %}{% else %}{% if product.is_available %}{% if product.is_low_stock %}low_stock{% else %}available{% endif %}{% else %}out_of_stock{% endif %}{% endif %}" data-product-id="{{ product.id }}">
                     <td>
                         {% if product.image %}
                             <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
@@ -461,23 +1350,36 @@
                             {% if product.rental_status == 'available' %}
                                 <span class="badge bg-success">Available</span>
                             {% elif product.rental_status == 'rented' %}
-                                {% if product.is_overdue %}
+                                {% if product.is_overdue or product.is_almost_due %}
                                     <span class="badge bg-danger">Overdue</span>
                                 {% else %}
                                     <span class="badge bg-warning">Rented</span>
                                 {% endif %}
                             {% elif product.rental_status == 'maintenance' %}
                                 <span class="badge bg-info">Maintenance</span>
+                            {% else %}
+                                {# Default: if rental_status is None or empty, show Available #}
+                                <span class="badge bg-success">Available</span>
                             {% endif %}
                         {% else %}
-                            {% if product.is_available %}
-                                {% if product.is_low_stock %}
-                                    <span class="badge bg-warning">Low Stock</span>
+                            {% if product.product_type == 'service' %}
+                                {# Service products don't have stock - show active status #}
+                                {% if product.is_active %}
+                                    <span class="badge bg-success">Active</span>
                                 {% else %}
-                                    <span class="badge bg-success">Available</span>
+                                    <span class="badge bg-secondary">Inactive</span>
                                 {% endif %}
                             {% else %}
-                                <span class="badge bg-danger">Out of Stock</span>
+                                {# Material products - show stock status #}
+                                {% if product.is_available %}
+                                    {% if product.is_low_stock %}
+                                        <span class="badge bg-warning">Low Stock</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Available</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     </td>
@@ -501,24 +1403,493 @@
                 <tr>
                     <td colspan="10" class="text-center text-muted" style="padding: 40px;">
                         <i class="fas fa-box-open fa-3x mb-3"></i>
-                        <p>No products found. <a href="{% url 'add_product' %}">Add your first product</a></p>
+                        <p>No products found.</p>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination for Table View -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Inventory pagination">
+            <ul class="pagination">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ products.number }} of {{ products.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Products Cards -->
+<div class="products-cards active" id="productsCards">
+    <div class="cards-grid" id="cardsGrid">
+        {% for product in products %}
+        <div class="product-card {% if product.product_type == 'rental' and product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% endif %}" 
+             data-category="{{ product.category.name }}" 
+             data-type="{{ product.product_type }}" 
+             data-status="{% if product.product_type == 'rental' %}{% if product.rental_status == 'available' %}available{% elif product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% elif product.rental_status == 'maintenance' %}maintenance{% endif %}{% else %}{% if product.is_available %}{% if product.is_low_stock %}low_stock{% else %}available{% endif %}{% else %}out_of_stock{% endif %}{% endif %}" 
+             data-product-id="{{ product.id }}" 
+             data-product-name="{{ product.name }}"
+             data-product-category="{{ product.category.name }}"
+             data-product-price="{{ product.price }}"
+             data-product-cost="{{ product.cost }}"
+             data-product-quantity="{{ product.quantity }}"
+             data-product-min-quantity="{{ product.min_quantity }}"
+             data-product-description="{{ product.description|default:'' }}"
+             data-product-image="{% if product.image %}{{ product.image.url }}{% endif %}"
+             data-rental-status="{% if product.product_type == 'rental' %}{{ product.rental_status }}{% endif %}"
+             data-is-overdue="{% if product.is_overdue or product.is_almost_due %}true{% else %}false{% endif %}"
+             data-is-available="{% if product.is_available %}true{% else %}false{% endif %}"
+             data-is-low-stock="{% if product.is_low_stock %}true{% else %}false{% endif %}"
+             {% if product.current_rental_order %}data-order-id="{{ product.current_rental_order.id }}"{% endif %}
+             onclick="showProductDetails({{ product.id }})">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-image">
+            {% else %}
+                <div class="card-image-placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            {% endif %}
+            
+            <div class="card-product-info">
+                <span class="card-product-name">{{ product.name }}</span>
+                <span class="card-type-overlay {% if product.product_type == 'rental' %}rental{% elif product.product_type == 'material' %}material{% else %}service{% endif %}">
+                    {% if product.product_type == 'rental' %}Rental
+                    {% elif product.product_type == 'material' %}Material
+                    {% else %}Service
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="card-status-overlay">
+                {% if product.product_type == 'rental' %}
+                    {% if product.rental_status == 'available' %}
+                        <span class="badge bg-success">Available</span>
+                    {% elif product.rental_status == 'rented' %}
+                        {% if product.is_overdue or product.is_almost_due %}
+                            <span class="badge bg-danger">Overdue</span>
+                        {% else %}
+                            <span class="badge bg-warning">Rented</span>
+                        {% endif %}
+                    {% elif product.rental_status == 'maintenance' %}
+                        <span class="badge bg-info">Maintenance</span>
+                    {% else %}
+                        {# Default rental status - if rental_status is not set, show Available #}
+                        <span class="badge bg-success">Available</span>
+                    {% endif %}
+                {% else %}
+                    {% if product.product_type == 'service' %}
+                        {# Service products don't have stock - show active status #}
+                        {% if product.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    {% else %}
+                        {# Material products - show stock status #}
+                        {% if product.is_available %}
+                            {% if product.is_low_stock %}
+                                <span class="badge bg-warning">Low Stock</span>
+                            {% else %}
+                                <span class="badge bg-success">Available</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-danger">Out of Stock</span>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 40px;">
+            <i class="fas fa-box-open fa-3x mb-3"></i>
+            <p>No products found.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination for Cards View -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Inventory pagination">
+            <ul class="pagination">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ products.number }} of {{ products.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Customize Product Section -->
+<div class="customize-products-section">
+    <div class="customize-products-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0"><i class="fas fa-palette me-2"></i>Customize Product</h3>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomizeProductModal">
+            <i class="fas fa-plus me-2"></i>Add Customize Product
+        </button>
+    </div>
+    <div class="customize-products-container">
+        <div class="customize-products-row" id="customizeProductsCarousel">
+            {% for product in customize_products %}
+            <div class="customize-product-item" onclick="showProductDetails({{ product.id }})" title="{{ product.name }}">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="customize-product-image">
+                {% else %}
+                    <div class="customize-product-placeholder">
+                        <i class="fas fa-image"></i>
+                    </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="text-center text-muted" style="width: 100%; padding: 40px;">
+                <i class="fas fa-palette fa-3x mb-3"></i>
+                <p>No customize products available.</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% if customize_products|length > 0 %}
+        <div class="carousel-controls">
+            <button class="carousel-btn" id="carouselPrevBtn" onclick="moveCarousel(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-btn" id="carouselNextBtn" onclick="moveCarousel(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Product Detail Modal -->
+<div id="productDetailModal" class="product-modal">
+    <div class="product-modal-content">
+        <div class="product-modal-header">
+            <h2 id="modalProductName">Product Details</h2>
+            <button class="product-modal-close" onclick="closeProductModal()">&times;</button>
+        </div>
+        <div class="product-modal-body">
+            <div class="product-modal-image-container">
+                <img id="modalProductImage" src="" alt="" class="product-modal-image">
+                <div id="modalProductImagePlaceholder" class="product-modal-image-placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            </div>
+            <div class="product-modal-details">
+                <div class="product-modal-detail-section">
+                    <h3>Product Information</h3>
+                    <div class="product-modal-detail-grid">
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Product Name</span>
+                            <span class="product-modal-detail-value" id="modalProductNameValue">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Category</span>
+                            <span class="product-modal-detail-value" id="modalProductCategory">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Type</span>
+                            <span class="product-modal-detail-value" id="modalProductType">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Status</span>
+                            <span class="product-modal-detail-value" id="modalProductStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-modal-detail-section">
+                    <h3>Pricing & Inventory</h3>
+                    <div class="product-modal-detail-grid">
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Price</span>
+                            <span class="product-modal-detail-value" id="modalProductPrice">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Cost</span>
+                            <span class="product-modal-detail-value" id="modalProductCost">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Quantity</span>
+                            <span class="product-modal-detail-value" id="modalProductQuantity">-</span>
+                        </div>
+                        <div class="product-modal-detail-item">
+                            <span class="product-modal-detail-label">Min Quantity</span>
+                            <span class="product-modal-detail-value" id="modalProductMinQuantity">-</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-modal-description" id="modalProductDescriptionContainer" style="display: none;">
+                    <h3>Description</h3>
+                    <p id="modalProductDescription">-</p>
+                </div>
+                <div class="product-modal-detail-section" id="modalProductMeasurementsContainer" style="display: none;">
+                    <h3>Measurements</h3>
+                    <div class="product-modal-detail-grid" id="modalProductMeasurements">
+                        <!-- Measurements will be populated here -->
+                    </div>
+                </div>
+                <div class="product-modal-detail-section" id="modalProductHistorySection">
+                    <h3>Transaction History</h3>
+                    <div id="modalProductHistoryContainer" style="max-height: 300px; overflow-y: auto;">
+                        <div id="modalProductHistoryLoading" style="text-align: center; padding: 20px;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading history...
+                        </div>
+                        <div id="modalProductHistoryContent" style="display: none;">
+                            <table class="table table-sm" style="font-size: 0.9em;">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Quantity</th>
+                                        <th>Order</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalProductHistoryTableBody">
+                                </tbody>
+                            </table>
+                            <div id="modalProductHistoryEmpty" style="text-align: center; padding: 20px; color: #999; display: none;">
+                                <i class="fas fa-history"></i> No transaction history available
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="product-modal-actions">
+            <button class="product-modal-btn product-modal-btn-primary" id="modalEditBtn" onclick="editProductFromModal()">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="product-modal-btn product-modal-btn-success" id="modalStockBtn" onclick="adjustStockFromModal()" style="display: none;">
+                <i class="fas fa-plus-minus"></i> Adjust Stock
+            </button>
+            <button class="product-modal-btn product-modal-btn-danger" id="modalDeleteBtn" onclick="deleteProductFromModal()">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <button class="product-modal-btn product-modal-btn-primary" onclick="closeProductModal()">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="editProductModal" class="product-modal" style="display: none;">
+    <div class="product-modal-backdrop" onclick="closeEditModal()"></div>
+    <div class="product-modal-content" style="max-width: 600px;">
+        <div class="product-modal-header">
+            <h2>Edit Product</h2>
+            <button class="product-modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <div class="product-modal-body">
+            <form id="editProductForm">
+                <div class="mb-3">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="editProductName" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="editProductDescription" rows="3"></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Price (₱)</label>
+                        <input type="number" class="form-control" id="editProductPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Cost (₱)</label>
+                        <input type="number" class="form-control" id="editProductCost" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Min Quantity</label>
+                    <input type="number" class="form-control" id="editProductMinQuantity" min="0" required>
+                </div>
+                <div id="editProductError" class="alert alert-danger" style="display: none;"></div>
+            </form>
+        </div>
+        <div class="product-modal-actions">
+            <button class="product-modal-btn product-modal-btn-primary" onclick="saveProductEdit()">
+                <i class="fas fa-save"></i> Save
+            </button>
+            <button class="product-modal-btn product-modal-btn-secondary" onclick="closeEditModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Adjust Stock Modal -->
+<div id="adjustStockModal" class="product-modal" style="display: none;">
+    <div class="product-modal-backdrop" onclick="closeAdjustStockModal()"></div>
+    <div class="product-modal-content" style="max-width: 500px;">
+        <div class="product-modal-header">
+            <h2>Adjust Stock</h2>
+            <button class="product-modal-close" onclick="closeAdjustStockModal()">&times;</button>
+        </div>
+        <div class="product-modal-body">
+            <div class="mb-3">
+                <label class="form-label">Current Quantity</label>
+                <input type="text" class="form-control" id="currentStockQuantity" readonly style="background-color: #f5f5f5;">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="adjustmentType">Adjustment Type</label>
+                <select class="form-control" id="adjustmentType" name="adjustmentType" aria-label="Adjustment Type" onchange="updateAdjustmentFields()">
+                    <option value="set">Set to specific quantity</option>
+                    <option value="add">Add quantity</option>
+                    <option value="subtract">Subtract quantity</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" id="adjustmentLabel">New Quantity</label>
+                <input type="number" class="form-control" id="adjustmentQuantity" min="0" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" id="adjustmentNotes" rows="2" placeholder="Add notes about this adjustment..."></textarea>
+            </div>
+            <div id="adjustStockError" class="alert alert-danger" style="display: none;"></div>
+            <div id="adjustStockPreview" class="alert alert-info" style="display: none;"></div>
+        </div>
+        <div class="product-modal-actions">
+            <button class="product-modal-btn product-modal-btn-success" onclick="saveStockAdjustment()">
+                <i class="fas fa-check"></i> Apply
+            </button>
+            <button class="product-modal-btn product-modal-btn-secondary" onclick="closeAdjustStockModal()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Search functionality
+    // View switching functionality
+    function switchView(viewType) {
+        const tableView = document.getElementById('productsTable');
+        const cardsView = document.getElementById('productsCards');
+        const toggleButtons = document.querySelectorAll('.view-toggle-btn');
+        
+        // Remove active class from all buttons
+        toggleButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        document.querySelector(`[data-view="${viewType}"]`).classList.add('active');
+        
+        // Show/hide views
+        if (viewType === 'table') {
+            tableView.classList.add('active');
+            cardsView.classList.remove('active');
+        } else {
+            tableView.classList.remove('active');
+            cardsView.classList.add('active');
+        }
+        
+        // Store preference in localStorage
+        localStorage.setItem('inventoryView', viewType);
+    }
+    
+    // Load saved view preference on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved view preference
+        loadSavedViewPreference();
+    });
+    
+    // Function to load and apply saved view preference
+    function loadSavedViewPreference() {
+        const savedView = localStorage.getItem('inventoryView');
+        if (savedView) {
+            console.log('[INVENTORY] Loading saved view preference:', savedView);
+            switchView(savedView);
+        } else {
+            console.log('[INVENTORY] No saved view preference found, using default table view');
+            // Default to table view if no preference is saved
+            switchView('table');
+        }
+    }
+    
+    // Search functionality for both views
     document.getElementById('searchInput').addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#productsTable tbody tr');
         
-        rows.forEach(row => {
+        // Search in table view
+        const tableRows = document.querySelectorAll('#productsTableContent tbody tr');
+        tableRows.forEach(row => {
             if (row.cells && row.cells[1]) {
                 const productName = row.cells[1].textContent.toLowerCase();
                 if (productName.includes(searchTerm)) {
@@ -528,17 +1899,742 @@
                 }
             }
         });
+        
+        // Search in cards view
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const productName = card.querySelector('.card-product-name').textContent.toLowerCase();
+            if (productName.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     });
+    
+    // Product Detail Modal Functions
+    function showProductDetails(productId) {
+        // Show modal immediately with loading state
+        document.getElementById('productDetailModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Show loading state for history
+        document.getElementById('modalProductHistoryLoading').style.display = 'block';
+        document.getElementById('modalProductHistoryContent').style.display = 'none';
+        document.getElementById('modalProductHistoryEmpty').style.display = 'none';
+        
+        // Fetch product details from API
+        fetch(`/api/product/${productId}/detail/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.product) {
+                    const product = data.product;
+                    
+                    // Populate basic information
+                    document.getElementById('modalProductName').textContent = product.name;
+                    document.getElementById('modalProductNameValue').textContent = product.name;
+                    document.getElementById('modalProductCategory').textContent = product.category || '-';
+                    document.getElementById('modalProductType').textContent = product.product_type_display || (product.product_type ? product.product_type.charAt(0).toUpperCase() + product.product_type.slice(1) : '-');
+                    
+                    // Status
+                    let statusBadge = '';
+                    if (product.status_class === 'status-available' || product.status_class === 'status-in-stock' || product.status_class === 'status-active') {
+                        statusBadge = `<span class="badge bg-success">${product.status}</span>`;
+                    } else if (product.status_class === 'status-low-stock' || product.status_class === 'status-rented') {
+                        statusBadge = `<span class="badge bg-warning">${product.status}</span>`;
+                    } else if (product.status_class === 'status-out-of-stock' || product.status_class === 'status-overdue') {
+                        statusBadge = `<span class="badge bg-danger">${product.status}</span>`;
+                    } else if (product.status_class === 'status-maintenance') {
+                        statusBadge = `<span class="badge bg-info">${product.status}</span>`;
+                    } else {
+                        // Fallback for undefined status
+                        const statusText = product.status || 'UNDEFINED';
+                        statusBadge = `<span class="badge bg-secondary">${statusText}</span>`;
+                    }
+                    // Ensure we have a status badge even if product.status is missing
+                    if (!statusBadge) {
+                        statusBadge = `<span class="badge bg-secondary">UNDEFINED</span>`;
+                    }
+                    document.getElementById('modalProductStatus').innerHTML = statusBadge;
+                    
+                    // Pricing & Inventory
+                    document.getElementById('modalProductPrice').textContent = '₱' + parseFloat(product.price).toFixed(2);
+                    document.getElementById('modalProductCost').textContent = '₱' + parseFloat(product.cost).toFixed(2);
+                    document.getElementById('modalProductQuantity').textContent = product.quantity;
+                    document.getElementById('modalProductMinQuantity').textContent = product.min_quantity;
+                    
+                    // Description
+                    if (product.description) {
+                        document.getElementById('modalProductDescription').textContent = product.description;
+                        document.getElementById('modalProductDescriptionContainer').style.display = 'block';
+                    } else {
+                        document.getElementById('modalProductDescriptionContainer').style.display = 'none';
+                    }
+                    
+                    // Measurements
+                    const measurementsContainer = document.getElementById('modalProductMeasurementsContainer');
+                    const measurementsGrid = document.getElementById('modalProductMeasurements');
+                    
+                    // Format measurement names (convert snake_case to Title Case)
+                    const formatMeasurementName = (name) => {
+                        return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    };
+                    
+                    // Define expected measurements for each category
+                    const categoryMeasurements = {
+                        'polo': ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'],
+                        'polo_shirt': ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'],
+                        'blouse': ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'],
+                        'pe_tshirt': ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'],
+                        'pants': ['length', 'crotch', 'waist', 'hips', 'thigh', 'knee', 'bottom'],
+                        'pe_pants': ['length', 'crotch', 'waist', 'hips', 'thigh', 'knee', 'bottom'],
+                        'short': ['length', 'waist', 'crotch', 'hips', 'bottom'],
+                        'skirt/palda': ['waist', 'hips', 'length', 'hem_width'],
+                        // Fullset includes both top (polo) and bottom (pants) measurements
+                        'fullset': ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline', 'crotch', 'thigh', 'knee', 'bottom']
+                    };
+                    
+                    // Get expected measurements for this product category
+                    // Normalize category name - handle various formats
+                    let category = product.category ? product.category.toLowerCase().trim() : '';
+                    // Handle category name variations
+                    category = category.replace(/\s+/g, '_'); // Replace spaces with underscores
+                    category = category.replace(/\//g, '_'); // Replace slashes with underscores
+                    
+                    // Try multiple category name formats
+                    let expectedMeasurements = categoryMeasurements[category] || [];
+                    
+                    // If not found, try without underscores (e.g., "poloshirt" vs "polo_shirt")
+                    if (expectedMeasurements.length === 0) {
+                        const categoryNoUnderscore = category.replace(/_/g, '');
+                        expectedMeasurements = categoryMeasurements[categoryNoUnderscore] || [];
+                    }
+                    
+                    // If still not found, try partial matches (e.g., if category is "Polo Shirt" but we have "polo")
+                    if (expectedMeasurements.length === 0) {
+                        for (const [catKey, measurements] of Object.entries(categoryMeasurements)) {
+                            if (category.includes(catKey) || catKey.includes(category)) {
+                                expectedMeasurements = measurements;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Debug logging
+                    console.log('Original category:', product.category);
+                    console.log('Normalized category:', category);
+                    console.log('Expected measurements found:', expectedMeasurements);
+                    
+                    // Debug: Log measurements data
+                    console.log('Product measurements:', product.measurements);
+                    console.log('Product category:', product.category);
+                    console.log('Normalized category:', category);
+                    console.log('Expected measurements:', expectedMeasurements);
+                    
+                    // Check for gender in description for fullset products
+                    let gender = '';
+                    if (product.description) {
+                        const genderMatch = product.description.match(/Gender:\s*(\w+)/i);
+                        if (genderMatch) {
+                            gender = genderMatch[1].toLowerCase();
+                        }
+                    }
+                    
+                    // Handle fullset with gender
+                    if (category === 'fullset' && gender) {
+                        let topToShow = [];
+                        let bottomToShow = [];
+                        
+                        if (gender === 'male') {
+                            // Male Fullset: Polo (top) + Pants (bottom)
+                            topToShow = ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'];
+                            bottomToShow = ['length', 'crotch', 'waist', 'hips', 'thigh', 'knee', 'bottom'];
+                        } else if (gender === 'female') {
+                            // Female Fullset: Blouse (top) + Skirt/Palda (bottom)
+                            topToShow = ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'];
+                            bottomToShow = ['waist', 'hips', 'length', 'hem_width'];
+                        }
+                        
+                        measurementsGrid.innerHTML = '';
+                        
+                        // Display top measurements
+                        if (topToShow.length > 0) {
+                            const topHeader = document.createElement('div');
+                            topHeader.className = 'product-modal-detail-item';
+                            topHeader.style.gridColumn = '1 / -1';
+                            topHeader.style.fontWeight = 'bold';
+                            topHeader.style.borderBottom = '2px solid #007bff';
+                            topHeader.style.paddingBottom = '5px';
+                            topHeader.style.marginBottom = '10px';
+                            topHeader.innerHTML = `<span style="color: #007bff;">Top Measurements (${gender === 'male' ? 'Polo' : 'Blouse'})</span>`;
+                            measurementsGrid.appendChild(topHeader);
+                            
+                            topToShow.forEach(key => {
+                                let value = '-';
+                                if (product.measurements && typeof product.measurements === 'object' && product.measurements.hasOwnProperty(key)) {
+                                    const rawValue = product.measurements[key];
+                                    if (rawValue !== null && rawValue !== undefined && String(rawValue).trim() !== '') {
+                                        value = String(rawValue).trim();
+                                    }
+                                }
+                                
+                                const measurementItem = document.createElement('div');
+                                measurementItem.className = 'product-modal-detail-item';
+                                measurementItem.innerHTML = `
+                                    <span class="product-modal-detail-label">${formatMeasurementName(key)}</span>
+                                    <span class="product-modal-detail-value">${value}</span>
+                                `;
+                                measurementsGrid.appendChild(measurementItem);
+                            });
+                        }
+                        
+                        // Display bottom measurements
+                        if (bottomToShow.length > 0) {
+                            const bottomHeader = document.createElement('div');
+                            bottomHeader.className = 'product-modal-detail-item';
+                            bottomHeader.style.gridColumn = '1 / -1';
+                            bottomHeader.style.fontWeight = 'bold';
+                            bottomHeader.style.borderBottom = '2px solid #007bff';
+                            bottomHeader.style.paddingBottom = '5px';
+                            bottomHeader.style.marginTop = '15px';
+                            bottomHeader.style.marginBottom = '10px';
+                            bottomHeader.innerHTML = `<span style="color: #007bff;">Bottom Measurements (${gender === 'male' ? 'Pants' : 'Skirt/Palda'})</span>`;
+                            measurementsGrid.appendChild(bottomHeader);
+                            
+                            bottomToShow.forEach(key => {
+                                let value = '-';
+                                if (product.measurements && typeof product.measurements === 'object' && product.measurements.hasOwnProperty(key)) {
+                                    const rawValue = product.measurements[key];
+                                    if (rawValue !== null && rawValue !== undefined && String(rawValue).trim() !== '') {
+                                        value = String(rawValue).trim();
+                                    }
+                                }
+                                
+                                const measurementItem = document.createElement('div');
+                                measurementItem.className = 'product-modal-detail-item';
+                                measurementItem.innerHTML = `
+                                    <span class="product-modal-detail-label">${formatMeasurementName(key)}</span>
+                                    <span class="product-modal-detail-value">${value}</span>
+                                `;
+                                measurementsGrid.appendChild(measurementItem);
+                            });
+                        }
+                        
+                        measurementsContainer.style.display = 'block';
+                    } else {
+                        // For non-fullset or fullset without gender, use standard display
+                        // Always show measurements section if we have expected measurements OR if we have any measurements
+                        // Use expected measurements as primary list, fallback to what's in the JSON
+                        let measurementsToShow = [];
+                        
+                        if (expectedMeasurements.length > 0) {
+                            // Use expected measurements for this category
+                            measurementsToShow = [...expectedMeasurements];
+                        } else if (product.measurements && typeof product.measurements === 'object') {
+                            // Fallback to what's in the JSON
+                            measurementsToShow = Object.keys(product.measurements);
+                        }
+                        
+                        // Always ensure we have a measurements list to display
+                        // If we have actual measurements in the product, use those keys
+                        if (measurementsToShow.length === 0 && product.measurements && typeof product.measurements === 'object') {
+                            // Get all measurement keys from the actual product measurements
+                            measurementsToShow = Object.keys(product.measurements).filter(key => {
+                                // Only include measurement-like keys (exclude empty strings or non-measurement keys)
+                                const value = product.measurements[key];
+                                // Include all keys that look like measurements
+                                return true; // Show all keys that exist, even if empty
+                            });
+                        }
+                        
+                        // If still no measurements, use defaults
+                        if (measurementsToShow.length === 0) {
+                            // Default to common measurements if nothing else is found
+                            measurementsToShow = ['length', 'bust', 'waist', 'hips', 'shoulder', 'sleeve', 'armhole', 'neckline'];
+                        }
+                        
+                        console.log('Measurements to show:', measurementsToShow);
+                        console.log('Product measurements object:', product.measurements);
+                        
+                        // Always display the measurements section if we have any measurements to show OR if we have actual measurements data
+                        const hasMeasurementsData = product.measurements && typeof product.measurements === 'object' && Object.keys(product.measurements).length > 0;
+                        if (measurementsToShow.length > 0 || hasMeasurementsData) {
+                            measurementsGrid.innerHTML = '';
+                            
+                            // Display ALL expected measurements (even if not in the JSON)
+                            for (const key of measurementsToShow) {
+                                let value = '-';
+                                
+                                // Check if measurements exist and have this key
+                                if (product.measurements && typeof product.measurements === 'object') {
+                                    if (product.measurements.hasOwnProperty(key)) {
+                                        const rawValue = product.measurements[key];
+                                        // Only show '-' if value is truly empty (null, undefined, empty string, or whitespace)
+                                        if (rawValue !== null && rawValue !== undefined && String(rawValue).trim() !== '') {
+                                            value = String(rawValue).trim();
+                                        }
+                                    }
+                                }
+                                
+                                const measurementItem = document.createElement('div');
+                                measurementItem.className = 'product-modal-detail-item';
+                                measurementItem.innerHTML = `
+                                    <span class="product-modal-detail-label">${formatMeasurementName(key)}</span>
+                                    <span class="product-modal-detail-value">${value}</span>
+                                `;
+                                measurementsGrid.appendChild(measurementItem);
+                            }
+                            
+                            // Also show any additional measurements that aren't in the expected list
+                            if (product.measurements && typeof product.measurements === 'object') {
+                                for (const [key, rawValue] of Object.entries(product.measurements)) {
+                                    if (!measurementsToShow.includes(key)) {
+                                        const value = (rawValue !== null && rawValue !== undefined && String(rawValue).trim() !== '') 
+                                            ? String(rawValue).trim() 
+                                            : '-';
+                                        
+                                        const measurementItem = document.createElement('div');
+                                        measurementItem.className = 'product-modal-detail-item';
+                                        measurementItem.innerHTML = `
+                                            <span class="product-modal-detail-label">${formatMeasurementName(key)}</span>
+                                            <span class="product-modal-detail-value">${value}</span>
+                                        `;
+                                        measurementsGrid.appendChild(measurementItem);
+                                    }
+                                }
+                            }
+                            
+                            measurementsContainer.style.display = 'block';
+                        } else {
+                            measurementsContainer.style.display = 'none';
+                        }
+                    }
+                    
+                    // Image handling
+                    const modalImage = document.getElementById('modalProductImage');
+                    const modalImagePlaceholder = document.getElementById('modalProductImagePlaceholder');
+                    
+                    if (product.images && product.images.length > 0 && product.images[0].url) {
+                        const imageUrl = product.images[0].url;
+                        modalImagePlaceholder.style.display = 'flex';
+                        modalImage.style.display = 'none';
+                        
+                        modalImage.onload = function() {
+                            modalImage.classList.add('loaded');
+                            modalImage.style.display = 'block';
+                            modalImagePlaceholder.style.display = 'none';
+                        };
+                        
+                        modalImage.onerror = function() {
+                            modalImage.style.display = 'none';
+                            modalImagePlaceholder.style.display = 'flex';
+                        };
+                        
+                        modalImage.src = imageUrl;
+                        modalImage.alt = product.name || 'Product Image';
+                    } else {
+                        modalImage.style.display = 'none';
+                        modalImage.src = '';
+                        modalImage.alt = '';
+                        modalImagePlaceholder.style.display = 'flex';
+                    }
+                    
+                    // Transaction History
+                    displayTransactionHistory(product.transaction_history);
+                    
+                    // Store product ID for actions
+                    document.getElementById('productDetailModal').setAttribute('data-current-product-id', productId);
+                    document.getElementById('productDetailModal').setAttribute('data-current-product-name', product.name);
+                    document.getElementById('productDetailModal').setAttribute('data-current-product-type', product.product_type);
+                    
+                    // Show/hide action buttons
+                    const stockBtn = document.getElementById('modalStockBtn');
+                    if (product.product_type !== 'rental' && product.product_type !== 'service') {
+                        stockBtn.style.display = 'flex';
+                    } else {
+                        stockBtn.style.display = 'none';
+                    }
+                } else {
+                    alert('Error loading product details: ' + (data.error || 'Unknown error'));
+                    closeProductModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching product details:', error);
+                alert('Error loading product details. Please try again.');
+                closeProductModal();
+            });
+    }
+    
+    function displayTransactionHistory(history) {
+        const loadingDiv = document.getElementById('modalProductHistoryLoading');
+        const contentDiv = document.getElementById('modalProductHistoryContent');
+        const emptyDiv = document.getElementById('modalProductHistoryEmpty');
+        const tbody = document.getElementById('modalProductHistoryTableBody');
+        
+        loadingDiv.style.display = 'none';
+        
+        if (!history || history.length === 0) {
+            contentDiv.style.display = 'none';
+            emptyDiv.style.display = 'block';
+            return;
+        }
+        
+        contentDiv.style.display = 'block';
+        emptyDiv.style.display = 'none';
+        tbody.innerHTML = '';
+        
+        history.forEach(transaction => {
+            const row = document.createElement('tr');
+            
+            // Quantity badge color
+            let quantityClass = 'text-success';
+            let quantitySign = '+';
+            if (transaction.quantity < 0) {
+                quantityClass = 'text-danger';
+                quantitySign = '';
+            } else if (transaction.quantity === 0) {
+                quantityClass = 'text-secondary';
+                quantitySign = '';
+            }
+            
+            row.innerHTML = `
+                <td>${transaction.created_at}</td>
+                <td><span class="badge bg-secondary text-white">${transaction.transaction_type}</span></td>
+                <td><span class="${quantityClass}">${quantitySign}${transaction.quantity}</span></td>
+                <td>${transaction.order_identifier || '-'}</td>
+                <td>${transaction.notes || '-'}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    function closeProductModal() {
+        document.getElementById('productDetailModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('productDetailModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeProductModal();
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('productDetailModal').classList.contains('active')) {
+            closeProductModal();
+        }
+    });
+    
+    function editProductFromModal() {
+        const productId = document.getElementById('productDetailModal').getAttribute('data-current-product-id');
+        if (productId) {
+            closeProductModal();
+            editProduct(productId);
+        }
+    }
+    
+    function adjustStockFromModal() {
+        const productId = document.getElementById('productDetailModal').getAttribute('data-current-product-id');
+        if (productId) {
+            closeProductModal();
+            adjustStock(productId);
+        }
+    }
+    
+    function deleteProductFromModal() {
+        const productId = document.getElementById('productDetailModal').getAttribute('data-current-product-id');
+        const productName = document.getElementById('productDetailModal').getAttribute('data-current-product-name');
+        if (productId && productName) {
+            closeProductModal();
+            deleteProduct(productId, productName);
+        }
+    }
+
+    let currentEditProductId = null;
+    let currentAdjustProductId = null;
+    let currentProductQuantity = 0;
 
     function editProduct(productId) {
-        // Placeholder for edit functionality
-        alert('Edit product functionality will be implemented');
+        currentEditProductId = productId;
+        
+        // Fetch product details
+        fetch(`/api/product/${productId}/detail/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.product) {
+                    const product = data.product;
+                    
+                    // Populate form
+                    document.getElementById('editProductName').value = product.name;
+                    document.getElementById('editProductDescription').value = product.description || '';
+                    document.getElementById('editProductPrice').value = product.price;
+                    document.getElementById('editProductCost').value = product.cost;
+                    document.getElementById('editProductMinQuantity').value = product.min_quantity;
+                    
+                    // Clear errors
+                    document.getElementById('editProductError').style.display = 'none';
+                    
+                    // Show modal
+                    const modal = document.getElementById('editProductModal');
+                    modal.style.display = 'flex';
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    alert('Error loading product details: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading product details. Please try again.');
+            });
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editProductModal');
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        currentEditProductId = null;
+        document.getElementById('editProductForm').reset();
+        document.getElementById('editProductError').style.display = 'none';
+    }
+
+    function saveProductEdit() {
+        if (!currentEditProductId) return;
+        
+        const errorDiv = document.getElementById('editProductError');
+        errorDiv.style.display = 'none';
+        
+        const formData = {
+            name: document.getElementById('editProductName').value.trim(),
+            description: document.getElementById('editProductDescription').value.trim(),
+            price: parseFloat(document.getElementById('editProductPrice').value),
+            cost: parseFloat(document.getElementById('editProductCost').value),
+            min_quantity: parseInt(document.getElementById('editProductMinQuantity').value),
+        };
+        
+        if (!formData.name) {
+            errorDiv.textContent = 'Product name is required';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        fetch(`/api/product/${currentEditProductId}/edit/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Product updated successfully');
+                closeEditModal();
+                // Reload page to show updated data
+                window.location.reload();
+            } else {
+                errorDiv.textContent = data.error || 'Error updating product';
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorDiv.textContent = 'Error updating product. Please try again.';
+            errorDiv.style.display = 'block';
+        });
     }
 
     function adjustStock(productId) {
-        // Placeholder for stock adjustment functionality
-        alert('Stock adjustment functionality will be implemented');
+        currentAdjustProductId = productId;
+        
+        // Fetch product details
+        fetch(`/api/product/${productId}/detail/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.product) {
+                    const product = data.product;
+                    
+                    // Service products don't have stock
+                    if (product.product_type === 'service') {
+                        alert('Service products do not have stock quantities');
+                        return;
+                    }
+                    
+                    currentProductQuantity = product.quantity;
+                    
+                    // Populate form
+                    document.getElementById('currentStockQuantity').value = product.quantity;
+                    document.getElementById('adjustmentQuantity').value = '';
+                    document.getElementById('adjustmentNotes').value = '';
+                    document.getElementById('adjustmentType').value = 'set';
+                    
+                    // Clear errors and preview
+                    document.getElementById('adjustStockError').style.display = 'none';
+                    document.getElementById('adjustStockPreview').style.display = 'none';
+                    
+                    updateAdjustmentFields();
+                    
+                    // Show modal
+                    const modal = document.getElementById('adjustStockModal');
+                    modal.style.display = 'flex';
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    alert('Error loading product details: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading product details. Please try again.');
+            });
     }
+
+    function updateAdjustmentFields() {
+        const type = document.getElementById('adjustmentType').value;
+        const label = document.getElementById('adjustmentLabel');
+        const quantityInput = document.getElementById('adjustmentQuantity');
+        const previewDiv = document.getElementById('adjustStockPreview');
+        
+        quantityInput.value = '';
+        previewDiv.style.display = 'none';
+        
+        if (type === 'set') {
+            label.textContent = 'New Quantity';
+            quantityInput.min = '0';
+        } else if (type === 'add') {
+            label.textContent = 'Quantity to Add';
+            quantityInput.min = '1';
+        } else if (type === 'subtract') {
+            label.textContent = 'Quantity to Subtract';
+            quantityInput.min = '1';
+            quantityInput.max = currentProductQuantity;
+        }
+        
+        // Add event listener for preview
+        quantityInput.oninput = function() {
+            const value = parseInt(this.value) || 0;
+            if (value > 0) {
+                let newQuantity = currentProductQuantity;
+                if (type === 'set') {
+                    newQuantity = value;
+                } else if (type === 'add') {
+                    newQuantity = currentProductQuantity + value;
+                } else if (type === 'subtract') {
+                    newQuantity = Math.max(0, currentProductQuantity - value);
+                }
+                
+                previewDiv.innerHTML = `<strong>Preview:</strong> Current: ${currentProductQuantity} → New: ${newQuantity}`;
+                previewDiv.style.display = 'block';
+            } else {
+                previewDiv.style.display = 'none';
+            }
+        };
+    }
+
+    function closeAdjustStockModal() {
+        const modal = document.getElementById('adjustStockModal');
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        currentAdjustProductId = null;
+        currentProductQuantity = 0;
+        document.getElementById('adjustStockError').style.display = 'none';
+        document.getElementById('adjustStockPreview').style.display = 'none';
+    }
+
+    function saveStockAdjustment() {
+        if (!currentAdjustProductId) return;
+        
+        const errorDiv = document.getElementById('adjustStockError');
+        errorDiv.style.display = 'none';
+        
+        const adjustmentType = document.getElementById('adjustmentType').value;
+        const quantity = parseInt(document.getElementById('adjustmentQuantity').value);
+        const notes = document.getElementById('adjustmentNotes').value.trim();
+        
+        if (!quantity || quantity <= 0) {
+            errorDiv.textContent = 'Please enter a valid quantity greater than 0';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (adjustmentType === 'subtract' && quantity > currentProductQuantity) {
+            errorDiv.textContent = `Cannot subtract ${quantity} units. Only ${currentProductQuantity} units available.`;
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        const formData = {
+            type: adjustmentType,
+            quantity: quantity,
+            notes: notes
+        };
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        fetch(`/api/product/${currentAdjustProductId}/adjust-stock/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message || 'Stock adjusted successfully');
+                closeAdjustStockModal();
+                // Reload page to show updated data
+                window.location.reload();
+            } else {
+                errorDiv.textContent = data.error || 'Error adjusting stock';
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            errorDiv.textContent = 'Error adjusting stock. Please try again.';
+            errorDiv.style.display = 'block';
+        });
+    }
+
+    // Close modals when clicking outside
+    document.getElementById('editProductModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeEditModal();
+        }
+    });
+
+    document.getElementById('adjustStockModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAdjustStockModal();
+        }
+    });
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const editModal = document.getElementById('editProductModal');
+            const adjustModal = document.getElementById('adjustStockModal');
+            if (editModal && (editModal.style.display === 'flex' || editModal.classList.contains('active'))) {
+                closeEditModal();
+            }
+            if (adjustModal && (adjustModal.style.display === 'flex' || adjustModal.classList.contains('active'))) {
+                closeAdjustStockModal();
+            }
+        }
+    });
 
     function deleteProduct(productId, productName) {
         if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
@@ -561,5 +2657,620 @@
             form.submit();
         }
     }
+
+    function returnRentalItem(productId) {
+        // Navigate to the complete order page for this rental item
+        const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+        if (productCard) {
+            const orderId = productCard.getAttribute('data-order-id');
+            if (orderId) {
+                // Navigate directly to the complete order page
+                window.location.href = `/orders/${orderId}/complete/`;
+            } else {
+                // Fallback to orders page if no order ID found
+                window.location.href = '/orders/';
+            }
+        }
+    }
+</script>
+
+<!-- Add Customize Product Modal -->
+<div class="modal fade" id="addCustomizeProductModal" tabindex="-1" aria-labelledby="addCustomizeProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCustomizeProductModalLabel">
+                    <i class="fas fa-palette me-2"></i>Add Customize Product
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addCustomizeProductForm" method="post" enctype="multipart/form-data" action="{% url 'add_customize_product' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customizeProductName" class="form-label">Product Name *</label>
+                            <input type="text" class="form-control" id="customizeProductName" name="name" required 
+                                   placeholder="e.g., Uniform, PE Pants, Skirt/Palda">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customizeProductCategory" class="form-label">Category *</label>
+                            <select class="form-control" id="customizeProductCategory" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="fullset">Fullset</option>
+                                <option value="polo">Polo</option>
+                                <option value="polo_shirt">Polo Shirt</option>
+                                <option value="blouse">Blouse</option>
+                                <option value="pants">Pants</option>
+                                <option value="skirt/palda">Skirt/Palda</option>
+                                <option value="short">Short</option>
+                                <option value="pe_tshirt">PE Tshirt</option>
+                                <option value="pe_pants">PE Pants</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Gender Selection (shown when Fullset is selected) -->
+                    <div class="row" id="genderSelectionRow" style="display: none;">
+                        <div class="col-md-6 mb-3">
+                            <label for="customizeProductGender" class="form-label">Gender *</label>
+                            <select class="form-control" id="customizeProductGender" name="gender">
+                                <option value="">Select Gender (Required for Fullset)</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                            <small class="form-text text-muted">Required when Category is Fullset</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="customizeProductDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="customizeProductDescription" name="description" rows="3" 
+                                  placeholder="Enter product description (optional)"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="customizeProductImage" class="form-label">Product Image *</label>
+                        <input type="file" class="form-control" id="customizeProductImage" name="image" accept="image/*" required>
+                        <div class="form-text">Upload an image of the customize product (Uniform, PE Pants, Skirt/Palda, etc.)</div>
+                        <div id="imagePreview" class="mt-3" style="display: none;">
+                            <img id="previewImg" src="" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customizeProductPrice" class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₱</span>
+                                <input type="number" class="form-control" id="customizeProductPrice" name="price" 
+                                       step="0.01" min="0" value="0.00">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Measurement Sections -->
+                    <!-- Pants Measurements -->
+                    <div id="pantsMeasurementsSection" class="mb-3" style="display: none;">
+                        <h6 class="mb-3">Pants Measurements</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_length">Length</label>
+                                <input type="text" class="form-control" id="pants_measurement_length" name="measurement_length" placeholder="Enter length" aria-label="Length measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_crotch">Crotch</label>
+                                <input type="text" class="form-control" id="pants_measurement_crotch" name="measurement_crotch" placeholder="Enter crotch" aria-label="Crotch measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_waist">Waist</label>
+                                <input type="text" class="form-control" id="pants_measurement_waist" name="measurement_waist" placeholder="Enter waist" aria-label="Waist measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_hips">Hips</label>
+                                <input type="text" class="form-control" id="pants_measurement_hips" name="measurement_hips" placeholder="Enter hips" aria-label="Hips measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_thigh">Thigh</label>
+                                <input type="text" class="form-control" id="pants_measurement_thigh" name="measurement_thigh" placeholder="Enter thigh" aria-label="Thigh measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_knee">Knee</label>
+                                <input type="text" class="form-control" id="pants_measurement_knee" name="measurement_knee" placeholder="Enter knee" aria-label="Knee measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="pants_measurement_bottom">Bottom</label>
+                                <input type="text" class="form-control" id="pants_measurement_bottom" name="measurement_bottom" placeholder="Enter bottom" aria-label="Bottom measurement">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Polo/Polo Shirt/Blouse/Tshirt Measurements -->
+                    <div id="topMeasurementsSection" class="mb-3" style="display: none;">
+                        <h6 class="mb-3" id="topMeasurementsTitle">Top Measurements</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_length">Length</label>
+                                <input type="text" class="form-control" id="top_measurement_length" name="measurement_length" placeholder="Enter length" aria-label="Length measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_bust">Bust</label>
+                                <input type="text" class="form-control" id="top_measurement_bust" name="measurement_bust" placeholder="Enter bust" aria-label="Bust measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_waist">Waist</label>
+                                <input type="text" class="form-control" id="top_measurement_waist" name="measurement_waist" placeholder="Enter waist" aria-label="Waist measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_hips">Hips</label>
+                                <input type="text" class="form-control" id="top_measurement_hips" name="measurement_hips" placeholder="Enter hips" aria-label="Hips measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_shoulder">Shoulder</label>
+                                <input type="text" class="form-control" id="top_measurement_shoulder" name="measurement_shoulder" placeholder="Enter shoulder" aria-label="Shoulder measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_sleeve">Sleeve</label>
+                                <input type="text" class="form-control" id="top_measurement_sleeve" name="measurement_sleeve" placeholder="Enter sleeve" aria-label="Sleeve measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_armhole">Armhole</label>
+                                <input type="text" class="form-control" id="top_measurement_armhole" name="measurement_armhole" placeholder="Enter armhole" aria-label="Armhole measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="top_measurement_neckline">Neckline</label>
+                                <input type="text" class="form-control" id="top_measurement_neckline" name="measurement_neckline" placeholder="Enter neckline" aria-label="Neckline measurement">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shorts Measurements -->
+                    <div id="shortsMeasurementsSection" class="mb-3" style="display: none;">
+                        <h6 class="mb-3">Shorts Measurements</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="shorts_measurement_length">Length</label>
+                                <input type="text" class="form-control" id="shorts_measurement_length" name="measurement_length" placeholder="Enter length" aria-label="Length measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="shorts_measurement_waist">Waist</label>
+                                <input type="text" class="form-control" id="shorts_measurement_waist" name="measurement_waist" placeholder="Enter waist" aria-label="Waist measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="shorts_measurement_crotch">Crotch</label>
+                                <input type="text" class="form-control" id="shorts_measurement_crotch" name="measurement_crotch" placeholder="Enter crotch" aria-label="Crotch measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="shorts_measurement_hips">Hips</label>
+                                <input type="text" class="form-control" id="shorts_measurement_hips" name="measurement_hips" placeholder="Enter hips" aria-label="Hips measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="shorts_measurement_bottom">Bottom</label>
+                                <input type="text" class="form-control" id="shorts_measurement_bottom" name="measurement_bottom" placeholder="Enter bottom" aria-label="Bottom measurement">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Skirt/Palda Measurements -->
+                    <div id="skirtMeasurementsSection" class="mb-3" style="display: none;">
+                        <h6 class="mb-3">Skirt/Palda Measurements</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="skirt_measurement_waist">Waist</label>
+                                <input type="text" class="form-control" id="skirt_measurement_waist" name="measurement_waist" placeholder="Enter waist" aria-label="Waist measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="skirt_measurement_hips">Hips</label>
+                                <input type="text" class="form-control" id="skirt_measurement_hips" name="measurement_hips" placeholder="Enter hips" aria-label="Hips measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="skirt_measurement_length">Length</label>
+                                <input type="text" class="form-control" id="skirt_measurement_length" name="measurement_length" placeholder="Enter length" aria-label="Length measurement">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" for="skirt_measurement_hem_width">Hem Width</label>
+                                <input type="text" class="form-control" id="skirt_measurement_hem_width" name="measurement_hem_width" placeholder="Enter hem width" aria-label="Hem width measurement">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="customizeProductError" class="alert alert-danger" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Add Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Circular Infinite Carousel functionality
+    let carouselPosition = 0;
+    let animationId = null;
+    let isPaused = false;
+    const itemWidth = 224; // Width of each item including gap (200px + 24px gap)
+    const scrollSpeed = 0.5; // Pixels per frame (slower = smoother, slower motion)
+    
+    // Track if carousel has been set up to prevent duplicate initialization
+    let carouselInitialized = false;
+    
+    function setupInfiniteCarousel() {
+        const carousel = document.getElementById('customizeProductsCarousel');
+        if (!carousel || carousel.children.length === 0) return;
+        
+        // Prevent multiple initializations
+        if (carouselInitialized) {
+            return;
+        }
+        
+        // Get all current items
+        const allItems = Array.from(carousel.children);
+        
+        // Remove ALL cloned items first to ensure clean state
+        allItems.forEach(item => {
+            if (item.hasAttribute('data-cloned')) {
+                item.remove();
+            }
+        });
+        
+        // Now get only the original items (after removing clones)
+        const itemsToClone = Array.from(carousel.children);
+        const totalItems = itemsToClone.length;
+        
+        if (totalItems === 0) return;
+        
+        // Remove duplicate products by ID (safety check)
+        const seenProductIds = new Set();
+        const uniqueItems = [];
+        itemsToClone.forEach(item => {
+            // Extract product ID from onclick attribute or data attribute
+            const onclickAttr = item.getAttribute('onclick');
+            let productId = null;
+            if (onclickAttr) {
+                const match = onclickAttr.match(/showProductDetails\((\d+)\)/);
+                if (match) {
+                    productId = parseInt(match[1]);
+                }
+            }
+            
+            // If we can't get ID, use the item itself as identifier
+            if (productId === null) {
+                // Use image src or other unique attribute
+                const img = item.querySelector('img');
+                if (img && img.src) {
+                    productId = img.src;
+                } else {
+                    productId = item.innerHTML; // Fallback to content
+                }
+            }
+            
+            if (!seenProductIds.has(productId)) {
+                seenProductIds.add(productId);
+                uniqueItems.push(item);
+            } else {
+                // Remove duplicate
+                item.remove();
+            }
+        });
+        
+        // Update itemsToClone to only unique items
+        const finalItems = Array.from(carousel.children);
+        const finalTotalItems = finalItems.length;
+        
+        if (finalTotalItems === 0) return;
+        
+        // Mark original items so we can identify them later
+        finalItems.forEach(item => {
+            if (!item.hasAttribute('data-original')) {
+                item.setAttribute('data-original', 'true');
+            }
+        });
+        
+        // Clone items for seamless loop (append to end)
+        finalItems.forEach(item => {
+            const clone = item.cloneNode(true);
+            clone.setAttribute('data-cloned', 'true');
+            carousel.appendChild(clone);
+        });
+        
+        // Clone again for reverse direction (prepend to beginning)
+        finalItems.forEach(item => {
+            const clone = item.cloneNode(true);
+            clone.setAttribute('data-cloned', 'true');
+            carousel.insertBefore(clone, carousel.firstChild);
+        });
+        
+        // Mark as initialized
+        carouselInitialized = true;
+        
+        // Start at the beginning of the original items
+        carouselPosition = finalTotalItems * itemWidth;
+        updateCarouselTransform();
+    }
+    
+    function updateCarouselTransform() {
+        const carousel = document.getElementById('customizeProductsCarousel');
+        if (!carousel) return;
+        
+        carousel.style.transform = `translateX(${-carouselPosition}px)`;
+        
+        // Reset position when reaching the end for seamless loop
+        const totalWidth = carousel.children.length * itemWidth;
+        const originalItemsWidth = (carousel.children.length / 3) * itemWidth;
+        
+        if (carouselPosition >= originalItemsWidth * 2) {
+            carouselPosition = originalItemsWidth;
+        } else if (carouselPosition <= 0) {
+            carouselPosition = originalItemsWidth;
+        }
+    }
+    
+    function animateCarousel() {
+        if (!isPaused) {
+            carouselPosition += scrollSpeed;
+            updateCarouselTransform();
+        }
+        animationId = requestAnimationFrame(animateCarousel);
+    }
+    
+    function moveCarousel(direction) {
+        // Manual navigation - move by one item
+        carouselPosition += direction * itemWidth;
+        updateCarouselTransform();
+    }
+    
+    // Initialize carousel on page load - only once
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!carouselInitialized) {
+            setupInfiniteCarousel();
+            
+            // Start continuous animation
+            animateCarousel();
+        }
+        
+        const customizeContainer = document.querySelector('.customize-products-container');
+        const carousel = document.getElementById('customizeProductsCarousel');
+        
+        // Pause on hover
+        if (customizeContainer) {
+            customizeContainer.addEventListener('mouseenter', function() {
+                isPaused = true;
+            });
+            
+            customizeContainer.addEventListener('mouseleave', function() {
+                isPaused = false;
+            });
+        }
+        
+        // Add touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let wasPaused = false;
+        
+        if (carousel) {
+            carousel.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                wasPaused = isPaused;
+                isPaused = true;
+            });
+            
+            carousel.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+                setTimeout(() => {
+                    isPaused = wasPaused;
+                }, 2000);
+            });
+            
+            function handleSwipe() {
+                const swipeThreshold = 50;
+                const diff = touchStartX - touchEndX;
+                
+                if (Math.abs(diff) > swipeThreshold) {
+                    if (diff > 0) {
+                        moveCarousel(1); // Swipe left - move forward
+                    } else {
+                        moveCarousel(-1); // Swipe right - move backward
+                    }
+                }
+            }
+        }
+        
+        // Manual navigation buttons
+        const prevBtn = document.getElementById('carouselPrevBtn');
+        const nextBtn = document.getElementById('carouselNextBtn');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                const wasPaused = isPaused;
+                isPaused = true;
+                moveCarousel(-1);
+                setTimeout(() => {
+                    isPaused = wasPaused;
+                }, 2000);
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                const wasPaused = isPaused;
+                isPaused = true;
+                moveCarousel(1);
+                setTimeout(() => {
+                    isPaused = wasPaused;
+                }, 2000);
+            });
+        }
+    });
+    
+    // Image preview for customize product
+    const customizeProductImageInput = document.getElementById('customizeProductImage');
+    if (customizeProductImageInput) {
+        customizeProductImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
+    }
+    
+    // Function to toggle measurement sections based on category and gender
+    function updateMeasurementSections() {
+        const category = document.getElementById('customizeProductCategory')?.value || '';
+        const gender = document.getElementById('customizeProductGender')?.value || '';
+        const pantsSection = document.getElementById('pantsMeasurementsSection');
+        const shortsSection = document.getElementById('shortsMeasurementsSection');
+        const topSection = document.getElementById('topMeasurementsSection');
+        const skirtSection = document.getElementById('skirtMeasurementsSection');
+        const topTitle = document.getElementById('topMeasurementsTitle');
+        const genderField = document.getElementById('customizeProductGender');
+        const genderRow = document.getElementById('genderSelectionRow');
+        
+        // Hide all sections first
+        if (pantsSection) pantsSection.style.display = 'none';
+        if (shortsSection) shortsSection.style.display = 'none';
+        if (topSection) topSection.style.display = 'none';
+        if (skirtSection) skirtSection.style.display = 'none';
+        
+        // Show/hide gender field based on category
+        if (genderRow) {
+            if (category === 'fullset') {
+                genderRow.style.display = 'block';
+                // Make gender required for fullset
+                if (genderField) {
+                    genderField.required = true;
+                }
+            } else {
+                genderRow.style.display = 'none';
+                if (genderField) {
+                    genderField.required = false;
+                    genderField.value = ''; // Clear gender when not fullset
+                }
+            }
+        }
+        
+        // Show appropriate section(s) based on category and gender
+        if (category === 'fullset') {
+            if (gender === 'male') {
+                // Male Fullset: Polo (top) + Pants (bottom)
+                if (topSection) {
+                    topSection.style.display = 'block';
+                    if (topTitle) {
+                        topTitle.textContent = 'Top Measurements (Polo)';
+                    }
+                }
+                if (pantsSection) {
+                    pantsSection.style.display = 'block';
+                }
+            } else if (gender === 'female') {
+                // Female Fullset: Blouse (top) + Skirt/Palda (bottom)
+                if (topSection) {
+                    topSection.style.display = 'block';
+                    if (topTitle) {
+                        topTitle.textContent = 'Top Measurements (Blouse)';
+                    }
+                }
+                if (skirtSection) {
+                    skirtSection.style.display = 'block';
+                }
+            } else {
+                // Fullset selected but no gender - show message or wait for gender selection
+                // Don't show any measurements until gender is selected
+            }
+        } else if (category === 'pants' || category === 'pe_pants') {
+            if (pantsSection) pantsSection.style.display = 'block';
+        } else if (category === 'short') {
+            if (shortsSection) shortsSection.style.display = 'block';
+        } else if (category === 'polo' || category === 'polo_shirt' || category === 'blouse' || category === 'pe_tshirt') {
+            if (topSection) {
+                topSection.style.display = 'block';
+                // Update title based on category
+                if (topTitle) {
+                    if (category === 'polo') {
+                        topTitle.textContent = 'Polo Measurements';
+                    } else if (category === 'polo_shirt') {
+                        topTitle.textContent = 'Polo Shirt Measurements';
+                    } else if (category === 'blouse') {
+                        topTitle.textContent = 'Blouse Measurements';
+                    } else if (category === 'pe_tshirt') {
+                        topTitle.textContent = 'PE Tshirt Measurements';
+                    }
+                }
+            }
+        } else if (category === 'skirt/palda') {
+            if (skirtSection) skirtSection.style.display = 'block';
+        }
+    }
+    
+    // Toggle measurement sections based on category
+    const customizeProductCategory = document.getElementById('customizeProductCategory');
+    if (customizeProductCategory) {
+        customizeProductCategory.addEventListener('change', updateMeasurementSections);
+    }
+    
+    // Toggle measurement sections based on gender (for fullset)
+    const customizeProductGender = document.getElementById('customizeProductGender');
+    if (customizeProductGender) {
+        customizeProductGender.addEventListener('change', updateMeasurementSections);
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateMeasurementSections();
+    });
+    
+    // Handle form submission
+    document.getElementById('addCustomizeProductForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const errorDiv = document.getElementById('customizeProductError');
+        errorDiv.style.display = 'none';
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close modal and reload page
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addCustomizeProductModal'));
+                modal.hide();
+                window.location.reload();
+            } else {
+                let errorMessage = data.error || 'An error occurred while adding the product.';
+                // Add detailed field errors if available
+                if (data.errors) {
+                    const fieldErrors = Object.entries(data.errors).map(([field, msg]) => {
+                        return `${field}: ${msg}`;
+                    }).join('<br>');
+                    if (fieldErrors) {
+                        errorMessage += '<br><br>Details:<br>' + fieldErrors;
+                    }
+                }
+                errorDiv.innerHTML = errorMessage;
+                errorDiv.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            errorDiv.textContent = 'An error occurred while adding the product.';
+            errorDiv.style.display = 'block';
+        });
+    });
 </script>
 {% endblock %}

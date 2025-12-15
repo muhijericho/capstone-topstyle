@@ -6,233 +6,491 @@
 {% block extra_css %}
 <style>
     .activity-container {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        padding: 10px;
+        padding: 20px;
     }
+    
     .activity-panel {
         background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        max-width: 1200px;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 1400px;
         margin: 0 auto;
     }
+    
     .activity-header {
         text-align: center;
-        margin-bottom: 20px;
-        border-bottom: 2px solid #1e3a8a;
-        padding-bottom: 15px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 3px solid #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
+    
     .activity-title {
-        font-weight: bold;
-        font-size: 1.3rem;
-        color: #1e3a8a;
-        margin-bottom: 8px;
+        font-weight: 800;
+        font-size: 2rem;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
+    
     .activity-subtitle {
         color: #666;
-        font-size: 0.9rem;
+        font-size: 1rem;
+        font-weight: 500;
     }
+    
+    /* Statistics Cards */
+    .stats-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+    
+    .stat-card:nth-child(1) {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .stat-card:nth-child(2) {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3) !important;
+    }
+    
+    .stat-card:nth-child(3) {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3) !important;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: #ffffff !important;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #ffffff !important;
+        opacity: 0.95;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    
+    /* Filters Section */
     .filters-section {
-        background: #f8f9fa;
-        border-radius: 6px;
-        padding: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
+    
     .filters-row {
         display: flex;
         gap: 15px;
         align-items: end;
         flex-wrap: wrap;
     }
+    
     .filter-group {
         flex: 1;
         min-width: 200px;
     }
+    
     .filter-group label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 8px;
         font-weight: 600;
         color: #333;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
+    
     .filter-group select,
     .filter-group input {
         width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 0.9rem;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: white;
     }
+    
+    .filter-group select:focus,
+    .filter-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
     .filter-buttons {
         display: flex;
         gap: 10px;
     }
+    
     .btn-filter {
-        background-color: #1e3a8a;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
         color: white;
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
         cursor: pointer;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-    }
-    .btn-filter:hover {
-        background-color: #1e40af;
-        color: white;
-        text-decoration: none;
-    }
-    .btn-clear {
-        background-color: #6c757d;
-        border: none;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-weight: 500;
-        font-size: 0.9rem;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .btn-clear:hover {
-        background-color: #5a6268;
-        color: white;
-        text-decoration: none;
-    }
-    .activity-list {
-        max-height: 600px;
-        overflow-y: auto;
-    }
-    .activity-item {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 15px;
-        margin-bottom: 10px;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         transition: all 0.3s ease;
     }
-    .activity-item:hover {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-color: #1e3a8a;
+    
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
     }
+    
+    .btn-clear {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-clear:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* Activity List */
+    .activity-list {
+        max-height: 700px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+    
+    .activity-list::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .activity-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .activity-list::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+    
+    .activity-item {
+        background: white;
+        border-left: 4px solid #667eea;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        transform: translateX(5px);
+    }
+    
+    .activity-item:hover::before {
+        width: 6px;
+    }
+    
     .activity-header-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
+    
     .activity-type {
-        display: inline-block;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
+    
+    /* Colorful activity type badges */
     .activity-type-order_created {
-        background: #d4edda;
-        color: #155724;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
     }
+    
     .activity-type-order_updated {
-        background: #cce5ff;
-        color: #004085;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
     }
+    
     .activity-type-order_completed {
-        background: #d1ecf1;
-        color: #0c5460;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
     }
+    
     .activity-type-product_added {
-        background: #fff3cd;
-        color: #856404;
+        background: linear-gradient(135deg, #fad961 0%, #f76b1c 100%);
+        color: white;
     }
+    
     .activity-type-product_updated {
-        background: #f8d7da;
-        color: #721c24;
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
     }
-    .activity-type-sales_created {
-        background: #d4edda;
-        color: #155724;
-    }
-    .activity-type-customer_created {
-        background: #e2e3e5;
-        color: #383d41;
-    }
+    
     .activity-type-inventory_transaction {
-        background: #cce5ff;
-        color: #004085;
+        background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+        color: white;
     }
+    
+    .activity-type-sales_created {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        color: #333;
+    }
+    
+    .activity-type-customer_created {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #333;
+    }
+    
     .activity-time {
         color: #666;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: #f8f9fa;
+        padding: 6px 12px;
+        border-radius: 6px;
     }
+    
     .activity-description {
         color: #333;
-        font-size: 0.9rem;
-        margin-bottom: 8px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        font-weight: 500;
+        line-height: 1.6;
     }
+    
     .activity-user {
-        color: #666;
-        font-size: 0.8rem;
-        font-style: italic;
+        color: #667eea;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
+    
+    .activity-user::before {
+        content: '👤';
+        font-size: 1rem;
+    }
+    
     .activity-metadata {
-        background: #f8f9fa;
-        border-radius: 4px;
-        padding: 8px;
-        margin-top: 8px;
-        font-size: 0.8rem;
-        color: #666;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 0.85rem;
+        border-left: 3px solid #667eea;
     }
+    
     .metadata-item {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(102, 126, 234, 0.1);
     }
+    
     .metadata-item:last-child {
         margin-bottom: 0;
+        border-bottom: none;
     }
+    
     .metadata-label {
-        font-weight: 600;
+        font-weight: 700;
+        color: #667eea;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
     }
+    
+    .metadata-item span:last-child {
+        color: #333;
+        font-weight: 500;
+    }
+    
     .no-activities {
         text-align: center;
-        padding: 40px;
+        padding: 60px 20px;
         color: #666;
     }
+    
     .no-activities i {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        color: #ddd;
-    }
-    .stats-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
+        font-size: 4rem;
         margin-bottom: 20px;
+        color: #ddd;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
-    .stat-card {
-        background: white;
-        border: 1px solid #e9ecef;
-        border-radius: 6px;
-        padding: 15px;
-        text-align: center;
+    
+    .no-activities h4 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 10px;
     }
-    .stat-number {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #1e3a8a;
-        margin-bottom: 5px;
+    
+    /* Pagination */
+    .pagination-wrapper {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
     }
-    .stat-label {
-        color: #666;
-        font-size: 0.9rem;
+    
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 5px;
+    }
+    
+    .page-item {
+        margin: 0;
+    }
+    
+    .page-link {
+        display: block;
+        padding: 8px 16px;
+        color: #667eea;
+        background-color: white;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .page-link:hover {
+        background-color: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .page-item.active .page-link {
+        background-color: #667eea;
+        color: white;
+        border-color: #667eea;
+        font-weight: 600;
+    }
+    
+    .page-item.disabled .page-link {
+        color: #ccc;
+        background-color: #f5f5f5;
+        border-color: #e0e0e0;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .page-item.disabled .page-link:hover {
+        transform: none;
+        box-shadow: none;
+        background-color: #f5f5f5;
+        color: #ccc;
     }
 </style>
 {% endblock %}
@@ -249,16 +507,16 @@
         <!-- Statistics -->
         <div class="stats-section">
             <div class="stat-card">
-                <div class="stat-number">{{ activities|length }}</div>
+                <div class="stat-number">{{ total_activities }}</div>
                 <div class="stat-label">Total Activities</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ activities|length }}</div>
-                <div class="stat-label">Recent Activities</div>
+                <div class="stat-number">{{ recent_activities }}</div>
+                <div class="stat-label">Recent Activities (7 days)</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ activities|length }}</div>
-                <div class="stat-label">This Session</div>
+                <div class="stat-number">{{ today_activities }}</div>
+                <div class="stat-label">Today's Activities</div>
             </div>
         </div>
         
@@ -266,7 +524,7 @@
         <div class="filters-section">
             <form method="GET" class="filters-row">
                 <div class="filter-group">
-                    <label for="type">Activity Type</label>
+                    <label for="type"><i class="fas fa-filter me-2"></i>Activity Type</label>
                     <select name="type" id="type">
                         <option value="">All Activities</option>
                         {% for type_code, type_name in activity_types %}
@@ -277,11 +535,11 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label for="date_from">From Date</label>
+                    <label for="date_from"><i class="fas fa-calendar-alt me-2"></i>From Date</label>
                     <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
                 </div>
                 <div class="filter-group">
-                    <label for="date_to">To Date</label>
+                    <label for="date_to"><i class="fas fa-calendar-alt me-2"></i>To Date</label>
                     <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
                 </div>
                 <div class="filter-buttons">
@@ -302,10 +560,11 @@
                 <div class="activity-item">
                     <div class="activity-header-row">
                         <span class="activity-type activity-type-{{ activity.activity_type }}">
+                            <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
                             {{ activity.get_activity_type_display }}
                         </span>
                         <span class="activity-time">
-                            {{ activity.created_at|date:"M d, Y H:i" }}
+                            <i class="fas fa-clock me-1"></i>{{ activity.created_at|date:"M d, Y H:i" }}
                         </span>
                     </div>
                     <div class="activity-description">
@@ -336,8 +595,53 @@
                 </div>
             {% endif %}
         </div>
+        
+        <!-- Pagination -->
+        {% if activities.has_other_pages %}
+        <div class="pagination-wrapper">
+            <nav aria-label="Activity log pagination">
+                <ul class="pagination">
+                    {% if activities.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if selected_type %}&type={{ selected_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.previous_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">First</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Page {{ activities.number }} of {{ activities.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if activities.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.next_page_number }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ activities.paginator.num_pages }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Last</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Last</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
-
-

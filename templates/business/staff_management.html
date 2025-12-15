@@ -1,0 +1,4190 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Staff Management - TopStyle Business{% endblock %}
+{% block page_title %}Staff Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .staff-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    /* Total Staff Members Card - Mint/Sky Blue */
+    .stats-card.staff-card {
+        background: linear-gradient(135deg, #A0E7E5 0%, #7BDFF2 100%) !important;
+        color: white;
+    }
+    
+    /* Total Assigned Orders Card - Professional Green/Teal Gradient */
+    .stats-card.orders-card {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+    }
+    
+    /* Completed Orders Card - Professional Orange/Amber Gradient */
+    .stats-card.completed-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .stats-card h3 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #667eea;
+    }
+    
+    /* Override text colors for colored cards */
+    .stats-card.staff-card h3 {
+        color: #ffffff !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        font-weight: 800;
+        filter: brightness(1.1);
+    }
+    .stats-card.orders-card h3,
+    .stats-card.completed-card h3 {
+        color: #ffffff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        font-weight: 800;
+    }
+    
+    .stats-card p {
+        color: #6c757d;
+        margin: 0;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+    
+    /* Override text colors for colored cards - make text more visible */
+    .stats-card.staff-card p {
+        color: #ffffff !important;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 10px rgba(255, 255, 255, 0.3);
+        font-weight: 700;
+        opacity: 1;
+        filter: brightness(1.2);
+        letter-spacing: 1px;
+    }
+    .stats-card.orders-card p,
+    .stats-card.completed-card p {
+        color: #ffffff !important;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+        font-weight: 700;
+        opacity: 1;
+    }
+    
+    /* Icon colors for colored cards - make icons more visible */
+    .stats-card.staff-card i {
+        color: #ffffff !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+        opacity: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)) brightness(1.15);
+    }
+    .stats-card.orders-card i,
+    .stats-card.completed-card i {
+        color: #ffffff !important;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        opacity: 1;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+    
+    .efficiency-badge {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    .progress-custom {
+        height: 8px;
+        border-radius: 10px;
+        background-color: #e9ecef;
+    }
+    
+    .progress-bar-custom {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.6s ease;
+    }
+    
+    .action-btn {
+        margin: 2px;
+    }
+    
+    /* Hide Edit Staff button */
+    .edit-staff-btn {
+        display: none !important;
+    }
+    
+    .staff-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 2rem;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .staff-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Editable Field Styles */
+    .editable-field {
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        position: relative;
+        min-height: 1.5em;
+    }
+    
+    .editable-field:hover {
+        background-color: rgba(102, 126, 234, 0.1);
+        outline: 1px dashed rgba(102, 126, 234, 0.3);
+    }
+    
+    .editable-field:focus {
+        background-color: rgba(102, 126, 234, 0.15);
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+    }
+    
+    .editable-field.editing {
+        background-color: #fff;
+        border: 2px solid #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .editable-field .editable-content {
+        display: inline-block;
+    }
+    
+    .editable-field .edit-icon {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        margin-left: 5px;
+        font-size: 0.8em;
+        color: #667eea;
+    }
+    
+    .editable-field:hover .edit-icon {
+        opacity: 0.5;
+    }
+    
+    .editable-field.editing .edit-icon {
+        opacity: 1;
+    }
+    
+    .save-indicator {
+        display: inline-block;
+        margin-left: 5px;
+        font-size: 0.8em;
+    }
+    
+    .save-indicator.saving {
+        color: #f59e0b;
+    }
+    
+    .save-indicator.saved {
+        color: #10b981;
+    }
+    
+    .save-indicator.error {
+        color: #ef4444;
+        border-radius: 50%;
+    }
+    
+    .staff-avatar-initial {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    /* Staff Card Styles */
+    .staff-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: 3px solid transparent;
+    }
+    
+    /* Default card (available) - white background */
+    .staff-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: transparent;
+        border-radius: 15px;
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    /* Busy - gray navy blue background */
+    .staff-card.busy-red,
+    .staff-card.busy-orange {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        border: 3px solid #1a252f;
+        color: white;
+    }
+    
+    .staff-card.busy-red::before,
+    .staff-card.busy-orange::before {
+        background: linear-gradient(135deg, rgba(44, 62, 80, 0.95) 0%, rgba(52, 73, 94, 0.95) 100%);
+    }
+    
+    /* Available - white background */
+    .staff-card:not(.busy-red):not(.busy-orange) {
+        border: 3px solid #e9ecef;
+        background: white;
+        color: #333;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange)::before {
+        background: transparent;
+    }
+    
+    /* Text colors for busy cards (navy blue background) */
+    .staff-card.busy-red *,
+    .staff-card.busy-orange * {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .staff-name,
+    .staff-card.busy-orange .staff-name {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .staff-username,
+    .staff-card.busy-orange .staff-username {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .staff-card.busy-red .metric-value,
+    .staff-card.busy-orange .metric-value {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .metric-label,
+    .staff-card.busy-orange .metric-label {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .staff-card.busy-red .text-muted,
+    .staff-card.busy-orange .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    .staff-card.busy-red .staff-card-header,
+    .staff-card.busy-orange .staff-card-header {
+        border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    .staff-card.busy-red .staff-performance,
+    .staff-card.busy-orange .staff-performance {
+        border-top-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    .staff-card.busy-red .staff-actions,
+    .staff-card.busy-orange .staff-actions {
+        border-top-color: rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Text colors for available cards (white background) */
+    .staff-card:not(.busy-red):not(.busy-orange) * {
+        color: #333 !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-name {
+        color: #1e3a8a !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-username {
+        color: #666 !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-value {
+        color: #1e3a8a !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-label {
+        color: #666 !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .text-muted {
+        color: #999 !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-card-header {
+        border-bottom-color: #e9ecef !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-performance {
+        border-top-color: #e9ecef !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-actions {
+        border-top-color: #e9ecef !important;
+    }
+    
+    /* Metric items styling - Always gray regardless of card status */
+    .staff-card.busy-red .metric-item,
+    .staff-card.busy-orange .metric-item,
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-item {
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        color: white !important;
+    }
+    
+    .busy-status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        margin-top: 5px;
+    }
+    
+    .busy-status-badge.available {
+        background-color: #e9ecef;
+        color: #333;
+        border: 1px solid #dee2e6;
+    }
+    
+    .busy-status-badge.busy {
+        background-color: #2c3e50;
+        color: white;
+    }
+    
+    .busy-status-badge.overdue {
+        background-color: #34495e;
+        color: white;
+    }
+    
+    .staff-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    
+    /* Ensure content is above the background */
+    .staff-card-header,
+    .staff-metrics,
+    .staff-performance,
+    .staff-actions {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .staff-card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+    
+    .staff-rank {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .staff-info {
+        margin-left: 20px;
+        flex: 1;
+    }
+    
+    .staff-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+    }
+    
+    .staff-username {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+    }
+    
+    /* Text colors for busy cards (navy blue background) */
+    .staff-card.busy-red .staff-name,
+    .staff-card.busy-orange .staff-name {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .staff-username,
+    .staff-card.busy-orange .staff-username {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Text colors for available cards (white background) */
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-name {
+        color: #1e3a8a !important;
+    }
+    
+    .staff-card:not(.busy-red):not(.busy-orange) .staff-username {
+        color: #666 !important;
+    }
+    
+    .staff-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .metric-item {
+        text-align: center;
+        padding: 20px 15px;
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Always gray background with white text - fixed regardless of staff status */
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        color: white !important;
+    }
+    
+    .metric-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    }
+    
+    .metric-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Ensure all metric items stay gray regardless of nth-child */
+    .metric-item:nth-child(1),
+    .metric-item:nth-child(2),
+    .metric-item:nth-child(3),
+    .metric-item:nth-child(4),
+    .metric-item:nth-child(5),
+    .metric-item:nth-child(6) {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        color: white !important;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        line-height: 1.2;
+    }
+    
+    .metric-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        opacity: 0.95;
+    }
+    
+    /* Ensure white text in colored cards */
+    .staff-card.busy-red .metric-value,
+    .staff-card.busy-orange .metric-value,
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-value {
+        color: white !important;
+    }
+    
+    /* Metric values and labels - Always white text regardless of card status */
+    .metric-value {
+        color: white !important;
+    }
+    
+    .metric-label {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .metric-value,
+    .staff-card.busy-orange .metric-value,
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-value {
+        color: white !important;
+    }
+    
+    .staff-card.busy-red .metric-label,
+    .staff-card.busy-orange .metric-label,
+    .staff-card:not(.busy-red):not(.busy-orange) .metric-label {
+        color: white !important;
+    }
+    
+    .staff-performance {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .performance-item {
+        text-align: center;
+        flex: 1;
+    }
+    
+    .staff-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+    }
+    
+    .staff-actions .btn {
+        flex: 1;
+    }
+    
+    /* View Details button - white text for better visibility */
+    .staff-actions .btn-primary,
+    .staff-actions .btn-primary i,
+    .staff-actions .btn-primary:hover,
+    .staff-actions .btn-primary:focus {
+        color: white !important;
+    }
+    
+    .add-staff-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        z-index: 100 !important;
+        position: relative;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    
+    .add-staff-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .add-staff-btn:active {
+        transform: translateY(0);
+    }
+    
+    .add-staff-btn:focus {
+        outline: 2px solid rgba(102, 126, 234, 0.5);
+        outline-offset: 2px;
+    }
+    
+    .add-staff-btn * {
+        pointer-events: none;
+    }
+    
+    /* Fix modal z-index and backdrop issues - SIMPLIFIED WORKING VERSION */
+    #addStaffModal {
+        z-index: 1050 !important;
+    }
+    
+    #addStaffModal.show {
+        display: block !important;
+    }
+    
+    /* Backdrop should be below modal - very light backdrop (10% opacity) or transparent */
+    #addStaffModalBackdrop {
+        z-index: 1040 !important;
+        background-color: rgba(0, 0, 0, 0.1) !important; /* Very light backdrop - 10% opacity */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none !important; /* Disable backdrop clicks - modal only closes via Cancel/X buttons */
+    }
+    
+    /* CRITICAL: Ensure modal and all its content blocks backdrop clicks */
+    #addStaffModal.show {
+        pointer-events: auto !important;
+        z-index: 1050 !important;
+    }
+    
+    #addStaffModal.show .modal-dialog {
+        pointer-events: auto !important;
+        z-index: 1051 !important;
+    }
+    
+    #addStaffModal.show .modal-content {
+        pointer-events: auto !important;
+        z-index: 1052 !important;
+    }
+    
+    #addStaffModal.show .modal-body {
+        pointer-events: auto !important;
+        z-index: 1053 !important;
+    }
+    
+    #addStaffModal.show #addStaffForm {
+        pointer-events: auto !important;
+        z-index: 1054 !important;
+    }
+    
+    #addStaffModal.show input,
+    #addStaffModal.show textarea,
+    #addStaffModal.show select {
+        pointer-events: auto !important;
+        z-index: 1055 !important;
+        cursor: text !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+    }
+    
+    /* Modal dialog - MUST be interactive */
+    #addStaffModal .modal-dialog {
+        z-index: 1051 !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        margin: 1.75rem auto !important;
+    }
+    
+    /* Modal content - FULLY interactive */
+    #addStaffModal .modal-content {
+        z-index: 1052 !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        background: white !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* All modal sections must be interactive */
+    #addStaffModal .modal-header,
+    #addStaffModal .modal-body,
+    #addStaffModal .modal-footer {
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1052 !important;
+    }
+    
+    /* ALL form elements must be fully interactive */
+    #addStaffModal form,
+    #addStaffModal form *,
+    #addStaffModal input,
+    #addStaffModal textarea,
+    #addStaffModal select,
+    #addStaffModal button,
+    #addStaffModal label,
+    #addStaffModal .btn-close,
+    #addStaffModal .form-control,
+    #addStaffModal .form-label,
+    #addStaffModal .form-text,
+    #addStaffModal .btn {
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1053 !important;
+    }
+    
+    /* Text inputs should have text cursor and be fully interactive */
+    #addStaffModal input[type="text"],
+    #addStaffModal input[type="email"],
+    #addStaffModal input[type="password"],
+    #addStaffModal input[type="tel"],
+    #addStaffModal input[type="file"],
+    #addStaffModal textarea,
+    #addStaffModal select {
+        cursor: text !important;
+        pointer-events: auto !important;
+        z-index: 1054 !important;
+        position: relative !important;
+        opacity: 1 !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+    }
+    
+    /* Ensure form is fully interactive */
+    #addStaffModal #addStaffForm {
+        pointer-events: auto !important;
+        z-index: 1053 !important;
+        position: relative !important;
+    }
+    
+    /* Modal body must be interactive */
+    #addStaffModal .modal-body {
+        pointer-events: auto !important;
+        z-index: 1053 !important;
+        position: relative !important;
+    }
+    
+    /* File input should have pointer cursor */
+    #addStaffModal input[type="file"] {
+        cursor: pointer !important;
+    }
+    
+    /* Buttons should have pointer cursor */
+    #addStaffModal button,
+    #addStaffModal .btn {
+        cursor: pointer !important;
+    }
+    
+    /* Ensure modal is visible when shown */
+    body.modal-open #addStaffModal,
+    #addStaffModal.show {
+        display: block !important;
+        pointer-events: none !important; /* Container doesn't block, but content does */
+    }
+    
+    /* CRITICAL: Modal content must always be interactive */
+    #addStaffModal.show .modal-dialog {
+        pointer-events: auto !important;
+        z-index: 1051 !important;
+    }
+    
+    #addStaffModal.show .modal-content,
+    #addStaffModal.show .modal-content * {
+        pointer-events: auto !important;
+        z-index: 1052 !important;
+    }
+    
+    /* Ensure form elements are always on top */
+    #addStaffModal.show input,
+    #addStaffModal.show button,
+    #addStaffModal.show select,
+    #addStaffModal.show textarea,
+    #addStaffModal.show label {
+        pointer-events: auto !important;
+        z-index: 1053 !important;
+        position: relative !important;
+    }
+    
+    /* Override any global styles */
+    #addStaffModal * {
+        box-sizing: border-box !important;
+    }
+    
+    /* Force interaction on all elements when modal is shown */
+    #addStaffModal.show .modal-content * {
+        pointer-events: auto !important;
+        touch-action: auto !important;
+        -webkit-touch-callout: default !important;
+        -webkit-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: auto !important;
+        user-select: auto !important;
+    }
+    
+    /* Focus states */
+    #addStaffModal input:focus,
+    #addStaffModal textarea:focus,
+    #addStaffModal select:focus {
+        pointer-events: auto !important;
+        outline: 2px solid #0d6efd !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* Fix edit staff modal - same as add staff modal */
+    #editStaffModal {
+        z-index: 1050 !important;
+    }
+    
+    #editStaffModal.show {
+        display: block !important;
+    }
+    
+    /* Modal dialog - MUST be interactive */
+    #editStaffModal .modal-dialog {
+        z-index: 1051 !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        margin: 1.75rem auto !important;
+    }
+    
+    /* Modal content - FULLY interactive */
+    #editStaffModal .modal-content {
+        z-index: 1052 !important;
+        position: relative !important;
+        pointer-events: auto !important;
+        background: white !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* All modal sections must be interactive */
+    #editStaffModal .modal-header,
+    #editStaffModal .modal-body,
+    #editStaffModal .modal-footer {
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1052 !important;
+    }
+    
+    /* ALL form elements must be fully interactive */
+    #editStaffModal form,
+    #editStaffModal form *,
+    #editStaffModal input,
+    #editStaffModal textarea,
+    #editStaffModal select,
+    #editStaffModal button,
+    #editStaffModal label,
+    #editStaffModal .btn-close,
+    #editStaffModal .form-control,
+    #editStaffModal .form-label,
+    #editStaffModal .form-text,
+    #editStaffModal .btn {
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1053 !important;
+    }
+    
+    /* Text inputs should have text cursor */
+    #editStaffModal input[type="text"],
+    #editStaffModal input[type="email"] {
+        cursor: text !important;
+    }
+    
+    /* File input should have pointer cursor */
+    #editStaffModal input[type="file"] {
+        cursor: pointer !important;
+    }
+    
+    /* Buttons should have pointer cursor */
+    #editStaffModal button,
+    #editStaffModal .btn {
+        cursor: pointer !important;
+    }
+    
+    /* CRITICAL: Modal content must always be interactive */
+    #editStaffModal.show .modal-dialog {
+        pointer-events: auto !important;
+        z-index: 1051 !important;
+    }
+    
+    #editStaffModal.show .modal-content,
+    #editStaffModal.show .modal-content * {
+        pointer-events: auto !important;
+        z-index: 1052 !important;
+    }
+    
+    /* Ensure form elements are always on top */
+    #editStaffModal.show input,
+    #editStaffModal.show button,
+    #editStaffModal.show select,
+    #editStaffModal.show textarea,
+    #editStaffModal.show label {
+        pointer-events: auto !important;
+        z-index: 1053 !important;
+        position: relative !important;
+    }
+    
+    /* Force interaction on all elements when modal is shown */
+    #editStaffModal.show .modal-content * {
+        pointer-events: auto !important;
+        touch-action: auto !important;
+        -webkit-touch-callout: default !important;
+        -webkit-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: auto !important;
+        user-select: auto !important;
+    }
+    
+    /* Focus states */
+    #editStaffModal input:focus,
+    #editStaffModal textarea:focus,
+    #editStaffModal select:focus {
+        pointer-events: auto !important;
+        outline: 2px solid #0d6efd !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* Specific fixes for salary modal */
+    #staffSalaryModal {
+        z-index: 1055 !important;
+    }
+    
+    #staffSalaryModal.show {
+        display: block !important;
+    }
+    
+    #staffSalaryModal .modal-dialog {
+        pointer-events: auto !important;
+        z-index: 1056 !important;
+        max-height: 90vh !important;
+        margin: 2vh auto !important;
+        top: 5% !important;
+        transform: translate(-50%, 0) !important;
+    }
+    
+    #staffSalaryModal .modal-content {
+        pointer-events: auto !important;
+        z-index: 1057 !important;
+        position: relative;
+        max-height: 90vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    #staffSalaryModal .modal-body {
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1058 !important;
+        overflow-y: auto !important;
+        max-height: calc(90vh - 120px) !important;
+        padding: 1.5rem !important;
+    }
+    
+    #staffSalaryModal .modal-header,
+    #staffSalaryModal .modal-footer {
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1058 !important;
+        flex-shrink: 0 !important;
+    }
+    
+    #staffSalaryModal .modal-footer {
+        border-top: 1px solid #dee2e6 !important;
+        padding: 1rem !important;
+        background-color: #f8f9fa !important;
+        position: sticky !important;
+        bottom: 0 !important;
+    }
+    
+    #staffSalaryModal .btn-close,
+    #staffSalaryModal button,
+    #staffSalaryModal .btn {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        z-index: 9999 !important;
+        position: relative;
+    }
+    
+    #staffSalaryModal .modal-backdrop {
+        z-index: 1040 !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF token for JavaScript -->
+{% csrf_token %}
+
+<!-- Staff Header -->
+<div class="staff-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-2"><i class="fas fa-users me-2"></i>Staff Management</h2>
+            <p class="mb-0">Monitor performance, track efficiency, and manage your team</p>
+        </div>
+        <button class="add-staff-btn" onclick="openAddStaffModal(event); return false;" type="button" aria-label="Add New Staff Member" style="pointer-events: auto !important; cursor: pointer !important; z-index: 10; position: relative !important;">
+            <i class="fas fa-user-plus me-2"></i>Add New Staff
+        </button>
+    </div>
+</div>
+
+<!-- Download Buttons -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card" style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-download me-2"></i>Export Reports</h5>
+                    <small class="text-muted">Download detailed staff reports with complete information</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'staff_report_pdf' %}" class="btn btn-danger" style="min-width: 180px;">
+                        <i class="fas fa-file-pdf me-2"></i>Download PDF Report
+                    </a>
+                    <a href="{% url 'staff_report_excel' %}" class="btn btn-success" style="min-width: 180px;">
+                        <i class="fas fa-file-excel me-2"></i>Download Excel Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card staff-card">
+            <i class="fas fa-users fa-2x mb-2"></i>
+            <h3>{{ total_staff }}</h3>
+            <p>Total Staff Members</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card orders-card">
+            <i class="fas fa-tasks fa-2x mb-2"></i>
+            <h3>{{ total_assigned_orders }}</h3>
+            <p>Total Assigned Orders</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card completed-card">
+            <i class="fas fa-check-circle fa-2x mb-2"></i>
+            <h3>{{ total_completed_by_staff }}</h3>
+            <p>Completed Orders</p>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Performance Cards -->
+<div class="mb-4">
+    <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Staff Performance & Efficiency Ratings</h5>
+    
+    {% for stat in staff_stats %}
+    <div class="staff-card {% if stat.is_busy %}{% if stat.time_since_assignment and stat.time_since_assignment >= 20 %}busy-orange{% else %}busy-red{% endif %}{% endif %}">
+        <!-- Rank Badge -->
+        <div class="staff-rank">#{{ forloop.counter }}</div>
+        
+        <!-- Staff Header -->
+        <div class="staff-card-header">
+            <div class="staff-avatar">
+                {% if stat.staff.staff_profile and stat.staff.staff_profile.profile_image %}
+                    <img src="{{ stat.staff.staff_profile.profile_image.url }}" alt="{{ stat.staff.get_full_name|default:stat.staff.username }}" class="staff-avatar-img">
+                {% else %}
+                    <span class="staff-avatar-initial">{{ stat.staff.first_name|first|default:stat.staff.username|first|upper }}</span>
+                {% endif %}
+            </div>
+            <div class="staff-info">
+                <div class="staff-name editable-field" 
+                     data-field="name" 
+                     data-staff-id="{{ stat.staff.id }}"
+                     data-original-value="{{ stat.staff.get_full_name|default:stat.staff.username }}"
+                     contenteditable="true"
+                     title="Click to edit name">
+                    <span class="editable-content">{{ stat.staff.get_full_name|default:stat.staff.username }}</span>
+                    <i class="fas fa-edit edit-icon"></i>
+                    <span class="save-indicator"></span>
+                </div>
+                <div class="staff-username editable-field" 
+                     data-field="username" 
+                     data-staff-id="{{ stat.staff.id }}"
+                     data-original-value="{{ stat.staff.username }}"
+                     contenteditable="true"
+                     title="Click to edit username">
+                    @<span class="editable-content">{{ stat.staff.username }}</span>
+                    <i class="fas fa-edit edit-icon"></i>
+                    <span class="save-indicator"></span>
+                </div>
+                {% if stat.staff.email %}
+                <div class="text-muted small mt-1 editable-field" 
+                     data-field="email" 
+                     data-staff-id="{{ stat.staff.id }}"
+                     data-original-value="{{ stat.staff.email }}"
+                     contenteditable="true"
+                     title="Click to edit email">
+                    <i class="fas fa-envelope me-1"></i><span class="editable-content">{{ stat.staff.email }}</span>
+                    <i class="fas fa-edit edit-icon"></i>
+                    <span class="save-indicator"></span>
+                </div>
+                {% endif %}
+                <!-- Busy Status Badge -->
+                <div class="mt-2">
+                    {% if stat.is_busy %}
+                        <span class="busy-status-badge {% if stat.time_since_assignment and stat.time_since_assignment >= 20 %}overdue{% else %}busy{% endif %}">
+                            <i class="fas fa-clock me-1"></i>
+                            {% if stat.time_since_assignment and stat.time_since_assignment >= 20 %}
+                                Overdue ({{ stat.time_since_assignment }}m)
+                            {% else %}
+                                Busy ({{ stat.time_since_assignment|default:0 }}m)
+                            {% endif %}
+                        </span>
+                        <small class="text-muted d-block mt-1">
+                            {{ stat.active_order_count }} active order{{ stat.active_order_count|pluralize }}
+                        </small>
+                    {% else %}
+                        <span class="busy-status-badge available">
+                            <i class="fas fa-check-circle me-1"></i>Available
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Metrics Grid -->
+        <div class="staff-metrics">
+            <div class="metric-item">
+                <div class="metric-value">{{ stat.total_orders }}</div>
+                <div class="metric-label">Total Orders</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value text-success">{{ stat.completed_orders }}</div>
+                <div class="metric-label">Completed</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value text-warning">{{ stat.pending_orders }}</div>
+                <div class="metric-label">Pending</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">{{ stat.completion_rate }}%</div>
+                <div class="metric-label">Completion Rate</div>
+                <div class="progress-custom mt-2">
+                    <!-- Django template variable in style attribute - linter warning is false positive -->
+                    <div class="progress-bar-custom" data-completion-rate="{{ stat.completion_rate }}" style="width: 0%;"></div>
+                </div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">
+                    {% if stat.avg_completion_time %}
+                        {{ stat.avg_completion_time }}h
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="metric-label">Avg Time</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value text-info">{{ stat.recent_orders }}</div>
+                <div class="metric-label">Recent (7d)</div>
+            </div>
+        </div>
+        
+        <!-- Performance Summary -->
+        <div class="staff-performance">
+            <div class="performance-item">
+                <div class="efficiency-badge bg-{{ stat.rating_class }} text-white mb-2">
+                    <strong>{{ stat.efficiency_score }}</strong>
+                </div>
+                <small class="text-muted">Efficiency Score</small>
+            </div>
+            <div class="performance-item">
+                <div class="rating-badge bg-{{ stat.rating_class }} text-white mb-2">
+                    {% if stat.rating == 'Excellent' %}
+                        <i class="fas fa-star"></i>
+                    {% elif stat.rating == 'Good' %}
+                        <i class="fas fa-thumbs-up"></i>
+                    {% elif stat.rating == 'Average' %}
+                        <i class="fas fa-minus-circle"></i>
+                    {% else %}
+                        <i class="fas fa-exclamation-triangle"></i>
+                    {% endif %}
+                    {{ stat.rating }}
+                </div>
+                <small class="text-muted">Rating</small>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="staff-actions">
+            <a href="{% url 'staff_detail' stat.staff.id %}" class="btn btn-primary">
+                <i class="fas fa-eye me-2"></i>View Details
+            </a>
+            <!-- eslint-disable-next-line -->
+            <button class="btn btn-outline-secondary edit-staff-btn" 
+                    data-staff-id="{{ stat.staff.id }}"
+                    data-staff-username="{{ stat.staff.username|escapejs }}"
+                    data-staff-email="{{ stat.staff.email|escapejs }}"
+                    data-staff-first-name="{{ stat.staff.first_name|escapejs }}"
+                    data-staff-last-name="{{ stat.staff.last_name|escapejs }}"
+                    data-staff-is-active="{{ stat.staff.is_active|yesno:'true,false' }}"
+                    data-staff-image="{% if stat.staff.staff_profile and stat.staff.staff_profile.profile_image %}{{ stat.staff.staff_profile.profile_image.url|escapejs }}{% endif %}"
+                    title="Edit Staff Member"
+                    style="pointer-events: auto !important; cursor: pointer !important; z-index: 10; position: relative;">
+                <i class="fas fa-edit me-2"></i>Edit Staff
+            </button>
+            <!-- eslint-disable-next-line -->
+            <button class="btn btn-info salary-btn" 
+                    data-staff-id="{{ stat.staff.id }}"
+                    data-staff-name="{{ stat.staff.get_full_name|default:stat.staff.username|escapejs }}"
+                    data-completed-orders="{{ stat.completed_repair_customize_count }}"
+                    data-total-revenue="{{ stat.total_revenue }}"
+                    data-staff-salary="{{ stat.staff_salary }}"
+                    data-owner-share="{{ stat.owner_share }}"
+                    title="View Salary Details" 
+                    style="pointer-events: auto !important; cursor: pointer !important; z-index: 10; position: relative !important;">
+                <i class="fas fa-money-bill-wave me-2"></i>Salary
+            </button>
+            <!-- eslint-disable-next-line -->
+            <button class="btn btn-danger delete-staff-btn" 
+                    data-staff-id="{{ stat.staff.id }}"
+                    data-staff-name="{{ stat.staff.get_full_name|default:stat.staff.username|escapejs }}"
+                    title="Delete Staff Member" 
+                    style="pointer-events: auto !important; cursor: pointer !important; z-index: 10; position: relative !important;">
+                <i class="fas fa-trash me-2"></i>Delete
+            </button>
+            {% if stat.is_busy and stat.active_orders %}
+                {% with first_order=stat.active_orders|first %}
+                    <!-- eslint-disable-next-line -->
+                    <button class="btn btn-success btn-sm mt-2 mark-order-done-btn" 
+                            data-order-id="{{ first_order.id }}"
+                            data-staff-id="{{ stat.staff.id }}"
+                            title="Mark Order {{ first_order.order_identifier|default:first_order.id }} as Done">
+                        <i class="fas fa-check me-1"></i>Order Done
+                    </button>
+                {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="staff-card text-center py-5">
+        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+        <h5 class="text-muted">No staff members found</h5>
+        <p class="text-muted">Click "Add New Staff" to get started.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Add Staff Modal -->
+<div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true" style="pointer-events: auto !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+    <div class="modal-dialog modal-dialog-centered" style="pointer-events: auto !important; position: relative !important; z-index: 1051 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+        <div class="modal-content" style="pointer-events: auto !important; position: relative !important; z-index: 1052 !important; background: white !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+            <div class="modal-header" style="pointer-events: auto !important; position: relative !important; z-index: 1053 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                <h5 class="modal-title" id="addStaffModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Add New Staff Member
+                </h5>
+                <button type="button" class="btn-close" onclick="event.stopPropagation(); event.stopImmediatePropagation(); closeAddStaffModal();" aria-label="Close" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;"></button>
+            </div>
+            <div class="modal-body" style="pointer-events: auto !important; position: relative !important; z-index: 1053 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                <form id="addStaffForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); if(typeof window.addStaff === 'function') { window.addStaff(event); } return false;" style="pointer-events: auto !important; position: relative !important; z-index: 1054 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required placeholder="Enter first name" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required placeholder="Enter last name" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number <span class="text-danger">*</span></label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required placeholder="Enter phone number (e.g., 09123456789)" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        <small class="form-text text-muted">Include country code if needed</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="Enter email address" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="Enter username" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        <small class="form-text text-muted">Used for login</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profile_image" class="form-label">Profile Image</label>
+                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(this, 'add_image_preview')" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                        <small class="form-text text-muted">Upload a profile picture for this staff member (optional)</small>
+                        <div id="add_image_preview" class="mt-2"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="pointer-events: auto !important; position: relative !important; z-index: 1053 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                <button type="button" class="btn btn-secondary" id="cancelAddStaffBtn" onclick="closeAddStaffModal(event)" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="submit" form="addStaffForm" class="btn btn-primary" id="submitAddStaffBtn" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                    <i class="fas fa-save me-2"></i>Add Staff
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Staff Salary Modal -->
+<div class="modal fade" id="staffSalaryModal" tabindex="-1" aria-labelledby="staffSalaryModalLabel" aria-hidden="true" style="display: none; z-index: 9999 !important;">
+    <div class="modal-backdrop fade show" id="salaryModalBackdrop" style="z-index: 9998 !important; background-color: rgba(0,0,0,0.5); position: fixed; top: 0; left: 0; width: 100%; height: 100%;" onclick="closeSalaryModal()"></div>
+    <div class="modal-dialog modal-lg" style="z-index: 9999 !important; position: fixed; top: 5% !important; left: 50%; transform: translateX(-50%) !important; max-height: 90vh !important; margin: 0 auto !important; pointer-events: auto !important;">
+        <div class="modal-content" style="pointer-events: auto !important; z-index: 10000 !important; position: relative;">
+            <div class="modal-header bg-info text-white" style="pointer-events: auto !important;">
+                <h5 class="modal-title" id="staffSalaryModalLabel">
+                    <i class="fas fa-money-bill-wave me-2"></i>Staff Salary Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" onclick="closeSalaryModal()" aria-label="Close" style="pointer-events: auto !important; cursor: pointer !important; z-index: 10001 !important; position: relative;"></button>
+            </div>
+            <div class="modal-body" style="pointer-events: auto !important; position: relative; z-index: 10000 !important;">
+                <div class="mb-4">
+                    <h6 class="text-muted mb-3">Staff Member: <strong id="salaryStaffName"></strong></h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-success">
+                                        <i class="fas fa-check-circle me-2"></i>Completed Orders
+                                    </h5>
+                                    <h2 class="text-success mb-0" id="salaryCompletedOrders">0</h2>
+                                    <small class="text-muted">Repair & Customize Orders Only</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-primary">
+                                        <i class="fas fa-dollar-sign me-2"></i>Total Revenue
+                                    </h5>
+                                    <h2 class="text-primary mb-0" id="salaryTotalRevenue">₱0.00</h2>
+                                    <small class="text-muted">From Completed Orders</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-info">
+                                        <i class="fas fa-crown me-2"></i>Owner Revenue
+                                    </h5>
+                                    <h2 class="text-info mb-0" id="salaryOwnerRevenue">₱0.00</h2>
+                                    <small class="text-muted">60% of Total Revenue (Not Withdrawable)</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title text-warning">
+                                        <i class="fas fa-user-tie me-2"></i>Staff Revenue
+                                    </h5>
+                                    <h2 class="text-warning mb-0" id="salaryStaffRevenue">₱0.00</h2>
+                                    <small class="text-muted">40% of Total Revenue</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h6 class="mb-3"><i class="fas fa-calculator me-2"></i>Salary Breakdown</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Total Revenue (Repair & Customize)</strong></td>
+                                    <td class="text-end"><strong id="salaryBreakdownTotal">₱0.00</strong></td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td><i class="fas fa-user-tie me-2"></i><strong>Staff Share (40%)</strong></td>
+                                    <td class="text-end"><strong class="text-success" id="salaryStaffShare">₱0.00</strong></td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td><i class="fas fa-crown me-2"></i><strong>Owner Share (60%)</strong></td>
+                                    <td class="text-end"><strong class="text-info" id="salaryOwnerShare">₱0.00</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Salary calculation is based on completed Repair and Customize orders only. 
+                    Rental orders are not included in salary calculations.
+                </div>
+                
+                <!-- Withdrawal History Section -->
+                <div class="mb-4">
+                    <h6 class="mb-3"><i class="fas fa-history me-2"></i>Withdrawal History</h6>
+                    <div id="withdrawalHistoryContainer">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin me-2"></i>Loading withdrawal history...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="pointer-events: auto !important; position: relative; z-index: 10000 !important;">
+                <button type="button" class="btn btn-success" id="withdrawStaffRevenueBtn" onclick="withdrawStaffRevenue(event); return false;" style="pointer-events: auto !important; cursor: pointer !important; z-index: 10001 !important; position: relative;">
+                    <i class="fas fa-money-bill-wave me-2"></i>Withdraw Staff Revenue
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeSalaryModal()" style="pointer-events: auto !important; cursor: pointer !important; z-index: 10001 !important; position: relative;">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Staff Modal -->
+<div class="modal fade" id="editStaffModal" tabindex="-1" aria-labelledby="editStaffModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStaffModalLabel">
+                    <i class="fas fa-edit me-2"></i>Edit Staff Member
+                </h5>
+                <button type="button" class="btn-close" onclick="closeEditStaffModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="pointer-events: auto !important; position: relative !important; z-index: 1053 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                <form id="editStaffForm" enctype="multipart/form-data" onsubmit="event.preventDefault(); editStaff(event); return false;" style="pointer-events: auto !important; position: relative !important; z-index: 1054 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_staff_id" name="staff_id">
+                    <div class="mb-3">
+                        <label for="edit_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="edit_username" name="username" readonly style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="edit_first_name" name="first_name" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="edit_last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="edit_last_name" name="last_name" style="pointer-events: auto !important; cursor: text !important; z-index: 1055 !important; position: relative !important; opacity: 1 !important; user-select: text !important;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="edit_is_active" name="is_active" checked style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                            <label class="form-check-label" for="edit_is_active">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_profile_image" class="form-label">Profile Image</label>
+                        <input type="file" class="form-control" id="edit_profile_image" name="profile_image" accept="image/*" onchange="previewImage(this, 'current_image_preview')" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                        <small class="form-text text-muted">Upload a new profile picture (leave empty to keep current image)</small>
+                        <div id="current_image_preview" class="mt-2"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="pointer-events: auto !important; position: relative !important; z-index: 1053 !important;" onclick="event.stopPropagation(); event.stopImmediatePropagation();">
+                <button type="button" class="btn btn-secondary" onclick="event.stopPropagation(); event.stopImmediatePropagation(); closeEditStaffModal();" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="event.stopPropagation(); event.stopImmediatePropagation(); editStaff(event); return false;" style="pointer-events: auto !important; cursor: pointer !important; z-index: 1055 !important; position: relative !important;">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Define addStaff function IMMEDIATELY at the top of the script to ensure it's available for onclick handlers
+window.addStaff = function addStaff(event) {
+    // Prevent event bubbling
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    console.log('=== Add Staff Function Called ===');
+    console.log('Event:', event);
+    console.log('Window.addStaff type:', typeof window.addStaff);
+    
+    const form = document.getElementById('addStaffForm');
+    if (!form) {
+        console.error('Form not found!');
+        alert('Form not found. Please refresh the page.');
+        return false;
+    }
+    
+    console.log('Form found:', form);
+    
+    // Validate required fields
+    const firstName = document.getElementById('first_name')?.value.trim();
+    const lastName = document.getElementById('last_name')?.value.trim();
+    const email = document.getElementById('email')?.value.trim();
+    const phone = document.getElementById('phone')?.value.trim();
+    const username = document.getElementById('username')?.value.trim();
+    
+    console.log('Form values:', { firstName, lastName, email, phone, username });
+    
+    if (!firstName || !lastName) {
+        alert('Please fill in First Name and Last Name');
+        return false;
+    }
+    
+    if (!email) {
+        alert('Please fill in Email address');
+        return false;
+    }
+    
+    if (!phone) {
+        alert('Please fill in Phone Number');
+        return false;
+    }
+    
+    if (!username) {
+        alert('Please fill in Username');
+        return false;
+    }
+    
+    // Get CSRF token - use Django's recommended approach
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Try multiple methods to get CSRF token
+    let csrfToken = null;
+    
+    // Method 1: From form hidden input (most reliable for this form)
+    const csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput && csrfInput.value) {
+        csrfToken = csrfInput.value;
+        console.log('CSRF token found in form, length:', csrfToken.length);
+    }
+    
+    // Method 2: From cookie (Django standard)
+    if (!csrfToken) {
+        csrfToken = getCookie('csrftoken');
+        if (csrfToken) {
+            console.log('CSRF token found in cookie, length:', csrfToken.length);
+        }
+    }
+    
+    // Method 3: From any page input
+    if (!csrfToken) {
+        const pageCsrf = document.querySelector('input[name=csrfmiddlewaretoken]');
+        if (pageCsrf && pageCsrf.value) {
+            csrfToken = pageCsrf.value;
+            console.log('CSRF token found on page, length:', csrfToken.length);
+        }
+    }
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+        console.error('Form csrfInput:', csrfInput);
+        console.error('Cookies:', document.cookie);
+        alert('Security token not found. Please refresh the page and try again.');
+        return false;
+    }
+    
+    console.log('CSRF token retrieved successfully');
+    console.log('Token preview:', csrfToken.substring(0, 20) + '...');
+    
+    // Create FormData from form
+    const formData = new FormData(form);
+    
+    // Log FormData contents for debugging
+    console.log('FormData contents:');
+    for (let [key, value] of formData.entries()) {
+        if (key === 'csrfmiddlewaretoken') {
+            console.log('  ', key, ':', value.substring(0, 20) + '...');
+        } else if (value instanceof File) {
+            console.log('  ', key, ': [File]', value.name);
+        } else {
+            console.log('  ', key, ':', value);
+        }
+    }
+    
+    // Ensure CSRF token is in FormData
+    if (!formData.has('csrfmiddlewaretoken')) {
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        console.log('Added CSRF token to FormData');
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = form.closest('.modal-content')?.querySelector('button[onclick*="addStaff"]') || 
+                      document.querySelector('button[onclick*="addStaff"]');
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+    }
+    
+    // Get the URL - use absolute path
+    const addStaffUrl = '/staff/add/';
+    console.log('Submitting to URL:', addStaffUrl);
+    console.log('Form data keys:', Array.from(formData.keys()));
+    
+    // Make the fetch request
+    console.log('Making fetch request to:', addStaffUrl);
+    console.log('FormData entries:');
+    for (let pair of formData.entries()) {
+        console.log('  ', pair[0], ':', pair[1] instanceof File ? `[File: ${pair[1].name}]` : pair[1]);
+    }
+    
+    // Submit the ORIGINAL form directly - it already has the correct CSRF token from Django
+    // This is the most reliable method and avoids any token mismatch issues
+    console.log('Using direct original form submission');
+    console.log('Navigator online status:', navigator.onLine);
+    
+    // Get the CSRF token from the cookie (most up-to-date source)
+    function getCsrfCookie() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                return value;
+            }
+        }
+        return null;
+    }
+    
+    const cookieCsrfToken = getCsrfCookie();
+    console.log('CSRF token from cookie:', cookieCsrfToken ? cookieCsrfToken.substring(0, 20) + '...' : 'NOT FOUND');
+    
+    // Set the form's action URL (it might not have one set)
+    form.action = addStaffUrl;
+    form.method = 'POST';
+    form.enctype = 'multipart/form-data';
+    
+    // Get/update the CSRF token input in the form (use different variable name to avoid conflict)
+    let formTokenInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+    console.log('CSRF input found in form:', !!formTokenInput);
+    
+    if (formTokenInput && cookieCsrfToken) {
+        // Update the form's CSRF token to match the cookie (in case it's stale)
+        console.log('Form CSRF token (before):', formTokenInput.value.substring(0, 20) + '...');
+        formTokenInput.value = cookieCsrfToken;
+        console.log('Form CSRF token (after update):', formTokenInput.value.substring(0, 20) + '...');
+    } else if (!formTokenInput && cookieCsrfToken) {
+        // Add CSRF token input if missing
+        formTokenInput = document.createElement('input');
+        formTokenInput.type = 'hidden';
+        formTokenInput.name = 'csrfmiddlewaretoken';
+        formTokenInput.value = cookieCsrfToken;
+        form.insertBefore(formTokenInput, form.firstChild);
+        console.log('Added CSRF token to form');
+    }
+    
+    // Log all form inputs before submission
+    console.log('Form inputs before submit:');
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (input.name === 'csrfmiddlewaretoken') {
+            console.log('  ', input.name, ':', input.value.substring(0, 20) + '...');
+        } else if (input.type === 'file') {
+            console.log('  ', input.name, ': [File]', input.files[0]?.name || 'no file');
+        } else {
+            console.log('  ', input.name, ':', input.value);
+        }
+    });
+    
+    console.log('Submitting original form to:', addStaffUrl);
+    
+    // Submit the original form directly
+    form.submit();
+    
+    // The page will redirect/reload after server processes the request
+    return false;
+};
+
+
+console.log('addStaff function defined and available:', typeof window.addStaff);
+
+// Ensure addStaff is available globally - add to window object explicitly
+if (typeof window.addStaff === 'function') {
+    console.log('✓ addStaff function is properly defined');
+} else {
+    console.error('✗ addStaff function is NOT defined!');
+}
+
+// Add event listeners to Add Staff button as backup to onclick handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for modal to be ready
+    setTimeout(function() {
+        const addStaffBtn = document.querySelector('button[onclick*="addStaff"]');
+        if (addStaffBtn) {
+            console.log('Found Add Staff button, adding event listener');
+            // Remove existing onclick and add event listener instead
+            addStaffBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Add Staff button clicked via event listener');
+                if (typeof window.addStaff === 'function') {
+                    window.addStaff(e);
+                } else {
+                    console.error('addStaff function not available!');
+                    alert('Error: Add Staff function is not available. Please refresh the page.');
+                }
+                return false;
+            }, true);
+        }
+        
+        // Also add to form submit
+        const addStaffForm = document.getElementById('addStaffForm');
+        if (addStaffForm) {
+            addStaffForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Add Staff form submitted via event listener');
+                if (typeof window.addStaff === 'function') {
+                    window.addStaff(e);
+                } else {
+                    console.error('addStaff function not available!');
+                    alert('Error: Add Staff function is not available. Please refresh the page.');
+                }
+                return false;
+            }, true);
+        }
+    }, 500);
+});
+// Define functions immediately in global scope to ensure they're accessible
+// This ensures functions are available even if script execution order is an issue
+
+// Open Add Staff Modal - Define immediately
+function openAddStaffModal(event) {
+    // Prevent event bubbling (event is optional)
+    if (typeof event !== 'undefined' && event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    console.log('Opening Add Staff Modal...');
+    
+    // Clean up any existing modal instances
+    const modalElement = document.getElementById('addStaffModal');
+    if (!modalElement) {
+        console.error('Add Staff Modal not found');
+        alert('Modal not found. Please refresh the page.');
+        return;
+    }
+    
+    // Dispose any existing Bootstrap modal instance (if Bootstrap is available)
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const existingModal = bootstrap.Modal.getInstance(modalElement);
+            if (existingModal) {
+                existingModal.dispose();
+            }
+        }
+    } catch (e) {
+        // Bootstrap not available or error, continue with manual modal
+        console.log('Bootstrap modal not available, using manual modal');
+    }
+    
+    // Remove ALL existing backdrops (except salary modal backdrop)
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        if (backdrop.id !== 'salaryModalBackdrop') {
+            backdrop.remove();
+        }
+    });
+    
+    // Reset body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // Reset form
+    const form = document.getElementById('addStaffForm');
+    if (form) {
+        form.reset();
+        const previewDiv = document.getElementById('add_image_preview');
+        if (previewDiv) previewDiv.innerHTML = '';
+    }
+    
+    // MANUALLY create backdrop with correct z-index FIRST - very light backdrop (10% opacity)
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    backdrop.id = 'addStaffModalBackdrop';
+    backdrop.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1040; background-color: rgba(0, 0, 0, 0.1); pointer-events: none;';
+    document.body.appendChild(backdrop);
+    
+    // Set body styles
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+    
+    // Get modal elements BEFORE showing
+    const modalDialog = modalElement.querySelector('.modal-dialog');
+    const modalContent = modalElement.querySelector('.modal-content');
+    const modalBody = modalElement.querySelector('.modal-body');
+    const formElement = modalElement.querySelector('#addStaffForm');
+    
+    // REMOVED: Backdrop click handler - modal should ONLY close via Cancel/X buttons
+    // Do NOT add click handler to backdrop - user wants modal to stay open unless Cancel/X is clicked
+    
+    // CRITICAL: Prevent ALL clicks inside modal from reaching backdrop
+    // Stop propagation on modal element itself
+    modalElement.addEventListener('click', function(e) {
+        e.stopPropagation(); // Stop clicks from bubbling to backdrop
+        e.stopImmediatePropagation(); // Stop all other handlers
+    }, false);
+    
+    // Also stop propagation on modal dialog and content
+    if (modalDialog) {
+        modalDialog.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, false);
+    }
+    
+    if (modalContent) {
+        modalContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, false);
+    }
+    
+    if (formElement) {
+        formElement.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, false);
+    }
+    
+    if (modalBody) {
+        modalBody.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }, false);
+    }
+    
+    // Ensure backdrop is below modal
+    backdrop.style.zIndex = '1040';
+    
+    // Set modal z-index and display - use consistent z-index values (1040-1053)
+    modalElement.style.display = 'block';
+    modalElement.style.zIndex = '1050';
+    modalElement.style.position = 'fixed';
+    modalElement.style.top = '0';
+    modalElement.style.left = '0';
+    modalElement.style.width = '100%';
+    modalElement.style.height = '100%';
+    modalElement.style.overflow = 'auto';
+    modalElement.style.pointerEvents = 'auto'; // CRITICAL: Allow modal to receive events
+    modalElement.classList.add('show');
+    modalElement.setAttribute('aria-hidden', 'false');
+    modalElement.setAttribute('aria-modal', 'true');
+    
+    // Set dialog and content z-index - MUST allow pointer events and be above backdrop
+    if (modalDialog) {
+        modalDialog.style.position = 'relative';
+        modalDialog.style.zIndex = '1051';
+        modalDialog.style.pointerEvents = 'auto';
+        modalDialog.style.margin = '1.75rem auto';
+    }
+    
+    // Ensure form is interactive
+    if (formElement) {
+        formElement.style.pointerEvents = 'auto';
+        formElement.style.position = 'relative';
+        formElement.style.zIndex = '1053';
+    }
+    
+    // Ensure modal body is interactive
+    if (modalBody) {
+        modalBody.style.pointerEvents = 'auto';
+        modalBody.style.position = 'relative';
+        modalBody.style.zIndex = '1053';
+    }
+    
+    if (modalContent) {
+        modalContent.style.position = 'relative';
+        modalContent.style.zIndex = '1052';
+        modalContent.style.pointerEvents = 'auto';
+        modalContent.style.background = 'white';
+        modalContent.style.pointerEvents = 'auto'; // CRITICAL: Ensure content is clickable
+        
+        // Get modal body for form elements
+        const modalBody = modalContent.querySelector('.modal-body');
+        if (modalBody) {
+            modalBody.style.pointerEvents = 'auto';
+            modalBody.style.position = 'relative';
+            modalBody.style.zIndex = '1053';
+        }
+        
+        // IMMEDIATELY make all form elements interactive and enabled
+        const allInputs = modalContent.querySelectorAll('input, textarea, select');
+        const allButtons = modalContent.querySelectorAll('button');
+        const allLabels = modalContent.querySelectorAll('label');
+        const allFormElements = modalContent.querySelectorAll('form, .form-control, .form-label, .form-text');
+        
+        [...allInputs, ...allButtons, ...allLabels, ...allFormElements].forEach(el => {
+            el.style.pointerEvents = 'auto';
+            el.style.cursor = (el.tagName === 'BUTTON' || el.tagName === 'LABEL') ? 'pointer' : 'text';
+            el.style.zIndex = '1054';
+            el.style.position = 'relative';
+            // Remove any disabled attributes
+            if (el.hasAttribute('disabled')) {
+                el.removeAttribute('disabled');
+            }
+            // Remove readonly unless it's username in edit mode
+            if (el.hasAttribute('readonly') && el.id !== 'edit_username') {
+                el.removeAttribute('readonly');
+            }
+            // Ensure inputs are focusable
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+                el.tabIndex = 0;
+                el.style.opacity = '1';
+                el.style.userSelect = 'text';
+            }
+        });
+    }
+    
+    // Use setTimeout to ensure DOM is ready and make everything interactive
+    setTimeout(() => {
+        // Double-check all elements are interactive
+        if (modalContent) {
+            modalContent.style.pointerEvents = 'auto';
+            modalContent.style.zIndex = '1052';
+            
+            // Force enable all inputs and make them fully interactive
+            const allInputs = modalContent.querySelectorAll('input, textarea, select');
+            const form = modalContent.querySelector('#addStaffForm');
+            const modalBody = modalContent.querySelector('.modal-body');
+            
+            // Make form and body interactive
+            if (form) {
+                form.style.pointerEvents = 'auto';
+                form.style.position = 'relative';
+                form.style.zIndex = '1054';
+            }
+            if (modalBody) {
+                modalBody.style.pointerEvents = 'auto';
+                modalBody.style.position = 'relative';
+                modalBody.style.zIndex = '1054';
+            }
+            
+            allInputs.forEach(input => {
+                // Remove all blocking styles and attributes
+                input.style.pointerEvents = 'auto';
+                input.style.cursor = 'text';
+                input.style.zIndex = '1055';
+                input.style.position = 'relative';
+                input.style.opacity = '1';
+                input.style.userSelect = 'text';
+                input.style.webkitUserSelect = 'text';
+                input.style.mozUserSelect = 'text';
+                input.style.msUserSelect = 'text';
+                input.removeAttribute('disabled');
+                input.removeAttribute('readonly');
+                input.tabIndex = 0;
+                
+                // Remove any event listeners that might block
+                input.onclick = null;
+                input.onmousedown = null;
+                input.onmouseup = null;
+                
+                // Add click handler to ensure it's clickable and prevent backdrop closing
+                input.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    this.focus();
+                }, false);
+                
+                // Add focus handler
+                input.addEventListener('focus', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+                
+                // Add mousedown handler
+                input.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+            });
+            
+            // CRITICAL: Prevent ALL modal content clicks from reaching backdrop
+            if (modalContent) {
+                modalContent.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+                modalContent.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+            }
+            
+            // Also prevent form clicks
+            if (form) {
+                form.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+                form.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+            }
+        }
+        
+        // Ensure backdrop is below modal and only closes on direct backdrop clicks
+        const backdropCheck = document.getElementById('addStaffModalBackdrop');
+        if (backdropCheck) {
+            backdropCheck.style.zIndex = '1040';
+            backdropCheck.style.pointerEvents = 'none'; // Disable backdrop clicks - modal only closes via Cancel/X buttons
+            
+            // REMOVED: Backdrop click handler - modal should ONLY close via Cancel/X buttons
+            backdropCheck.onclick = null;
+        }
+        
+        // Focus first input field for better UX
+        const firstInput = modalElement.querySelector('#first_name');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+                firstInput.select();
+            }, 150);
+        }
+        
+        console.log('Modal opened - all elements are interactive and editable');
+    }, 100);
+}
+
+// Show Staff Salary Details - Define immediately for global access
+function showStaffSalary(staffId, staffName, completedOrders, totalRevenue, staffSalary, ownerShare) {
+    // Update modal content first
+    document.getElementById('salaryStaffName').textContent = staffName;
+    document.getElementById('salaryCompletedOrders').textContent = completedOrders;
+    document.getElementById('salaryTotalRevenue').textContent = `₱${parseFloat(totalRevenue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    
+    // Update Owner Revenue and Staff Revenue cards
+    const ownerRevenueEl = document.getElementById('salaryOwnerRevenue');
+    const staffRevenueEl = document.getElementById('salaryStaffRevenue');
+    
+    if (ownerRevenueEl) {
+        ownerRevenueEl.textContent = `₱${parseFloat(ownerShare || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+    if (staffRevenueEl) {
+        staffRevenueEl.textContent = `₱${parseFloat(staffSalary || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+    
+    // Update breakdown table
+    document.getElementById('salaryBreakdownTotal').textContent = `₱${parseFloat(totalRevenue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('salaryStaffShare').textContent = `₱${parseFloat(staffSalary || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('salaryOwnerShare').textContent = `₱${parseFloat(ownerShare || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    
+    // Store staff ID and salary for withdrawal function
+    const modal = document.getElementById('staffSalaryModal');
+    if (modal) {
+        modal.setAttribute('data-staff-id', staffId);
+        modal.setAttribute('data-staff-salary', staffSalary || 0);
+        modal.setAttribute('data-completed-orders', completedOrders);
+        modal.setAttribute('data-total-revenue', totalRevenue);
+    }
+    
+    // Load withdrawal history
+    loadWithdrawalHistory(staffId);
+    
+    // Enable/disable withdraw button based on available revenue
+    const withdrawBtn = document.getElementById('withdrawStaffRevenueBtn');
+    if (withdrawBtn) {
+        if (staffSalary > 0) {
+            withdrawBtn.disabled = false;
+            withdrawBtn.classList.remove('btn-secondary');
+            withdrawBtn.classList.add('btn-success');
+            withdrawBtn.title = '';
+        } else {
+            withdrawBtn.disabled = true;
+            withdrawBtn.classList.remove('btn-success');
+            withdrawBtn.classList.add('btn-secondary');
+            withdrawBtn.title = 'No available revenue to withdraw';
+        }
+    }
+    
+    // Get modal element
+    const modalElement = document.getElementById('staffSalaryModal');
+    const backdrop = document.getElementById('salaryModalBackdrop');
+    
+    if (!modalElement) {
+        console.error('Salary Modal not found');
+        alert('Salary modal not found. Please refresh the page.');
+        return;
+    }
+    
+    // Remove any existing Bootstrap modal instances (if Bootstrap is available)
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const existingModal = bootstrap.Modal.getInstance(modalElement);
+            if (existingModal) {
+                existingModal.dispose();
+            }
+        }
+    } catch (e) {
+        console.log('Bootstrap modal not available, using manual modal');
+    }
+    
+    // Remove all other backdrops (keep salary modal backdrop, add staff backdrop, and edit staff backdrop)
+    document.querySelectorAll('.modal-backdrop').forEach(b => {
+        if (b.id !== 'salaryModalBackdrop' && b.id !== 'addStaffModalBackdrop') {
+            b.remove();
+        }
+    });
+    
+    // Show backdrop
+    if (backdrop) {
+        backdrop.style.display = 'block';
+        backdrop.style.zIndex = '9998';
+    }
+    
+    // Show modal manually
+    modalElement.style.display = 'block';
+    modalElement.style.zIndex = '9999';
+    modalElement.style.position = 'fixed';
+    modalElement.style.top = '0';
+    modalElement.style.left = '0';
+    modalElement.style.width = '100%';
+    modalElement.style.height = '100%';
+    modalElement.style.overflow = 'auto';
+    modalElement.classList.add('show');
+    modalElement.setAttribute('aria-hidden', 'false');
+    modalElement.setAttribute('aria-modal', 'true');
+    
+    // Ensure modal dialog is positioned correctly
+    const modalDialog = modalElement.querySelector('.modal-dialog');
+    if (modalDialog) {
+        modalDialog.style.top = '5%';
+        modalDialog.style.transform = 'translateX(-50%)';
+        modalDialog.style.maxHeight = '90vh';
+    }
+    
+    // Lock body scroll
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+    
+    // Ensure all buttons are clickable
+    setTimeout(() => {
+        const buttons = modalElement.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.style.pointerEvents = 'auto';
+            btn.style.cursor = 'pointer';
+            btn.style.zIndex = '10001';
+            btn.style.position = 'relative';
+        });
+        
+        // Ensure modal content is interactive
+        const modalContent = modalElement.querySelector('.modal-content');
+        const modalDialog = modalElement.querySelector('.modal-dialog');
+        if (modalContent) {
+            modalContent.style.pointerEvents = 'auto';
+            modalContent.style.zIndex = '10000';
+        }
+        if (modalDialog) {
+            modalDialog.style.pointerEvents = 'auto';
+            modalDialog.style.zIndex = '10000';
+        }
+    }, 50);
+    
+    // ESC key handler
+    const escHandler = function(e) {
+        if (e.key === 'Escape') {
+            closeSalaryModal();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+}
+
+// Load Withdrawal History
+function loadWithdrawalHistory(staffId) {
+    const container = document.getElementById('withdrawalHistoryContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center text-muted py-2"><i class="fas fa-spinner fa-spin me-2"></i>Loading...</div>';
+    
+    fetch(`/staff/${staffId}/withdrawal-history/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayWithdrawalHistory(data.withdrawals, data.total_withdrawn);
+            } else {
+                container.innerHTML = '<div class="alert alert-warning">No withdrawal history found.</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading withdrawal history:', error);
+            container.innerHTML = '<div class="alert alert-danger">Error loading withdrawal history.</div>';
+        });
+}
+
+// Display Withdrawal History
+function displayWithdrawalHistory(withdrawals, totalWithdrawn) {
+    const container = document.getElementById('withdrawalHistoryContainer');
+    if (!container) return;
+    
+    if (!withdrawals || withdrawals.length === 0) {
+        container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No withdrawals yet.</div>';
+        return;
+    }
+    
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Completed Orders</th>
+                        <th>Total Revenue</th>
+                        <th>Owner Share</th>
+                        <th>Withdrawal Amount</th>
+                        <th>Processed By</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    withdrawals.forEach(w => {
+        html += `
+            <tr>
+                <td>
+                    <strong>${w.date}</strong><br>
+                    <small class="text-muted">${w.time}</small>
+                </td>
+                <td class="text-center"><span class="badge bg-info">${w.completed_orders}</span></td>
+                <td class="text-end">₱${parseFloat(w.total_revenue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="text-end text-info">₱${parseFloat(w.owner_share).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="text-end"><strong class="text-success">₱${parseFloat(w.amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                <td><small>${w.withdrawn_by || 'System'}</small></td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <th colspan="4" class="text-end">Total Withdrawn:</th>
+                        <th class="text-end text-success">₱${parseFloat(totalWithdrawn || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// Withdraw Staff Revenue Function
+window.withdrawStaffRevenue = function withdrawStaffRevenue(event) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    const modal = document.getElementById('staffSalaryModal');
+    if (!modal) {
+        alert('Salary modal not found.');
+        return false;
+    }
+    
+    const staffId = modal.getAttribute('data-staff-id');
+    
+    if (!staffId) {
+        alert('Staff ID not found.');
+        return false;
+    }
+    
+    // Get CSRF token first
+    let csrfToken = null;
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+        csrfToken = csrfInput.value;
+    }
+    
+    if (!csrfToken) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                csrfToken = value;
+                break;
+            }
+        }
+    }
+    
+    if (!csrfToken) {
+        alert('Security token not found. Please refresh the page.');
+        return false;
+    }
+    
+    // Disable button
+    const withdrawBtn = document.getElementById('withdrawStaffRevenueBtn');
+    const originalBtnText = withdrawBtn ? withdrawBtn.innerHTML : '';
+    if (withdrawBtn) {
+        withdrawBtn.disabled = true;
+        withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+    }
+    
+    // First, fetch current available salary from server to ensure accuracy
+    fetch(`/staff/${staffId}/salary/`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(salaryData => {
+        if (!salaryData.success || !salaryData.salary_data) {
+            throw new Error('Failed to fetch current salary data');
+        }
+        
+        const sd = salaryData.salary_data;
+        const availableStaffSalary = parseFloat(sd.staff_salary || 0);
+        const completedOrders = sd.completed_orders || 0;
+        const totalRevenue = parseFloat(sd.total_revenue || 0);
+        
+        if (availableStaffSalary <= 0) {
+            alert('No available revenue to withdraw.');
+            if (withdrawBtn) {
+                withdrawBtn.disabled = false;
+                withdrawBtn.innerHTML = originalBtnText;
+            }
+            return false;
+        }
+        
+        // Confirm withdrawal with accurate data
+        const confirmMsg = `Withdraw ₱${availableStaffSalary.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} for this staff member?\n\n` +
+                          `Completed Orders: ${completedOrders}\n` +
+                          `Total Revenue: ₱${totalRevenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n` +
+                          `Available Staff Revenue: ₱${availableStaffSalary.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n\n` +
+                          `This will reset the staff's available revenue to ₱0.00 and start accumulating from new orders.`;
+        
+        if (!confirm(confirmMsg)) {
+            if (withdrawBtn) {
+                withdrawBtn.disabled = false;
+                withdrawBtn.innerHTML = originalBtnText;
+            }
+            return false;
+        }
+        
+        // Update button to show processing
+        if (withdrawBtn) {
+            withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        }
+        
+        // Make withdrawal request with accurate amount
+        const formData = new FormData();
+        formData.append('withdrawal_amount', availableStaffSalary);
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        
+        return fetch(`/staff/${staffId}/withdraw/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message || 'Withdrawal processed successfully!');
+            
+            // Immediately update the display - ONLY Staff Revenue resets to ₱0.00
+            // Owner Revenue should remain unchanged (it's not withdrawable)
+            const staffRevenueEl = document.getElementById('salaryStaffRevenue');
+            const staffShareEl = document.getElementById('salaryStaffShare');
+            
+            if (staffRevenueEl) {
+                staffRevenueEl.textContent = '₱0.00';
+            }
+            if (staffShareEl) {
+                staffShareEl.textContent = '₱0.00';
+            }
+            
+            // NOTE: Owner Revenue and Owner Share should NOT be changed
+            // Only Staff Revenue is withdrawable, Owner Revenue remains as-is
+            
+            // Disable withdraw button since revenue is now 0
+            if (withdrawBtn) {
+                withdrawBtn.disabled = true;
+                withdrawBtn.classList.remove('btn-success');
+                withdrawBtn.classList.add('btn-secondary');
+                withdrawBtn.title = 'No available revenue to withdraw';
+                withdrawBtn.innerHTML = '<i class="fas fa-money-bill-wave me-2"></i>Withdraw Staff Revenue';
+            }
+            
+            // Update modal data attributes
+            const modal = document.getElementById('staffSalaryModal');
+            if (modal) {
+                modal.setAttribute('data-staff-salary', '0');
+            }
+            
+            // Reload salary data and history to get accurate updated values
+            const staffName = document.getElementById('salaryStaffName').textContent;
+            fetch(`/staff/${staffId}/salary/`)
+                .then(resp => resp.json())
+                .then(salaryData => {
+                    if (salaryData.success && salaryData.salary_data) {
+                        const sd = salaryData.salary_data;
+                        // Update all values with fresh data from server
+                        showStaffSalary(
+                            staffId,
+                            sd.staff_name,
+                            sd.completed_orders,
+                            sd.total_revenue,
+                            sd.staff_salary,  // This should be 0 after withdrawal
+                            sd.owner_share    // Owner share remains unchanged (not withdrawable)
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing salary data:', error);
+                });
+        } else {
+            alert('Error: ' + (data.error || 'Failed to process withdrawal'));
+            if (withdrawBtn) {
+                withdrawBtn.disabled = false;
+                withdrawBtn.innerHTML = originalBtnText;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error processing withdrawal:', error);
+        alert('Failed to process withdrawal: ' + (error.message || 'Please try again.'));
+        if (withdrawBtn) {
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerHTML = originalBtnText;
+        }
+    });
+    
+    return false;
+};
+
+// Close Salary Modal function - Define immediately for global access
+function closeSalaryModal() {
+    const modalElement = document.getElementById('staffSalaryModal');
+    const backdrop = document.getElementById('salaryModalBackdrop');
+    
+    // Hide modal
+    if (modalElement) {
+        modalElement.style.display = 'none';
+        modalElement.classList.remove('show');
+        modalElement.setAttribute('aria-hidden', 'true');
+        modalElement.setAttribute('aria-modal', 'false');
+    }
+    
+    // Hide backdrop
+    if (backdrop) {
+        backdrop.style.display = 'none';
+    }
+    
+    // Remove all other backdrops (keep salary modal backdrop, add staff backdrop, and edit staff backdrop)
+    document.querySelectorAll('.modal-backdrop').forEach(b => {
+        if (b.id !== 'salaryModalBackdrop' && b.id !== 'addStaffModalBackdrop') {
+            b.remove();
+        }
+    });
+    
+    // Reset body styles
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // Dispose any Bootstrap modal instance (if Bootstrap is available)
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal && modalElement) {
+            const existingModal = bootstrap.Modal.getInstance(modalElement);
+            if (existingModal) {
+                existingModal.dispose();
+            }
+        }
+    } catch (e) {
+        // Bootstrap not available, continue
+    }
+    
+    // Log for debugging
+    console.log('Salary modal closed');
+}
+
+// Delete Staff Function
+function deleteStaff(staffId) {
+    if (!staffId) {
+        alert('Staff ID is required');
+        return;
+    }
+    
+    // Get CSRF token (cookie is the authoritative source)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    let csrfToken = getCookie('csrftoken');
+    if (!csrfToken) {
+        // fallback to hidden input
+        csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    }
+
+    if (!csrfToken) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
+    
+    fetch(`/staff/${staffId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(async response => {
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (e) {
+            // ignore JSON parse errors and handle below
+        }
+
+        if (!response.ok) {
+            const msg = (data && data.error) ? data.error : `Server error (${response.status})`;
+            throw new Error(msg);
+        }
+
+        return data;
+    })
+    .then(data => {
+        if (data && data.success) {
+            alert(data.message || 'Staff member deleted successfully!');
+            // Reload page to show updated staff list
+            window.location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to delete staff member'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting staff member. ' + (error.message || 'Please try again.'));
+    });
+}
+
+// Make functions globally accessible (backup)
+// Note: addStaff is defined later, so we don't assign it here
+window.openAddStaffModal = openAddStaffModal;
+window.closeAddStaffModal = closeAddStaffModal;
+window.showStaffSalary = showStaffSalary;
+window.closeSalaryModal = closeSalaryModal;
+window.deleteStaff = deleteStaff;
+
+// Ensure modals are properly initialized
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for Add Staff modal buttons
+    const cancelAddStaffBtn = document.getElementById('cancelAddStaffBtn');
+    const submitAddStaffBtn = document.getElementById('submitAddStaffBtn');
+    
+    if (cancelAddStaffBtn) {
+        cancelAddStaffBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if (typeof window.closeAddStaffModal === 'function') {
+                window.closeAddStaffModal(e);
+            }
+            return false;
+        });
+    }
+    
+    if (submitAddStaffBtn) {
+        console.log('✓ Submit Add Staff button found, attaching event listener');
+        submitAddStaffBtn.addEventListener('click', function(e) {
+            console.log('=== Submit Add Staff Button Clicked ===');
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('Window.addStaff available:', typeof window.addStaff);
+            if (typeof window.addStaff === 'function') {
+                console.log('Calling window.addStaff...');
+                window.addStaff(e);
+            } else {
+                console.error('ERROR: window.addStaff is not a function!');
+                alert('Error: Add Staff function is not available. Please refresh the page.');
+            }
+            return false;
+        });
+    } else {
+        console.error('✗ Submit Add Staff button NOT found!');
+    }
+    
+    // Remove any existing modal backdrops on page load
+    const existingBackdrops = document.querySelectorAll('.modal-backdrop');
+    existingBackdrops.forEach(backdrop => backdrop.remove());
+    
+    // Reset body styles
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // Set completion rate progress bars from data attributes
+    document.querySelectorAll('.progress-bar-custom[data-completion-rate]').forEach(bar => {
+        const rate = parseFloat(bar.getAttribute('data-completion-rate')) || 0;
+        bar.style.width = rate + '%';
+    });
+    
+    // Handle Edit Staff buttons with data attributes
+    document.querySelectorAll('.edit-staff-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const staffId = parseInt(this.getAttribute('data-staff-id'));
+            const username = this.getAttribute('data-staff-username') || '';
+            const email = this.getAttribute('data-staff-email') || '';
+            const firstName = this.getAttribute('data-staff-first-name') || '';
+            const lastName = this.getAttribute('data-staff-last-name') || '';
+            const isActive = this.getAttribute('data-staff-is-active') === 'true';
+            const profileImageUrl = this.getAttribute('data-staff-image') || null;
+            if (typeof openEditStaffModal === 'function') {
+                openEditStaffModal(staffId, username, email, firstName, lastName, isActive, profileImageUrl, e);
+            }
+        });
+    });
+    
+    // Handle Salary buttons with data attributes — fetch fresh salary data from server
+    document.querySelectorAll('.salary-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const staffId = parseInt(this.getAttribute('data-staff-id'));
+            const fallbackName = this.getAttribute('data-staff-name') || '';
+
+            if (!staffId) {
+                // Fallback: use data attributes if staff id missing
+                const completedOrders = parseInt(this.getAttribute('data-completed-orders')) || 0;
+                const totalRevenue = parseFloat(this.getAttribute('data-total-revenue')) || 0;
+                const staffSalary = parseFloat(this.getAttribute('data-staff-salary')) || 0;
+                const ownerShare = parseFloat(this.getAttribute('data-owner-share')) || 0;
+                if (typeof showStaffSalary === 'function') {
+                    showStaffSalary(null, fallbackName, completedOrders, totalRevenue, staffSalary, ownerShare);
+                }
+                return;
+            }
+
+            // Try to fetch up-to-date salary data from server
+            fetch(`/staff/${staffId}/salary/`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(resp => {
+                if (!resp.ok) throw new Error('Network response was not ok');
+                return resp.json();
+            })
+            .then(data => {
+                if (data && data.success && data.salary_data) {
+                    const sd = data.salary_data;
+                    if (typeof showStaffSalary === 'function') {
+                        showStaffSalary(staffId, fallbackName || sd.staff_name || '', sd.completed_orders || 0, sd.total_revenue || 0, sd.staff_salary || 0, sd.owner_share || 0);
+                    }
+                } else {
+                    // Fallback to data attributes if server didn't return expected data
+                    const completedOrders = parseInt(btn.getAttribute('data-completed-orders')) || 0;
+                    const totalRevenue = parseFloat(btn.getAttribute('data-total-revenue')) || 0;
+                    const staffSalary = parseFloat(btn.getAttribute('data-staff-salary')) || 0;
+                    const ownerShare = parseFloat(btn.getAttribute('data-owner-share')) || 0;
+                    if (typeof showStaffSalary === 'function') {
+                        showStaffSalary(staffId, fallbackName, completedOrders, totalRevenue, staffSalary, ownerShare);
+                    }
+                }
+            })
+            .catch(err => {
+                console.warn('Failed to fetch salary data, using fallback attributes', err);
+                const completedOrders = parseInt(btn.getAttribute('data-completed-orders')) || 0;
+                const totalRevenue = parseFloat(btn.getAttribute('data-total-revenue')) || 0;
+                const staffSalary = parseFloat(btn.getAttribute('data-staff-salary')) || 0;
+                const ownerShare = parseFloat(btn.getAttribute('data-owner-share')) || 0;
+                if (typeof showStaffSalary === 'function') {
+                    showStaffSalary(staffId, fallbackName, completedOrders, totalRevenue, staffSalary, ownerShare);
+                }
+            });
+        });
+    });
+    
+    // Handle Mark Order Done buttons with data attributes
+    document.querySelectorAll('.mark-order-done-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const orderId = parseInt(this.getAttribute('data-order-id'));
+            const staffId = parseInt(this.getAttribute('data-staff-id'));
+            if (typeof markOrderDone === 'function') {
+                markOrderDone(orderId, staffId);
+            }
+        });
+    });
+    
+    // Handle Delete Staff buttons with data attributes
+    document.querySelectorAll('.delete-staff-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const staffId = parseInt(this.getAttribute('data-staff-id'));
+            const staffName = this.getAttribute('data-staff-name') || 'this staff member';
+            if (confirm(`Are you sure you want to delete ${staffName}? This action cannot be undone.`)) {
+                if (typeof deleteStaff === 'function') {
+                    deleteStaff(staffId);
+                }
+            }
+        });
+    });
+});
+
+// Add Staff Function - DUPLICATE REMOVED
+// This function is already defined at the top of the script (line 1376)
+// Keeping only one definition to prevent conflicts
+
+// Open Add Staff Modal - Manual approach to ensure interactivity
+// Define function immediately and make it globally accessible
+window.openAddStaffModal = function openAddStaffModal(event) {
+    // Prevent event bubbling (event is optional)
+    if (typeof event !== 'undefined' && event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    console.log('Opening Add Staff Modal...');
+    
+    // Clean up any existing modal instances
+    const modalElement = document.getElementById('addStaffModal');
+    if (!modalElement) {
+        console.error('Add Staff Modal not found');
+        alert('Modal not found. Please refresh the page.');
+        return;
+    }
+    
+    // Dispose any existing Bootstrap modal instance (if Bootstrap is available)
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const existingModal = bootstrap.Modal.getInstance(modalElement);
+            if (existingModal) {
+                existingModal.dispose();
+            }
+        }
+    } catch (e) {
+        // Bootstrap not available or error, continue with manual modal
+        console.log('Bootstrap modal not available, using manual modal');
+    }
+    
+    // Remove ALL existing backdrops (except salary modal backdrop)
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        if (backdrop.id !== 'salaryModalBackdrop') {
+            backdrop.remove();
+        }
+    });
+    
+    // Reset body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // Reset form
+    const form = document.getElementById('addStaffForm');
+    if (form) {
+        form.reset();
+        const previewDiv = document.getElementById('add_image_preview');
+        if (previewDiv) previewDiv.innerHTML = '';
+    }
+    
+    // MANUALLY create backdrop with correct z-index FIRST - lighter backdrop (30% opacity)
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    backdrop.id = 'addStaffModalBackdrop';
+    backdrop.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1040; background-color: rgba(0, 0, 0, 0.3); pointer-events: auto;';
+    document.body.appendChild(backdrop);
+    
+    // Set body styles
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+    
+    // Get modal elements BEFORE showing
+    const modalDialog = modalElement.querySelector('.modal-dialog');
+    const modalContent = modalElement.querySelector('.modal-content');
+    
+    // Add click handler to backdrop to close modal - but ONLY if clicking directly on backdrop
+    backdrop.addEventListener('click', function(e) {
+        // Only close if clicking directly on the backdrop, not on modal content
+        if (e.target === backdrop && modalContent && !modalContent.contains(e.target)) {
+            closeAddStaffModal();
+        }
+    }, true);
+    
+    // Ensure backdrop is below modal
+    backdrop.style.zIndex = '1040';
+    
+    // Set modal z-index and display - use consistent z-index values (1040-1053)
+    modalElement.style.display = 'block';
+    modalElement.style.zIndex = '1050';
+    modalElement.style.position = 'fixed';
+    modalElement.style.top = '0';
+    modalElement.style.left = '0';
+    modalElement.style.width = '100%';
+    modalElement.style.height = '100%';
+    modalElement.style.overflow = 'auto';
+    modalElement.classList.add('show');
+    modalElement.setAttribute('aria-hidden', 'false');
+    modalElement.setAttribute('aria-modal', 'true');
+    
+    // Set dialog and content z-index - MUST allow pointer events and be above backdrop
+    if (modalDialog) {
+        modalDialog.style.position = 'relative';
+        modalDialog.style.zIndex = '1051';
+        modalDialog.style.pointerEvents = 'auto';
+        modalDialog.style.margin = '1.75rem auto';
+    }
+    
+    if (modalContent) {
+        modalContent.style.position = 'relative';
+        modalContent.style.zIndex = '1052';
+        modalContent.style.pointerEvents = 'auto';
+        modalContent.style.background = 'white';
+        
+        // IMMEDIATELY make all form elements interactive
+        const allInputs = modalContent.querySelectorAll('input, textarea, select');
+        const allButtons = modalContent.querySelectorAll('button');
+        const allLabels = modalContent.querySelectorAll('label');
+        
+        [...allInputs, ...allButtons, ...allLabels].forEach(el => {
+            el.style.pointerEvents = 'auto';
+            el.style.zIndex = '1053';
+            el.style.position = 'relative';
+            el.removeAttribute('disabled');
+            el.removeAttribute('readonly');
+            el.style.cursor = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') ? 'text' : 'pointer';
+        });
+    }
+    
+    // CRITICAL: Remove any Bootstrap-created backdrops that might interfere
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+        // Remove any backdrops that Bootstrap might have created
+        document.querySelectorAll('.modal-backdrop').forEach(b => {
+            if (b.id !== 'addStaffModalBackdrop' && b.id !== 'salaryModalBackdrop') {
+                b.remove();
+            }
+        });
+        
+        // Ensure our backdrop is at the correct z-index
+        const ourBackdrop = document.getElementById('addStaffModalBackdrop');
+        if (ourBackdrop) {
+            ourBackdrop.style.zIndex = '1040';
+        }
+        
+        // Double-check modal z-index
+        modalElement.style.zIndex = '1050';
+        if (modalDialog) modalDialog.style.zIndex = '1051';
+        if (modalContent) modalContent.style.zIndex = '1052';
+    });
+    
+    // Ensure ALL elements inside modal are interactive
+    setTimeout(() => {
+        const modalBody = modalElement.querySelector('.modal-body');
+        const modalHeader = modalElement.querySelector('.modal-header');
+        const modalFooter = modalElement.querySelector('.modal-footer');
+        const formElement = modalElement.querySelector('form');
+        
+        // Set all sections to be interactive
+        [modalBody, modalHeader, modalFooter, formElement].forEach(section => {
+            if (section) {
+                section.style.pointerEvents = 'auto';
+                section.style.position = 'relative';
+                section.style.zIndex = '1052';
+            }
+        });
+        
+        // Get ALL interactive elements
+        const allButtons = modalElement.querySelectorAll('button');
+        const allInputs = modalElement.querySelectorAll('input, select, textarea');
+        const allLabels = modalElement.querySelectorAll('label');
+        const allFormControls = modalElement.querySelectorAll('.form-control, .form-label, .form-text, .btn, .btn-close');
+        const allElements = [...allButtons, ...allInputs, ...allLabels, ...allFormControls];
+        
+        // Make EVERY element interactive
+        allElements.forEach(element => {
+            element.style.pointerEvents = 'auto';
+            element.style.position = 'relative';
+            element.style.zIndex = '1053';
+            element.style.userSelect = 'auto';
+            element.style.webkitUserSelect = 'auto';
+            element.style.touchAction = 'auto';
+            
+            // Remove any attributes that might block interaction
+            element.removeAttribute('disabled');
+            if (element.id !== 'edit_username') {
+                element.removeAttribute('readonly');
+            }
+            
+            // Set appropriate cursor
+            if (element.tagName === 'BUTTON' || element.type === 'file' || element.classList.contains('btn') || element.classList.contains('btn-close')) {
+                element.style.cursor = 'pointer';
+            } else if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                element.style.cursor = 'text';
+            } else if (element.tagName === 'LABEL') {
+                element.style.cursor = 'default';
+            }
+        });
+        
+        // Prevent modal content clicks from bubbling to backdrop
+        if (modalContent) {
+            modalContent.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }, true);
+            
+            // Force pointer events on content
+            modalContent.style.pointerEvents = 'auto';
+            modalContent.style.zIndex = '1052';
+        }
+        
+        if (formElement) {
+            formElement.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }, true);
+            
+            // Force pointer events on form
+            formElement.style.pointerEvents = 'auto';
+            formElement.style.zIndex = '1052';
+        }
+        
+        // Force all inputs to be interactive
+        allInputs.forEach(input => {
+            input.style.pointerEvents = 'auto';
+            input.style.zIndex = '1053';
+            input.style.position = 'relative';
+            input.removeAttribute('disabled');
+            input.removeAttribute('readonly');
+            input.style.cursor = 'text';
+            
+            // Add focus event to ensure it's working
+            input.addEventListener('focus', function() {
+                this.style.outline = '2px solid #0d6efd';
+            }, {once: false});
+            input.addEventListener('blur', function() {
+                this.style.outline = '';
+            }, {once: false});
+        });
+        
+        // Force all buttons to be interactive
+        allButtons.forEach(button => {
+            button.style.pointerEvents = 'auto';
+            button.style.zIndex = '1053';
+            button.style.position = 'relative';
+            button.removeAttribute('disabled');
+            button.style.cursor = 'pointer';
+            
+            // Ensure button clicks work
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+            }, true);
+        });
+        
+        // Final check: Ensure modal content is definitely above backdrop
+        if (modalContent && modalDialog) {
+            modalDialog.style.zIndex = '1051';
+            modalContent.style.zIndex = '1052';
+            modalContent.style.pointerEvents = 'auto';
+            modalDialog.style.pointerEvents = 'auto';
+        }
+        
+        // Ensure backdrop is below modal
+        const backdropCheck = document.getElementById('addStaffModalBackdrop');
+        if (backdropCheck) {
+            backdropCheck.style.zIndex = '1040';
+        }
+        
+        // Log for debugging
+        console.log('Modal opened - z-index:', {
+            modal: window.getComputedStyle(modalElement).zIndex,
+            dialog: modalDialog ? window.getComputedStyle(modalDialog).zIndex : 'N/A',
+            content: modalContent ? window.getComputedStyle(modalContent).zIndex : 'N/A',
+            backdrop: backdropCheck ? window.getComputedStyle(backdropCheck).zIndex : 'N/A'
+        });
+        
+        // Focus first input
+        const firstInput = modalElement.querySelector('input[type="text"]');
+        if (firstInput) {
+            setTimeout(() => {
+                firstInput.focus();
+                firstInput.click();
+            }, 100);
+        }
+        
+        // Add ESC key handler to close modal
+        const escHandler = function(e) {
+            if (e.key === 'Escape' && modalElement.classList.contains('show')) {
+                closeAddStaffModal();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+        
+        console.log('Modal manually opened - all elements should be interactive');
+    }, 50);
+};
+
+// Close Add Staff Modal
+function closeAddStaffModal(event) {
+    // Event is optional
+    if (typeof event !== 'undefined' && event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    const modalElement = document.getElementById('addStaffModal');
+    if (!modalElement) return;
+    
+    // Hide modal
+    modalElement.classList.remove('show');
+    modalElement.style.display = 'none';
+    modalElement.style.zIndex = '';
+    modalElement.style.position = '';
+    modalElement.style.top = '';
+    modalElement.style.left = '';
+    modalElement.style.width = '';
+    modalElement.style.height = '';
+    modalElement.style.overflowX = '';
+    modalElement.style.overflowY = '';
+    modalElement.setAttribute('aria-hidden', 'true');
+    modalElement.removeAttribute('aria-modal');
+    
+    // Remove manually created backdrop
+    const backdrop = document.getElementById('addStaffModalBackdrop');
+    if (backdrop) {
+        backdrop.remove();
+    }
+    
+    // Remove any other backdrops (except salary modal backdrop, add staff backdrop, and edit staff backdrop)
+    document.querySelectorAll('.modal-backdrop').forEach(b => {
+        if (b.id !== 'salaryModalBackdrop' && b.id !== 'addStaffModalBackdrop') {
+            b.remove();
+        }
+    });
+    
+    // Reset body
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    
+    // Reset form
+    const form = document.getElementById('addStaffForm');
+    if (form) {
+        form.reset();
+        const previewDiv = document.getElementById('add_image_preview');
+        if (previewDiv) previewDiv.innerHTML = '';
+    }
+    
+    // Dispose modal instance
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+        modal.dispose();
+    }
+    
+    // Reset modal dialog and content styles
+    const modalDialog = modalElement.querySelector('.modal-dialog');
+    const modalContent = modalElement.querySelector('.modal-content');
+    if (modalDialog) {
+        modalDialog.style.cssText = '';
+    }
+    if (modalContent) {
+        modalContent.style.cssText = '';
+    }
+};
+
+const ensureModalOnBody = (modalElement) => {
+    if (!modalElement) return;
+    if (modalElement.parentElement !== document.body) {
+        document.body.appendChild(modalElement);
+    }
+};
+
+// Open Edit Staff Modal (Bootstrap-managed)
+function openEditStaffModal(staffId, username, email, firstName, lastName, isActive, profileImageUrl, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const modalElement = document.getElementById('editStaffModal');
+    if (!modalElement) {
+        console.error('Edit Staff Modal not found');
+        return;
+    }
+
+    ensureModalOnBody(modalElement);
+
+    const setFieldValue = (selector, value, options = {}) => {
+        const el = document.getElementById(selector.replace('#', ''));
+        if (!el) return;
+        if (options.checkbox) {
+            el.checked = Boolean(value);
+        } else {
+            el.value = typeof value === 'string' ? value : (value || '');
+        }
+        if (options.readonly) {
+            el.setAttribute('readonly', true);
+        } else {
+            el.removeAttribute('readonly');
+        }
+    };
+
+    setFieldValue('edit_staff_id', staffId || '');
+    setFieldValue('edit_username', username || '', { readonly: true });
+    setFieldValue('edit_email', email || '');
+    setFieldValue('edit_first_name', firstName || '');
+    setFieldValue('edit_last_name', lastName || '');
+    setFieldValue('edit_is_active', Boolean(isActive), { checkbox: true });
+
+    const previewDiv = document.getElementById('current_image_preview');
+    if (previewDiv) {
+        if (profileImageUrl && profileImageUrl !== 'null') {
+            previewDiv.innerHTML = `<img src="${profileImageUrl}" alt="Current profile" style="max-width: 100px; max-height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd;">`;
+        } else {
+            previewDiv.innerHTML = '<small class="text-muted">No profile image</small>';
+        }
+    }
+
+    const modalInstance = (window.bootstrap && window.bootstrap.Modal)
+        ? window.bootstrap.Modal.getOrCreateInstance(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        })
+        : null;
+
+    if (modalInstance) {
+        modalInstance.show();
+    } else {
+        // Fallback if Bootstrap JS failed to load
+        modalElement.classList.add('show');
+        modalElement.style.display = 'block';
+    }
+
+    // Focus first editable input once modal animation completes
+    setTimeout(() => {
+        const emailInput = document.getElementById('edit_email');
+        if (emailInput) {
+            emailInput.focus();
+            emailInput.select();
+        }
+    }, 150);
+}
+
+// Close Edit Staff Modal
+function closeEditStaffModal(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const modalElement = document.getElementById('editStaffModal');
+    if (!modalElement) return;
+
+    const modalInstance = (window.bootstrap && window.bootstrap.Modal)
+        ? window.bootstrap.Modal.getInstance(modalElement)
+        : null;
+
+    if (modalInstance) {
+        modalInstance.hide();
+    } else {
+        modalElement.classList.remove('show');
+        modalElement.style.display = 'none';
+    }
+}
+
+// Edit Staff Function - Make globally accessible
+window.editStaff = function editStaff(event) {
+    // Prevent event bubbling
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    console.log('=== Edit Staff Function Called ===');
+    
+    const form = document.getElementById('editStaffForm');
+    if (!form) {
+        console.error('Edit Staff Form not found!');
+        alert('Form not found. Please refresh the page.');
+        return false;
+    }
+    
+    const staffId = document.getElementById('edit_staff_id').value;
+    if (!staffId) {
+        alert('Staff ID not found. Please refresh the page and try again.');
+        return false;
+    }
+    
+    console.log('Editing staff ID:', staffId);
+    
+    // Get form values for validation
+    const email = document.getElementById('edit_email')?.value.trim();
+    const firstName = document.getElementById('edit_first_name')?.value.trim();
+    const lastName = document.getElementById('edit_last_name')?.value.trim();
+    
+    console.log('Form values:', { email, firstName, lastName });
+    
+    // Validate email if provided
+    if (email && !email.includes('@')) {
+        alert('Please enter a valid email address');
+        return false;
+    }
+    
+    // Get CSRF token - try multiple methods
+    let csrfToken = null;
+    
+    // Method 1: From form
+    const csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+        csrfToken = csrfInput.value;
+        console.log('CSRF token found in form:', csrfToken ? 'Yes' : 'No');
+    }
+    
+    // Method 2: From page-level CSRF token
+    if (!csrfToken) {
+        const pageCsrf = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (pageCsrf) {
+            csrfToken = pageCsrf.value;
+            console.log('CSRF token found on page:', csrfToken ? 'Yes' : 'No');
+        }
+    }
+    
+    // Method 3: From cookie
+    if (!csrfToken) {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrftoken') {
+                csrfToken = value;
+                console.log('CSRF token found in cookie:', csrfToken ? 'Yes' : 'No');
+                break;
+            }
+        }
+    }
+    
+    if (!csrfToken) {
+        console.error('CSRF token not found anywhere!');
+        alert('Security token not found. Please refresh the page and try again.');
+        return false;
+    }
+    
+    console.log('CSRF token retrieved successfully');
+    
+    // Create FormData from form
+    const formData = new FormData(form);
+    
+    // Ensure CSRF token is in FormData
+    if (!formData.has('csrfmiddlewaretoken')) {
+        formData.append('csrfmiddlewaretoken', csrfToken);
+    }
+    
+    // Add is_active value (checkbox)
+    const isActive = document.getElementById('edit_is_active').checked;
+    formData.set('is_active', isActive ? 'true' : 'false');
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = form.closest('.modal-content')?.querySelector('button[onclick*="editStaff"]') || 
+                      document.querySelector('button[onclick*="editStaff"]');
+    const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+    }
+    
+    // Get the URL
+    const editStaffUrl = `/staff/${staffId}/edit/`;
+    console.log('Submitting to URL:', editStaffUrl);
+    console.log('Form data keys:', Array.from(formData.keys()));
+    
+    // Use XMLHttpRequest to bypass any fetch interceptors
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', editStaffUrl, true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            console.log('XHR response status:', xhr.status, xhr.statusText);
+            let data = {};
+            try {
+                data = JSON.parse(xhr.responseText);
+            } catch (e) {
+                console.error('Failed to parse response JSON:', e, xhr.responseText);
+            }
+            
+            if (xhr.status >= 200 && xhr.status < 300 && data && data.success) {
+                alert(data.message || 'Staff member updated successfully!');
+                if (typeof window.closeEditStaffModal === 'function') {
+                    window.closeEditStaffModal();
+                } else if (typeof closeEditStaffModal === 'function') {
+                    closeEditStaffModal();
+                }
+                setTimeout(() => window.location.reload(), 300);
+            } else {
+                const errorMsg = (data && (data.error || data.message)) || ('Server error: ' + xhr.status);
+                alert('Error: ' + errorMsg);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
+            }
+        }
+    };
+    
+    xhr.onerror = function() {
+        console.error('XHR network error');
+        alert('Failed to update staff. Please check your connection and try again.');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    };
+    
+    xhr.send(formData);
+    
+    // Return false to prevent form submission
+    return false;
+};
+
+console.log('editStaff function defined and available:', typeof window.editStaff);
+
+// Helper function to get CSRF token from cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Mark Order as Done by Staff
+function markOrderDone(orderId, staffId) {
+    if (!confirm('Mark this order as done by staff?')) {
+        return;
+    }
+    
+    // Get CSRF token - try multiple methods (Django's recommended way)
+    let csrfToken = getCookie('csrftoken');
+    
+    // If not in cookie, try to get from hidden input
+    if (!csrfToken) {
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            csrfToken = csrfInput.value;
+        }
+    }
+    
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        console.error('CSRF token not found. Cookies:', document.cookie);
+        return;
+    }
+    
+    fetch(`/orders/${orderId}/mark-done/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        // Check if response is ok
+        if (!response.ok) {
+            // Try to get error message from response
+            return response.text().then(text => {
+                let errorMsg = `Server error (${response.status})`;
+                try {
+                    const jsonData = JSON.parse(text);
+                    errorMsg = jsonData.error || errorMsg;
+                } catch (e) {
+                    // Not JSON, use status text
+                    errorMsg = response.statusText || errorMsg;
+                }
+                throw new Error(errorMsg);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Find the staff card for this staff member
+            const staffCards = document.querySelectorAll('.staff-card');
+            staffCards.forEach(card => {
+                // Check if this card belongs to the staff member (by checking buttons)
+                const orderDoneBtn = card.querySelector(`button[onclick*="${orderId}"]`);
+                if (orderDoneBtn) {
+                    // Remove busy classes
+                    card.classList.remove('busy-red', 'busy-orange');
+                    
+                    // Add available styling (green)
+                    card.style.background = 'linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(34, 139, 58, 0.15) 100%)';
+                    card.style.border = '4px solid #28a745';
+                    
+                    // Update status badge
+                    const statusBadge = card.querySelector('.busy-status-badge');
+                    if (statusBadge) {
+                        statusBadge.className = 'busy-status-badge available';
+                        statusBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i>Available';
+                    }
+                    
+                    // Remove "active orders" text
+                    const activeOrdersText = card.querySelector('.text-muted');
+                    if (activeOrdersText && activeOrdersText.textContent.includes('active order')) {
+                        activeOrdersText.remove();
+                    }
+                    
+                    // Remove Order Done button
+                    orderDoneBtn.remove();
+                    
+                    // Update completed orders count
+                    const completedMetric = card.querySelectorAll('.metric-item')[1];
+                    if (completedMetric) {
+                        const currentCount = parseInt(completedMetric.querySelector('.metric-value').textContent) || 0;
+                        completedMetric.querySelector('.metric-value').textContent = currentCount + 1;
+                        completedMetric.querySelector('.metric-value').classList.add('text-success');
+                    }
+                    
+                    // Update total orders count
+                    const totalMetric = card.querySelectorAll('.metric-item')[0];
+                    if (totalMetric) {
+                        const currentTotal = parseInt(totalMetric.querySelector('.metric-value').textContent) || 0;
+                        // Total already includes this order, so no change needed
+                    }
+                    
+                    // Update completion rate
+                    const completionRateMetric = card.querySelectorAll('.metric-item')[3];
+                    if (completionRateMetric) {
+                        const totalOrders = parseInt(totalMetric.querySelector('.metric-value').textContent) || 1;
+                        const completedOrders = parseInt(completedMetric.querySelector('.metric-value').textContent) || 0;
+                        const newRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : 0;
+                        completionRateMetric.querySelector('.metric-value').textContent = newRate + '%';
+                        const progressBar = completionRateMetric.querySelector('.progress-bar-custom');
+                        if (progressBar) {
+                            progressBar.style.width = newRate + '%';
+                        }
+                    }
+                }
+            });
+            
+            // Show success message
+            alert(data.message + (data.time_taken ? ` (Time taken: ${data.time_taken})` : '') + '\n\nWork recorded and salary updated!');
+            
+            // Auto refresh the page to show updated results
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error occurred'));
+        }
+    })
+    .catch(error => {
+        console.error('Error marking order as done:', error);
+        const errorMessage = error.message || 'Failed to mark order as done. Please try again.';
+        alert('Error: ' + errorMessage + '\n\nIf this problem persists, please refresh the page and try again.');
+    });
+}
+
+// Function to ensure modal stays interactive
+function ensureModalInteractive() {
+    const modalElement = document.getElementById('addStaffModal');
+    if (!modalElement || !modalElement.classList.contains('show')) {
+        return;
+    }
+    
+    // Force all elements to be interactive
+    const allInteractive = modalElement.querySelectorAll('input, textarea, select, button, label, .form-control, .btn');
+    allInteractive.forEach(element => {
+        element.style.pointerEvents = 'auto';
+        element.style.zIndex = '10004';
+        element.style.position = 'relative';
+        
+        // Remove disabled/readonly if accidentally set
+        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            element.removeAttribute('disabled');
+            if (element.id !== 'edit_username') { // Keep username readonly in edit modal
+                element.removeAttribute('readonly');
+            }
+        }
+    });
+    
+    // Ensure modal content is interactive
+    const modalContent = modalElement.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.style.pointerEvents = 'auto';
+        modalContent.style.zIndex = '10001';
+    }
+    
+    // Ensure backdrop is below modal
+    const backdrop = document.querySelector('.modal-backdrop:not(#salaryModalBackdrop)');
+    if (backdrop) {
+        backdrop.style.zIndex = '9998';
+    }
+}
+
+// Ensure Add Staff button is clickable on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const addStaffBtn = document.querySelector('.add-staff-btn');
+    if (addStaffBtn) {
+        // Ensure button is interactive
+        addStaffBtn.style.pointerEvents = 'auto';
+        addStaffBtn.style.cursor = 'pointer';
+        addStaffBtn.style.zIndex = '100';
+        addStaffBtn.style.position = 'relative';
+        
+        // Ensure onclick handler is properly attached
+        if (!addStaffBtn.onclick) {
+            addStaffBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openAddStaffModal(e);
+                return false;
+            });
+        } else {
+            // Backup: also add event listener in case onclick doesn't work
+            addStaffBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openAddStaffModal(e);
+                return false;
+            }, true);
+        }
+    }
+    
+    // Ensure Edit Staff buttons are clickable
+    const editStaffButtons = document.querySelectorAll('button[onclick*="openEditStaffModal"], .edit-staff-btn');
+    editStaffButtons.forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.cursor = 'pointer';
+        btn.style.zIndex = '100';
+        btn.style.position = 'relative';
+        
+        // Ensure onclick handler is preserved
+        const onclickAttr = btn.getAttribute('onclick');
+        if (onclickAttr && !onclickAttr.includes('event')) {
+            // Update onclick to include event parameter if not already present
+            btn.setAttribute('onclick', onclickAttr.replace('openEditStaffModal(', 'openEditStaffModal('));
+        }
+    });
+    
+    // Ensure Edit Staff submit button in modal is clickable
+    const editStaffSubmitBtn = document.querySelector('button[onclick*="editStaff"]');
+    if (editStaffSubmitBtn) {
+        editStaffSubmitBtn.style.pointerEvents = 'auto';
+        editStaffSubmitBtn.style.cursor = 'pointer';
+        editStaffSubmitBtn.style.zIndex = '1053';
+        editStaffSubmitBtn.style.position = 'relative';
+        
+        // Add event listener as backup
+        editStaffSubmitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Edit Staff button clicked via event listener');
+            if (typeof window.editStaff === 'function') {
+                window.editStaff(e);
+            } else {
+                console.error('editStaff function not available!');
+                alert('Error: Edit Staff function is not available. Please refresh the page.');
+            }
+            return false;
+        }, true);
+    }
+    
+    // Also add to form submit
+    const editStaffForm = document.getElementById('editStaffForm');
+    if (editStaffForm) {
+        editStaffForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Edit Staff form submitted via event listener');
+            if (typeof window.editStaff === 'function') {
+                window.editStaff(e);
+            } else {
+                console.error('editStaff function not available!');
+                alert('Error: Edit Staff function is not available. Please refresh the page.');
+            }
+            return false;
+        }, true);
+    }
+    
+    // Ensure Add Staff submit button in modal is clickable
+    const addStaffSubmitBtn = document.querySelector('button[onclick*="addStaff"]');
+    if (addStaffSubmitBtn) {
+        addStaffSubmitBtn.style.pointerEvents = 'auto';
+        addStaffSubmitBtn.style.cursor = 'pointer';
+        addStaffSubmitBtn.style.zIndex = '1053';
+        addStaffSubmitBtn.style.position = 'relative';
+        
+        // Add event listener as backup
+        addStaffSubmitBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            addStaff(e);
+            return false;
+        }, true);
+    }
+    
+    // Ensure Salary buttons are clickable
+    const salaryButtons = document.querySelectorAll('button[onclick*="showStaffSalary"]');
+    salaryButtons.forEach(btn => {
+        btn.style.pointerEvents = 'auto';
+        btn.style.cursor = 'pointer';
+        btn.style.zIndex = '100';
+        btn.style.position = 'relative';
+        
+        // Ensure onclick handler is preserved and add backup event listener
+        const onclickAttr = btn.getAttribute('onclick');
+        if (onclickAttr) {
+            // Extract parameters from onclick attribute
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Execute the onclick handler if it exists
+                if (onclickAttr && onclickAttr.includes('showStaffSalary')) {
+                    // Extract the function call and execute it
+                    const match = onclickAttr.match(/showStaffSalary\(([^)]+)\)/);
+                    if (match) {
+                        try {
+                            // Parse parameters properly (handle strings, numbers, etc.)
+                            const paramsStr = match[1];
+                            // Split by comma but respect quoted strings
+                            const params = [];
+                            let current = '';
+                            let inQuotes = false;
+                            let quoteChar = '';
+                            
+                            for (let i = 0; i < paramsStr.length; i++) {
+                                const char = paramsStr[i];
+                                if ((char === '"' || char === "'") && !inQuotes) {
+                                    inQuotes = true;
+                                    quoteChar = char;
+                                    current += char;
+                                } else if (char === quoteChar && inQuotes) {
+                                    inQuotes = false;
+                                    quoteChar = '';
+                                    current += char;
+                                } else if (char === ',' && !inQuotes) {
+                                    params.push(current.trim());
+                                    current = '';
+                                } else {
+                                    current += char;
+                                }
+                            }
+                            if (current.trim()) {
+                                params.push(current.trim());
+                            }
+                            
+                            // Convert string parameters (remove quotes) and parse numbers
+                            const processedParams = params.map(p => {
+                                p = p.trim();
+                                // Remove quotes if present
+                                if ((p.startsWith('"') && p.endsWith('"')) || (p.startsWith("'") && p.endsWith("'"))) {
+                                    return p.slice(1, -1);
+                                }
+                                // Try to parse as number
+                                if (!isNaN(p) && p !== '') {
+                                    return parseFloat(p);
+                                }
+                                return p;
+                            });
+                            
+                            // Call showStaffSalary with processed parameters
+                            if (typeof showStaffSalary === 'function') {
+                                showStaffSalary(...processedParams);
+                            } else if (typeof window.showStaffSalary === 'function') {
+                                window.showStaffSalary(...processedParams);
+                            } else {
+                                console.error('showStaffSalary function not found');
+                            }
+                        } catch (error) {
+                            console.error('Error executing showStaffSalary:', error);
+                            // Fallback: try to execute the original onclick
+                            try {
+                                eval(onclickAttr);
+                            } catch (e) {
+                                console.error('Failed to execute onclick handler:', e);
+                            }
+                        }
+                    }
+                }
+                return false;
+            }, true);
+        }
+    });
+    
+    // Monitor modal to ensure it stays interactive
+    const modalElement = document.getElementById('addStaffModal');
+    if (modalElement) {
+        // Watch for when modal is shown
+        modalElement.addEventListener('shown.bs.modal', function() {
+            ensureModalInteractive();
+            // Keep checking every 100ms while modal is open
+            const checkInterval = setInterval(() => {
+                if (!modalElement.classList.contains('show')) {
+                    clearInterval(checkInterval);
+                } else {
+                    ensureModalInteractive();
+                }
+            }, 100);
+        });
+        
+        // Also check on any click inside modal
+        modalElement.addEventListener('click', function(e) {
+            ensureModalInteractive();
+        }, true); // Use capture phase
+    }
+});
+
+// Auto-update busy status colors every minute
+function updateBusyStatusColors() {
+    const staffCards = document.querySelectorAll('.staff-card');
+    staffCards.forEach(card => {
+        const busyBadge = card.querySelector('.busy-status-badge');
+        if (busyBadge && busyBadge.classList.contains('busy')) {
+            const timeText = busyBadge.textContent;
+            const timeMatch = timeText.match(/(\d+)m/);
+            if (timeMatch) {
+                const currentMinutes = parseInt(timeMatch[1]);
+                const newMinutes = currentMinutes + 1;
+                
+                // Update badge text
+                if (newMinutes >= 20) {
+                    busyBadge.classList.remove('busy');
+                    busyBadge.classList.add('overdue');
+                    busyBadge.innerHTML = `<i class="fas fa-clock me-1"></i>Overdue (${newMinutes}m)`;
+                    
+                    // Update card color
+                    card.classList.remove('busy-red');
+                    card.classList.add('busy-orange');
+                } else {
+                    busyBadge.innerHTML = `<i class="fas fa-clock me-1"></i>Busy (${newMinutes}m)`;
+                }
+            }
+        }
+    });
+}
+
+// Update status every minute
+setInterval(updateBusyStatusColors, 60000);
+
+// Inline Editing Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle inline editing for staff fields
+    const editableFields = document.querySelectorAll('.editable-field');
+    
+    editableFields.forEach(field => {
+        let originalValue = field.getAttribute('data-original-value') || field.textContent.trim();
+        let isEditing = false;
+        let timeoutId = null;
+        
+        // Handle focus (start editing)
+        field.addEventListener('focus', function() {
+            if (!isEditing) {
+                isEditing = true;
+                field.classList.add('editing');
+                originalValue = field.textContent.trim();
+                
+                // Extract original value based on field type
+                if (field.dataset.field === 'username') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        originalValue = content.textContent.trim();
+                    } else {
+                        originalValue = field.textContent.replace(/^@/, '').replace(/<[^>]*>/g, '').trim();
+                    }
+                } else if (field.dataset.field === 'email') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        originalValue = content.textContent.trim();
+                    } else {
+                        // Extract email from text
+                        const emailMatch = field.textContent.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+                        originalValue = emailMatch ? emailMatch[0] : field.textContent.replace(/<[^>]*>/g, '').trim();
+                    }
+                } else if (field.dataset.field === 'name') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        originalValue = content.textContent.trim();
+                    } else {
+                        originalValue = field.textContent.replace(/<[^>]*>/g, '').trim();
+                    }
+                }
+            }
+        });
+        
+        // Handle blur (save changes)
+        field.addEventListener('blur', function() {
+            if (isEditing) {
+                isEditing = false;
+                field.classList.remove('editing');
+                
+                let newValue = field.textContent.trim();
+                
+                // Extract value based on field type
+                if (field.dataset.field === 'username') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        newValue = content.textContent.trim();
+                    } else {
+                        // Remove @ symbol and any HTML/icons
+                        newValue = newValue.replace(/^@/, '').replace(/<[^>]*>/g, '').replace(/\s*🔐\s*/g, '').trim();
+                    }
+                } else if (field.dataset.field === 'email') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        newValue = content.textContent.trim();
+                    } else {
+                        // Remove icon and HTML, extract email
+                        newValue = newValue.replace(/<[^>]*>/g, '').replace(/.*@/, '').trim();
+                        // If no @ found, try to extract email pattern
+                        const emailMatch = newValue.match(/[\w\.-]+@[\w\.-]+\.\w+/);
+                        if (emailMatch) {
+                            newValue = emailMatch[0];
+                        }
+                    }
+                } else if (field.dataset.field === 'name') {
+                    const content = field.querySelector('.editable-content');
+                    if (content) {
+                        newValue = content.textContent.trim();
+                    } else {
+                        // Remove HTML tags, icons, and clean
+                        newValue = newValue.replace(/<[^>]*>/g, '').replace(/\s*🔐\s*/g, '').trim();
+                    }
+                }
+                
+                // Only save if value changed
+                if (newValue !== originalValue && newValue.length > 0) {
+                    saveStaffField(field, newValue, originalValue);
+                } else {
+                    // Restore original value if empty or unchanged
+                    restoreField(field, originalValue);
+                }
+            }
+        });
+        
+        // Handle Enter key (save)
+        field.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                field.blur();
+            }
+            
+            // Handle Escape key (cancel)
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                restoreField(field, originalValue);
+                field.blur();
+            }
+        });
+        
+        // Handle input changes (show save indicator)
+        field.addEventListener('input', function() {
+            if (isEditing) {
+                clearTimeout(timeoutId);
+                const indicator = field.querySelector('.save-indicator');
+                if (indicator) {
+                    indicator.className = 'save-indicator saving';
+                    indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+                
+                // Auto-save after 2 seconds of no typing
+                timeoutId = setTimeout(() => {
+                    field.blur();
+                }, 2000);
+            }
+        });
+    });
+});
+
+// Save staff field function
+function saveStaffField(field, newValue, originalValue) {
+    const staffId = field.dataset.staffId;
+    const fieldName = field.dataset.field;
+    const indicator = field.querySelector('.save-indicator');
+    
+    if (!staffId || !fieldName) {
+        console.error('Missing staff ID or field name');
+        if (indicator) {
+            indicator.className = 'save-indicator error';
+            indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            setTimeout(() => indicator.innerHTML = '', 3000);
+        }
+        return;
+    }
+    
+    // Show saving indicator
+    if (indicator) {
+        indicator.className = 'save-indicator saving';
+        indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
+    
+    // Get CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        if (indicator) {
+            indicator.className = 'save-indicator error';
+            indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            setTimeout(() => indicator.innerHTML = '', 3000);
+        }
+        restoreField(field, originalValue);
+        return;
+    }
+    
+    // Prepare data based on field type
+    let updateData = {};
+    
+    if (fieldName === 'name') {
+        // Split name into first and last name
+        const nameParts = newValue.trim().split(/\s+/);
+        updateData.first_name = nameParts[0] || '';
+        updateData.last_name = nameParts.slice(1).join(' ') || '';
+    } else if (fieldName === 'username') {
+        updateData.username = newValue.trim();
+    } else if (fieldName === 'email') {
+        updateData.email = newValue.trim();
+    }
+    
+    // Send update request
+    fetch(`/staff/${staffId}/edit/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams(updateData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success indicator
+            if (indicator) {
+                indicator.className = 'save-indicator saved';
+                indicator.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    indicator.innerHTML = '';
+                    indicator.className = 'save-indicator';
+                }, 2000);
+            }
+            
+            // Update the field's original value
+            field.setAttribute('data-original-value', newValue);
+            
+            // Update display based on field type
+            if (fieldName === 'username') {
+                const content = field.querySelector('.editable-content');
+                if (content) {
+                    content.textContent = newValue;
+                } else {
+                    field.innerHTML = '@' + newValue + '<i class="fas fa-edit edit-icon"></i><span class="save-indicator"></span>';
+                }
+            } else if (fieldName === 'email') {
+                const content = field.querySelector('.editable-content');
+                if (content) {
+                    content.textContent = newValue;
+                }
+            } else if (fieldName === 'name') {
+                const editIcon = field.querySelector('.edit-icon');
+                const saveIndicator = field.querySelector('.save-indicator');
+                field.innerHTML = newValue;
+                if (editIcon) field.appendChild(editIcon);
+                if (saveIndicator) field.appendChild(saveIndicator);
+            }
+            
+            // Show success message
+            showNotification('Staff information updated successfully!', 'success');
+        } else {
+            // Show error
+            if (indicator) {
+                indicator.className = 'save-indicator error';
+                indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                setTimeout(() => indicator.innerHTML = '', 3000);
+            }
+            restoreField(field, originalValue);
+            showNotification(data.error || 'Failed to update staff information', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating staff:', error);
+        if (indicator) {
+            indicator.className = 'save-indicator error';
+            indicator.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            setTimeout(() => indicator.innerHTML = '', 3000);
+        }
+        restoreField(field, originalValue);
+        showNotification('Error updating staff information. Please try again.', 'error');
+    });
+}
+
+// Restore field to original value
+function restoreField(field, originalValue) {
+    const fieldName = field.dataset.field;
+    
+    if (fieldName === 'username') {
+        const content = field.querySelector('.editable-content');
+        if (content) {
+            content.textContent = originalValue;
+        } else {
+            const editIcon = '<i class="fas fa-edit edit-icon"></i>';
+            const saveIndicator = '<span class="save-indicator"></span>';
+            field.innerHTML = '@' + originalValue + editIcon + saveIndicator;
+        }
+    } else if (fieldName === 'email') {
+        const content = field.querySelector('.editable-content');
+        if (content) {
+            content.textContent = originalValue;
+        } else {
+            const editIcon = '<i class="fas fa-edit edit-icon"></i>';
+            const saveIndicator = '<span class="save-indicator"></span>';
+            field.innerHTML = '<i class="fas fa-envelope me-1"></i>' + originalValue + editIcon + saveIndicator;
+        }
+    } else if (fieldName === 'name') {
+        const content = field.querySelector('.editable-content');
+        if (content) {
+            content.textContent = originalValue;
+        } else {
+            const editIcon = '<i class="fas fa-edit edit-icon"></i>';
+            const saveIndicator = '<span class="save-indicator"></span>';
+            field.innerHTML = originalValue + editIcon + saveIndicator;
+        }
+    }
+    
+    field.classList.remove('editing');
+}
+
+// Show notification function
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; min-width: 300px; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Salary functions are now defined at the top of the script block for global access
+
+// Add event listener for close button in header
+document.addEventListener('DOMContentLoaded', function() {
+    const salaryModal = document.getElementById('staffSalaryModal');
+    if (salaryModal) {
+        // Close on backdrop click
+        salaryModal.addEventListener('click', function(e) {
+            if (e.target === salaryModal) {
+                closeSalaryModal();
+            }
+        });
+        
+        // Close on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && salaryModal.classList.contains('show')) {
+                closeSalaryModal();
+            }
+        });
+    }
+});
+
+// Preview image when file is selected
+function previewImage(input, previewId) {
+    const previewDiv = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea; margin-top: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        // If no file selected, show current image or placeholder
+        if (previewId === 'current_image_preview') {
+            // Keep existing preview if editing
+            const existingImg = previewDiv.querySelector('img');
+            if (!existingImg) {
+                previewDiv.innerHTML = '<small class="text-muted">No profile image</small>';
+            }
+        } else {
+            previewDiv.innerHTML = '';
+        }
+    }
+}
+</script>
+{% endblock %}
+

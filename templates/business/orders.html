@@ -1,10 +1,299 @@
 {% extends 'business/base.html' %}
+{% load order_filters %}
 
 {% block title %}Orders - TopStyle Business{% endblock %}
 {% block page_title %}Orders Management{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Overdue indicator animation */
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+    }
+    
+    .overdue-badge {
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+    }
+    
+    /* Overdue row highlighting */
+    .table-danger {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+    
+    .table-danger:hover {
+        background-color: rgba(220, 53, 69, 0.2) !important;
+    }
+    
+    /* Due soon row highlighting */
+    .table-warning {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    
+    .table-warning:hover {
+        background-color: rgba(255, 193, 7, 0.2) !important;
+    }
+    
+    /* Responsive overdue indicators */
+    @media (max-width: 768px) {
+        .overdue-badge {
+            font-size: 0.75rem !important;
+            padding: 4px 8px !important;
+        }
+        
+        .table-danger,
+        .table-warning {
+            border-left-width: 3px !important;
+        }
+    }
+    /* 3D Revenue Cards Styling */
+    .revenue-card-3d {
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        border: none !important;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        box-shadow: 
+            0 10px 25px rgba(0, 0, 0, 0.15),
+            0 5px 10px rgba(0, 0, 0, 0.1),
+            inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+        background: linear-gradient(135deg, var(--card-color-start) 0%, var(--card-color-end) 100%);
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+    
+    .revenue-card-3d::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        pointer-events: none;
+        border-radius: 15px;
+    }
+    
+    .revenue-card-3d::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .revenue-card-3d:hover {
+        transform: translateY(-8px) rotateX(5deg) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.25),
+            0 10px 20px rgba(0, 0, 0, 0.15),
+            inset 0 -5px 0 rgba(0, 0, 0, 0.3);
+    }
+    
+    .revenue-card-3d:active {
+        transform: translateY(-4px) rotateX(2deg) scale(0.98);
+        transition: all 0.1s ease;
+    }
+    
+    .revenue-card-3d .card-body {
+        position: relative;
+        z-index: 1;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .revenue-card-3d .stat-number {
+        font-weight: 700;
+        font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive stat number */
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease;
+        line-height: 1.2;
+    }
+    
+    .revenue-card-3d:hover .stat-number {
+        transform: scale(1.1);
+    }
+    
+    .revenue-card-3d i {
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        transition: transform 0.3s ease;
+        font-size: clamp(1rem, 3vw, 1.5rem) !important; /* Responsive icon */
+    }
+    
+    .revenue-card-3d:hover i {
+        transform: rotate(5deg) scale(1.1);
+    }
+    
+    /* Responsive revenue cards on mobile */
+    @media (max-width: 768px) {
+        .revenue-card-3d .stat-number {
+            font-size: clamp(1.1rem, 3.5vw, 1.35rem) !important;
+        }
+        
+        .revenue-card-3d i {
+            font-size: clamp(0.9rem, 2.5vw, 1.25rem) !important;
+        }
+        
+        .revenue-card-3d .card-body {
+            padding: 1rem 0.75rem !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .revenue-card-3d .stat-number {
+            font-size: clamp(1rem, 3vw, 1.25rem) !important;
+        }
+        
+        .revenue-card-3d i {
+            font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+        }
+    }
+    
+    /* Card Color Variables */
+    .stat-card-blue {
+        --card-color-start: #3b82f6;
+        --card-color-end: #2563eb;
+    }
+    
+    .stat-card-green {
+        --card-color-start: #10b981;
+        --card-color-end: #059669;
+    }
+    
+    .stat-card-orange {
+        --card-color-start: #f59e0b;
+        --card-color-end: #d97706;
+    }
+    
+    .stat-card-purple {
+        --card-color-start: #8b5cf6;
+        --card-color-end: #7c3aed;
+    }
+    
+    .stat-card-teal {
+        --card-color-start: #14b8a6;
+        --card-color-end: #0d9488;
+    }
+    
+    /* Prevent modal backdrop from blocking interactions - Hide backdrop completely */
+    .modal-backdrop {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    .modal {
+        z-index: 1050 !important;
+    }
+    
+    /* Ensure body doesn't get modal-open class effects */
+    body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure action buttons are always clickable */
+    .action-btns {
+        position: relative;
+        z-index: 1000;
+        pointer-events: auto !important;
+    }
+    
+    .action-btns .btn,
+    .action-btns a,
+    .action-btns .btn-group {
+        position: relative;
+        z-index: 1001;
+        pointer-events: auto !important;
+    }
+    
+    /* Prevent row clicks from affecting action buttons */
+    .order-row .action-btns * {
+        pointer-events: auto !important;
+    }
+    
+    /* Ensure table cells with buttons are not affected by row clicks */
+    #ordersTable td.action-btns {
+        pointer-events: auto !important;
+    }
+    
+    /* Revenue Modal Styling */
+    .revenue-modal .modal-content {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .revenue-modal .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        border: none;
+    }
+    
+    .revenue-modal .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+    }
+    
+    .revenue-stat-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .revenue-stat-box h6 {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .revenue-stat-box .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+    
+    .revenue-breakdown-item {
+        padding: 12px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 3px solid #667eea;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .revenue-breakdown-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
     
     .filter-btn-all {
         background-color: #1e3a8a !important;
@@ -56,6 +345,137 @@
     .chart-container {
         padding: 10px;
     }
+
+    /* Orders table redesign */
+    .orders-card {
+        border: none;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        background: rgba(255,255,255,0.98);
+    }
+    .orders-card .card-header {
+        background: linear-gradient(135deg, rgba(30,58,138,0.95) 0%, rgba(30,64,175,0.95) 100%);
+        color: #fff;
+        padding: 14px 18px;
+        border: none;
+    }
+    .orders-card .card-header h5 {
+        margin: 0;
+        color: #ffffff !important; /* ensure high contrast on dark header */
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .orders-table-wrapper {
+        position: relative;
+        max-width: 100%;
+    }
+    table.orders-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .orders-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        color: #111827;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: .04em;
+        border-bottom: 1px solid #e5e7eb !important;
+    }
+    .orders-table tbody tr {
+        transition: transform .05s ease, background-color .2s ease, box-shadow .2s ease;
+    }
+    .orders-table tbody tr.order-row {
+        cursor: pointer;
+        position: relative;
+    }
+    .orders-table tbody tr.order-row:hover {
+        background: #f0f9ff !important;
+        box-shadow: inset 0 0 0 9999px rgba(30, 58, 138, 0.05);
+        transform: translateX(2px);
+    }
+    .orders-table tbody tr.order-row:active {
+        background: #e0f2fe !important;
+        transform: translateX(1px);
+    }
+    /* Visual indicator that row is clickable - subtle icon */
+    .orders-table tbody tr.order-row td:first-child::before {
+        content: '👁️';
+        opacity: 0;
+        margin-right: 6px;
+        transition: opacity 0.2s ease;
+    }
+    .orders-table tbody tr.order-row:hover td:first-child::before {
+        opacity: 0.5;
+    }
+    .orders-table td, .orders-table th {
+        padding: 14px 16px !important;
+        vertical-align: middle;
+        border-color: #eef2f7 !important;
+    }
+    .orders-table tbody tr:first-child td { border-top: none; }
+    .orders-table .order-id {
+        font-weight: 800;
+        color: #111827;
+    }
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .chip-gray { 
+        background: #f1f5f9; 
+        color: #1e293b; 
+        border-color: #cbd5e1;
+    }
+    .chip-green { 
+        background: #22c55e; 
+        color: #ffffff; 
+        border-color: #16a34a;
+        box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+    }
+    .chip-red { 
+        background: #ef4444; 
+        color: #ffffff; 
+        border-color: #dc2626;
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+    }
+    .chip-blue { 
+        background: #3b82f6; 
+        color: #ffffff; 
+        border-color: #2563eb;
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    }
+    .chip-orange { 
+        background: #f97316; 
+        color: #ffffff; 
+        border-color: #ea580c;
+        box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+    }
+    
+    .chip-yellow-dark { 
+        background: rgba(255, 193, 7, 0.1); 
+        color: #856404; 
+        border-color: rgba(255, 193, 7, 0.3);
+        box-shadow: 0 2px 6px rgba(255, 193, 7, 0.1);
+    }
+    .action-btns .btn { border-radius: 10px; }
+    @media (max-width: 768px) {
+        .orders-table td:nth-child(3),
+        .orders-table th:nth-child(3) { display:none; }
+        .orders-table td:nth-child(6),
+        .orders-table th:nth-child(6) { display:none; }
+    }
 </style>
 {% endblock %}
 
@@ -72,7 +492,7 @@
     <div class="col-12">
         <div class="btn-group" role="group" aria-label="Order Type Filter">
             <a href="?type=all" class="btn {% if current_filter == 'all' %}filter-btn-all{% else %}filter-btn-outline{% endif %}">
-                ALL Orders ({{ orders|length }})
+                ALL Orders ({{ all_orders_count }})
             </a>
             <a href="?type=rental" class="btn {% if current_filter == 'rental' %}filter-btn-rental{% else %}filter-btn-outline{% endif %}">
                 Rent Orders ({{ rental_orders }})
@@ -97,16 +517,16 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="card stat-card stat-card-blue">
+        <div class="card stat-card stat-card-blue revenue-card-3d" data-period="total" data-revenue="{{ total_revenue|floatformat:2 }}">
             <div class="card-body text-center">
-                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <i class="fas fa-peso-sign fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ total_revenue|floatformat:2 }}</div>
                 <div>Total Revenue</div>
             </div>
         </div>
     </div>
     <div class="col-md-2">
-        <div class="card stat-card stat-card-green">
+        <div class="card stat-card stat-card-green revenue-card-3d" data-period="yearly" data-revenue="{{ yearly_revenue|floatformat:2 }}">
             <div class="card-body text-center">
                 <i class="fas fa-calendar-alt fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ yearly_revenue|floatformat:2 }}</div>
@@ -115,7 +535,7 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="card stat-card stat-card-orange">
+        <div class="card stat-card stat-card-orange revenue-card-3d" data-period="monthly" data-revenue="{{ monthly_revenue|floatformat:2 }}">
             <div class="card-body text-center">
                 <i class="fas fa-calendar-month fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ monthly_revenue|floatformat:2 }}</div>
@@ -124,7 +544,7 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="card stat-card stat-card-purple">
+        <div class="card stat-card stat-card-purple revenue-card-3d" data-period="weekly" data-revenue="{{ weekly_revenue|floatformat:2 }}">
             <div class="card-body text-center">
                 <i class="fas fa-calendar-week fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ weekly_revenue|floatformat:2 }}</div>
@@ -133,7 +553,7 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="card stat-card stat-card-teal">
+        <div class="card stat-card stat-card-teal revenue-card-3d" data-period="daily" data-revenue="{{ daily_revenue|floatformat:2 }}">
             <div class="card-body text-center">
                 <i class="fas fa-calendar-day fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ daily_revenue|floatformat:2 }}</div>
@@ -143,17 +563,172 @@
     </div>
 </div>
 
+<!-- Revenue Details Modal -->
+<div class="modal fade revenue-modal" id="revenueDetailsModal" tabindex="-1" aria-labelledby="revenueDetailsModalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="revenueDetailsModalLabel">
+                    <i class="fas fa-chart-line me-2"></i>
+                    <span id="modalPeriodLabel">Revenue Details</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="event.stopPropagation();"></button>
+            </div>
+            <div class="modal-body">
+                <div id="revenueModalContent">
+                    <div class="text-center py-5">
+                        <div class="loading-spinner"></div>
+                        <p class="mt-3">Loading revenue details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="event.stopPropagation();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Save and restore page state (filter tab and scroll position) on refresh
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentFilter = urlParams.get('type') || 'all';
+        
+        // If no type parameter in URL, check sessionStorage and redirect if saved
+        if (!urlParams.has('type')) {
+            const savedFilter = sessionStorage.getItem('orders_filter_type');
+            // Only redirect if we have a saved filter that's not 'all' (all doesn't need URL param)
+            if (savedFilter && savedFilter !== 'all' && savedFilter !== currentFilter) {
+                // Redirect to saved filter to maintain state
+                window.location.href = window.location.pathname + '?type=' + savedFilter;
+                return; // Exit early since we're redirecting
+            }
+        }
+        
+        // Save current filter to sessionStorage
+        sessionStorage.setItem('orders_filter_type', currentFilter);
+        
+        // Restore scroll position after page loads
+        const savedScrollPosition = sessionStorage.getItem('orders_scroll_position');
+        if (savedScrollPosition) {
+            // Use requestAnimationFrame for smooth scroll restoration
+            requestAnimationFrame(function() {
+                window.scrollTo({
+                    top: parseInt(savedScrollPosition, 10),
+                    behavior: 'auto' // Use 'auto' instead of 'smooth' for instant restoration
+                });
+            });
+        }
+        
+        // Save scroll position on scroll (debounced)
+        let scrollTimeout;
+        function saveScrollPosition() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function() {
+                const scrollPos = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+                sessionStorage.setItem('orders_scroll_position', scrollPos);
+            }, 300);
+        }
+        
+        window.addEventListener('scroll', saveScrollPosition, { passive: true });
+        
+        // Save scroll position before page unload/navigation
+        window.addEventListener('beforeunload', function() {
+            const scrollPos = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+            sessionStorage.setItem('orders_scroll_position', scrollPos);
+        });
+        
+        // Save scroll position when visibility changes (tab switch)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                const scrollPos = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+                sessionStorage.setItem('orders_scroll_position', scrollPos);
+            }
+        });
+        
+        // Handle filter button clicks - save filter type before navigation
+        const filterButtons = document.querySelectorAll('.btn-group a[href*="type="]');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Extract filter type from href
+                const href = this.getAttribute('href');
+                const match = href.match(/[?&]type=([^&]*)/);
+                const filterType = match ? match[1] : 'all';
+                
+                // Save current scroll position before navigation
+                const scrollPos = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+                sessionStorage.setItem('orders_scroll_position', scrollPos);
+                sessionStorage.setItem('orders_filter_type', filterType);
+                
+                // Allow normal navigation (don't prevent default)
+            });
+        });
+    });
+    
+    // Ensure modals can be closed properly and clean up backdrops
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('revenueDetailsModal');
+        if (modalElement) {
+            // Clean up on modal hide
+            modalElement.addEventListener('hidden.bs.modal', function() {
+                // Remove any lingering backdrops
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            });
+            
+            // Also handle escape key and backdrop clicks
+            modalElement.addEventListener('hide.bs.modal', function() {
+                // Clean up before hiding
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+            });
+        }
+        
+        // Global cleanup function for any orphaned backdrops
+        function cleanupModals() {
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            if (backdrops.length > 0 && !document.querySelector('.modal.show')) {
+                backdrops.forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+        }
+        
+        // Run cleanup periodically
+        setInterval(cleanupModals, 1000);
+        
+        // Also cleanup on any click outside modals
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-backdrop')) {
+                const modals = document.querySelectorAll('.modal.show');
+                modals.forEach(modal => {
+                    const bsModal = bootstrap.Modal.getInstance(modal);
+                    if (bsModal) {
+                        bsModal.hide();
+                    }
+                });
+                cleanupModals();
+            }
+        });
+    });
+</script>
+
 <!-- Orders Table -->
-<div class="card">
+<div class="card orders-card">
     <div class="card-header">
         <h5 class="mb-0">ORDERS</h5>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
+        <div class="table-responsive orders-table-wrapper">
+            <table class="table table-hover mb-0 orders-table" id="ordersTable">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
+                        <th>IDENTIFIERS</th>
                         <th>Service Type</th>
                         <th>Category</th>
                         <th>QT</th>
@@ -165,69 +740,274 @@
                 </thead>
                 <tbody>
                     {% for order in orders %}
-                    <tr>
-                        <td><strong>{{ order.order_identifier|default:order.id }}</strong></td>
+                    <tr class="order-row {% if order.is_overdue or order.status == 'overdue' %}table-danger border-danger{% elif order.status == 'due' %}table-warning border-warning{% elif order.status == 'almost_due' %}table-warning border-warning{% endif %}" data-order-id="{{ order.id }}" style="cursor: pointer; {% if order.is_overdue or order.status == 'overdue' %}background-color: rgba(220, 53, 69, 0.1) !important; border-left: 4px solid #dc3545 !important;{% elif order.status == 'due' %}background-color: rgba(255, 193, 7, 0.1) !important; border-left: 4px solid #ffc107 !important;{% elif order.status == 'almost_due' %}background-color: rgba(255, 193, 7, 0.05) !important; border-left: 4px solid #ffc107 !important;{% endif %}" title="{% if order.is_overdue or order.status == 'overdue' %}⚠️ OVERDUE - Click to view order details{% elif order.status == 'due' %}⚠️ DUE TODAY - Click to view order details{% elif order.status == 'almost_due' %}⚠️ DUE SOON - Click to view order details{% else %}Click to view order details{% endif %}">
+                        <td class="order-id">
+                            {{ order.order_identifier|default:order.id }}
+                            {% if order.assigned_staff and order.order_type in 'repair,customize' %}
+                                <br><small class="badge bg-success mt-1" style="font-size: 0.7rem;">
+                                    <i class="fas fa-user-check"></i> {{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}
+                                </small>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if order.order_type == 'rental' %}
-                                <span class="badge bg-primary">Rent</span>
+                                <span class="chip chip-blue">Rent</span>
                             {% elif order.order_type == 'repair' %}
-                                <span class="badge bg-danger">Repair</span>
+                                <span class="chip chip-red">Repair</span>
                             {% elif order.order_type == 'customize' %}
-                                <span class="badge bg-info">Customize</span>
+                                <span class="chip chip-blue">Customize</span>
                             {% else %}
-                                <span class="badge bg-secondary">{{ order.get_order_type_display }}</span>
+                                <span class="chip chip-gray">{{ order.get_order_type_display }}</span>
                             {% endif %}
                         </td>
                         <td>
-                            {% for item in order.items.all %}
-                                {{ item.product.category.name }}
-                                {% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                                N/A
-                            {% endfor %}
+                            {% if order.order_type == 'customize' %}
+                                {# Show Type Of Customize - always use the aggregated display from view #}
+                                {{ order.customize_categories_display|default:"Customize Service" }}
+                            {% elif order.order_type == 'repair' %}
+                                {# Show Repair Type - always use the aggregated display from view #}
+                                {{ order.repair_categories_display|default:"Repair Service" }}
+                            {% elif order.order_type == 'rent' or order.order_type == 'rental' %}
+                                {# For rental orders, use aggregated display from view if available, otherwise use filter #}
+                                {% if order.rental_categories_display %}
+                                    {{ order.rental_categories_display }}
+                                {% else %}
+                                    {{ order.items.all|format_rental_categories|default:"Rental Service" }}
+                                {% endif %}
+                            {% else %}
+                                {% for item in order.items.all %}
+                                    {% if item.product and item.product.category and item.product.category.name %}
+                                        {{ item.product.category.name }}
+                                    {% else %}
+                                        General Service
+                                    {% endif %}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    General Service
+                                {% endfor %}
+                            {% endif %}
                         </td>
                         <td>
-                            {% for item in order.items.all %}
-                                {{ item.quantity }}
-                                {% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                                0
-                            {% endfor %}
+                            {% if order.order_type == 'customize' %}
+                                {# For customize orders, use aggregated quantity if available, otherwise sum from items #}
+                                {% if order.customize_quantity_display and order.customize_quantity_display > 0 %}
+                                    {{ order.customize_quantity_display }}
+                                {% elif order.items.all %}
+                                    {% for item in order.items.all %}
+                                        {{ item.quantity }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    1
+                                {% endif %}
+                            {% elif order.order_type == 'rent' or order.order_type == 'rental' %}
+                                {# For rental orders, use aggregated quantity from view if available, otherwise use filter #}
+                                {% if order.rental_quantity_display and order.rental_quantity_display > 0 %}
+                                    {{ order.rental_quantity_display }}
+                                {% elif order.items.all %}
+                                    {{ order.items.all|format_rental_quantities|default:"1" }}
+                                {% else %}
+                                    1
+                                {% endif %}
+                            {% elif order.order_type == 'repair' %}
+                                {# For repair orders, use aggregated quantity if available, otherwise sum from items #}
+                                {% if order.repair_quantity_display and order.repair_quantity_display > 0 %}
+                                    {{ order.repair_quantity_display }}
+                                {% elif order.items.all %}
+                                    {% for item in order.items.all %}
+                                        {{ item.quantity }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    1
+                                {% endif %}
+                            {% else %}
+                                {% for item in order.items.all %}
+                                    {{ item.quantity }}
+                                    {% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    0
+                                {% endfor %}
+                            {% endif %}
                         </td>
                         <td>{{ order.created_at|date:"n/j/y" }}</td>
-                        <td>
+                        <td style="white-space:nowrap;">
                             {% if order.paid_amount > 0 %}
-                                FPD
+                                {# Get payment method from order first, then sales record #}
+                                {% if order.payment_method %}
+                                    {% if order.payment_method == 'cash' %}
+                                        <span class="chip chip-green">Cash</span>
+                                    {% elif order.payment_method == 'gcash' %}
+                                        <span class="chip chip-green">GCash</span>
+                                    {% elif order.payment_method == 'paymaya' %}
+                                        <span class="chip chip-green">PayMaya</span>
+                                    {% elif order.payment_method == 'card' or order.payment_method == 'credit_card' or order.payment_method == 'debit_card' %}
+                                        <span class="chip chip-green">Card</span>
+                                    {% elif order.payment_method == 'bank_transfer' %}
+                                        <span class="chip chip-green">Bank Transfer</span>
+                                    {% elif order.payment_method == 'mobile_money' %}
+                                        <span class="chip chip-green">Mobile Money</span>
+                                    {% else %}
+                                        <span class="chip chip-green">{{ order.payment_method|title }}</span>
+                                    {% endif %}
+                                {% elif order.sales and order.sales.payment_method %}
+                                    {% if order.sales.payment_method == 'cash' %}
+                                        <span class="chip chip-green">Cash</span>
+                                    {% elif order.sales.payment_method == 'gcash' %}
+                                        <span class="chip chip-green">GCash</span>
+                                    {% elif order.sales.payment_method == 'paymaya' %}
+                                        <span class="chip chip-green">PayMaya</span>
+                                    {% elif order.sales.payment_method == 'card' or order.sales.payment_method == 'credit_card' or order.sales.payment_method == 'debit_card' %}
+                                        <span class="chip chip-green">Card</span>
+                                    {% elif order.sales.payment_method == 'bank_transfer' %}
+                                        <span class="chip chip-green">Bank Transfer</span>
+                                    {% elif order.sales.payment_method == 'mobile_money' %}
+                                        <span class="chip chip-green">Mobile Money</span>
+                                    {% else %}
+                                        <span class="chip chip-green">{{ order.sales.payment_method|title }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="chip chip-green">Cash</span>
+                                {% endif %}
                             {% else %}
-                                DPD
+                                <span class="chip chip-orange">Not Paid</span>
                             {% endif %}
                         </td>
                         <td>
-                            {% if order.status == 'pending' %}
-                                <span class="badge bg-danger">Pending</span>
-                            {% elif order.status == 'confirmed' %}
-                                <span class="badge bg-warning text-dark">Returned</span>
+                            {% if order.is_overdue or order.status == 'overdue' %}
+                                <span class="chip chip-red overdue-badge" style="background-color: #dc3545 !important; color: white !important; font-weight: bold;">OVERDUE</span>
+                                {% if order.order_type in 'rent'|add:'rental' and order.due_date %}
+                                    <br><small class="text-danger" style="font-weight: bold;">
+                                        <i class="fas fa-exclamation-triangle"></i> 
+                                        {% if order.days_overdue > 0 %}
+                                            {{ order.days_overdue }} day{{ order.days_overdue|pluralize }} overdue
+                                        {% else %}
+                                            Overdue
+                                        {% endif %}
+                                    </small>
+                                {% endif %}
+                            {% elif order.status == 'due' %}
+                                <span class="chip chip-orange" style="background-color: #ff8c00 !important; color: white !important; font-weight: bold;">DUE TODAY</span>
+                                {% if order.order_type in 'rent'|add:'rental' %}
+                                    <br><small class="text-warning" style="font-weight: bold;">
+                                        <i class="fas fa-clock"></i> Due today
+                                    </small>
+                                {% endif %}
+                            {% elif order.status == 'almost_due' %}
+                                <span class="chip chip-yellow" style="background-color: #ffc107 !important; color: #000 !important; font-weight: bold;">DUE SOON</span>
+                                {% if order.order_type in 'rent'|add:'rental' and order.due_date %}
+                                    <br><small class="text-warning" style="font-weight: bold;">
+                                        <i class="fas fa-clock"></i> Due in {{ order.days_until_due }} day{{ order.days_until_due|pluralize }}
+                                    </small>
+                                {% endif %}
+                            {% elif order.status == 'pending' %}
+                                <span class="chip chip-red">Pending</span>
+                            {% elif order.status == 'rented' %}
+                                <span class="chip chip-orange">Rented</span>
+                            {% elif order.status == 'returned' %}
+                                <span class="chip chip-yellow-dark">Returned</span>
                             {% elif order.status == 'completed' %}
-                                <span class="badge bg-success">Completed</span>
+                                <span class="chip chip-green">Completed</span>
                             {% else %}
-                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                <span class="chip chip-gray">{{ order.get_status_display }}</span>
                             {% endif %}
                         </td>
-                        <td>
-                            {% if order.status == 'pending' %}
-                                <a href="{% url 'order_items' order.id %}" class="btn btn-sm btn-outline-primary" title="View">
+                        <td class="action-btns" onclick="event.stopPropagation(); event.preventDefault(); return false;">
+                            <div class="btn-group" role="group" onclick="event.stopPropagation(); event.preventDefault(); return false;">
+                                <!-- View button for all orders -->
+                                <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary" title="View Order Details" onclick="event.stopPropagation(); event.preventDefault(); window.location.href='{% url 'order_detail' order.id %}'; return false;">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'complete_order' order.id %}" class="btn btn-sm btn-outline-success" title="Complete Order">
-                                    <i class="fas fa-check"></i>
-                                </a>
-                            {% elif order.status == 'completed' %}
-                                <button class="btn btn-sm btn-outline-success" title="Completed">
-                                    <i class="fas fa-check"></i>
+                                
+                                <!-- Assign Staff button - Only for Repair and Customize orders -->
+                                {% if order.order_type == 'repair' or order.order_type == 'customize' %}
+                                <button type="button" class="btn btn-sm {% if order.assigned_staff %}btn-success{% else %}btn-outline-warning{% endif %}" title="{% if order.assigned_staff %}Reassign Staff (Currently: {{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}){% else %}Assign Staff{% endif %}" onclick="event.stopPropagation(); openAssignStaffModal({{ order.id }}, {% if order.assigned_staff %}'{{ order.assigned_staff.id }}'{% else %}''{% endif %}, {% if order.assigned_staff %}'{{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}'{% else %}''{% endif %});">
+                                    <i class="fas fa-user-{% if order.assigned_staff %}check{% else %}plus{% endif %}"></i>
                                 </button>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
-                            {% endif %}
+                                {% endif %}
+                                
+                                {% if order.status == 'pending' %}
+                                    <!-- Complete Order button -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Complete Order" onclick="event.stopPropagation();">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'rented' %}
+                                    <!-- Return button for rental orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="return">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Mark as Returned" style="border-color: #ff8c00; color: #ff8c00;" onclick="event.stopPropagation();">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'returned' %}
+                                    <!-- Complete Order button for returned orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Completed" onclick="event.stopPropagation();">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'ready_to_pick_up' %}
+                                    <!-- Complete Order button for ready to pick up orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Completed" onclick="event.stopPropagation();">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'repair_done' %}
+                                    <!-- Complete Order button for repair done orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Completed" onclick="event.stopPropagation();">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'overdue' or order.is_overdue %}
+                                    <!-- Return button for overdue rental orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="return">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Mark as Returned" style="border-color: #dc3545; color: #dc3545;" onclick="event.stopPropagation();">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'due' %}
+                                    <!-- Return button for due rental orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="return">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Mark as Returned" style="border-color: #ffc107; color: #ffc107;" onclick="event.stopPropagation();">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'almost_due' %}
+                                    <!-- Return button for almost due rental orders -->
+                                    <form method="post" action="{% url 'complete_order' order.id %}" style="display: inline;" onsubmit="event.stopPropagation();">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="return">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Mark as Returned" style="border-color: #ffc107; color: #ffc107;" onclick="event.stopPropagation();">
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                    </form>
+                                {% elif order.status == 'completed' %}
+                                    <!-- Completed status -->
+                                    <button class="btn btn-sm btn-success" title="Order Completed" disabled onclick="event.stopPropagation(); event.preventDefault(); return false;">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                {% else %}
+                                    <!-- Other statuses -->
+                                    <span class="chip chip-gray" onclick="event.stopPropagation(); event.preventDefault(); return false;">{{ order.get_status_display }}</span>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                     {% empty %}
@@ -242,6 +1022,66 @@
             </table>
         </div>
     </div>
+    
+    <!-- Pagination -->
+    {% if orders.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Orders pagination">
+            <ul class="pagination">
+                {% if orders.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ orders.number }} of {{ orders.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.paginator.num_pages }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+    
+    <!-- Start New Order Button -->
+    <div class="d-flex justify-content-center mt-4 mb-4">
+        <form method="post" action="{% url 'archive_completed_orders' %}" onsubmit="return confirm('Are you sure you want to archive all completed orders? They will be removed from the orders list but will still be available in reports.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-archive me-2"></i>START NEW ORDER
+            </button>
+        </form>
+    </div>
+    <div class="text-center text-muted mb-3">
+        <small><i class="fas fa-info-circle me-1"></i>This will archive all completed orders. They will be hidden from this list but remain available in reports.</small>
+    </div>
 </div>
 
 {% endblock %}
@@ -251,15 +1091,16 @@
 <script>
     // Order Status Pie Chart
     const ctx = document.getElementById('orderStatusChart').getContext('2d');
+    const chartCounts = JSON.parse('{"completed": {{ completed_orders|default:0 }}, "pending": {{ pending_orders|default:0 }}, "in_progress": {{ in_progress_orders|default:0 }} }'.replace(/\n/g, ''));
     const orderStatusChart = new Chart(ctx, {
         type: 'pie',
         data: {
             labels: ['Completed', 'Pending', 'In Progress'],
             datasets: [{
                 data: [
-                    {{ completed_orders }},
-                    {{ pending_orders }},
-                    {{ in_progress_orders }}
+                    chartCounts.completed,
+                    chartCounts.pending,
+                    chartCounts.in_progress
                 ],
                 backgroundColor: [
                     '#28a745',  // Green for completed
@@ -280,6 +1121,482 @@
         }
     });
 </script>
+<script>
+    // Make table rows clickable to open full order details
+    // But prevent clicks on buttons, links, and interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('#ordersTable .order-row');
+        rows.forEach((row) => {
+            // Add visual feedback on hover
+            row.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('clicking')) {
+                    this.style.backgroundColor = '#f0f9ff';
+                }
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('clicking')) {
+                    this.style.backgroundColor = '';
+                }
+            });
+            
+            row.addEventListener('click', function(e) {
+                // Don't navigate if clicking on buttons, links, or other interactive elements
+                const target = e.target;
+                const isInteractive = target.tagName === 'BUTTON' || 
+                    target.tagName === 'A' || 
+                    target.tagName === 'I' || // FontAwesome icons
+                    target.closest('button') || 
+                    target.closest('a') ||
+                    target.closest('.action-btns') ||
+                    target.closest('.btn') ||
+                    target.closest('.btn-group') ||
+                    target.type === 'checkbox' ||
+                    target.type === 'radio' ||
+                    target.closest('input') ||
+                    target.closest('select') ||
+                    target.closest('textarea');
+                
+                if (isInteractive) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return false; // Stop event propagation completely
+                }
+                
+                // Add visual feedback
+                this.classList.add('clicking');
+                this.style.backgroundColor = '#e0f2fe';
+                
+                const orderId = this.getAttribute('data-order-id');
+                if (orderId) {
+                    // Navigate to order detail page
+                    window.location.href = `/orders/${orderId}/`;
+                }
+            });
+        });
+    });
+</script>
+
+<script>
+    // Revenue Cards 3D Interactive Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const revenueCards = document.querySelectorAll('.revenue-card-3d');
+        const modalElement = document.getElementById('revenueDetailsModal');
+        if (!modalElement || revenueCards.length === 0) return;
+        
+        const modal = new bootstrap.Modal(modalElement, {
+            backdrop: false,
+            keyboard: true
+        });
+        const modalLabel = document.getElementById('modalPeriodLabel');
+        const modalContent = document.getElementById('revenueModalContent');
+        if (!modalLabel || !modalContent) return;
+        
+        function displayRevenueDetails(data, contentElement) {
+            let html = `
+                <div class="revenue-stat-box">
+                    <h6><i class="fas fa-peso-sign me-2"></i>Total Revenue</h6>
+                    <div class="stat-value">₱${parseFloat(data.total_revenue).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <small class="text-muted">${data.total_orders} completed order(s)</small>
+                </div>
+            `;
+            
+            // Revenue by Order Type
+            if (data.revenue_by_type && data.revenue_by_type.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <h6 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Revenue by Order Type</h6>
+                `;
+                
+                data.revenue_by_type.forEach(item => {
+                    const orderType = item.order_type || 'General Service';
+                    const revenue = parseFloat(item.revenue || 0);
+                    const count = item.count || 0;
+                    const percentage = data.total_revenue > 0 ? ((revenue / data.total_revenue) * 100).toFixed(1) : 0;
+                    
+                    html += `
+                        <div class="revenue-breakdown-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-capitalize">${orderType}</strong>
+                                    <small class="text-muted d-block">${count} order(s)</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong class="text-primary">₱${revenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                                    <small class="text-muted d-block">${percentage}%</small>
+                                </div>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar" role="progressbar" style="width: ${percentage}%" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            // Monthly Breakdown (for yearly and total)
+            if (data.monthly_breakdown && data.monthly_breakdown.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <h6 class="mb-3"><i class="fas fa-calendar-alt me-2"></i>Monthly Breakdown</h6>
+                `;
+                
+                data.monthly_breakdown.forEach(month => {
+                    const revenue = parseFloat(month.revenue || 0);
+                    const orders = month.orders || 0;
+                    const maxRevenue = Math.max(...data.monthly_breakdown.map(m => parseFloat(m.revenue || 0)));
+                    const percentage = maxRevenue > 0 ? ((revenue / maxRevenue) * 100).toFixed(1) : 0;
+                    
+                    html += `
+                        <div class="revenue-breakdown-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${month.month}</strong>
+                                    <small class="text-muted d-block">${orders} order(s)</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong class="text-success">₱${revenue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+                                </div>
+                            </div>
+                            <div class="progress mt-2" style="height: 6px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: ${percentage}%" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            }
+            
+            // Recent Orders
+            if (data.recent_orders && data.recent_orders.length > 0) {
+                html += `
+                    <div class="mb-4">
+                        <h6 class="mb-3"><i class="fas fa-list me-2"></i>Recent Orders</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                data.recent_orders.forEach(order => {
+                    const orderDate = new Date(order.created_at);
+                    html += `
+                        <tr>
+                            <td><a href="/orders/${order.id}/" class="text-decoration-none">${order.order_identifier || 'No ID'}</a></td>
+                            <td>${order.customer__name || 'No Customer'}</td>
+                            <td><span class="badge bg-info text-capitalize">${order.order_type || 'General Service'}</span></td>
+                            <td>₱${parseFloat(order.total_amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td>${orderDate.toLocaleDateString()}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            contentElement.innerHTML = html;
+        }
+        
+        revenueCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Prevent clicks on child elements from triggering modal
+                const target = e.target;
+                if (target.closest('button') || 
+                    target.closest('a') || 
+                    target.closest('.btn') ||
+                    target.tagName === 'BUTTON' ||
+                    target.tagName === 'A' ||
+                    target.tagName === 'I') {
+                    e.stopPropagation();
+                    return false;
+                }
+                
+                // Only open modal if clicking directly on the card body or card itself
+                if (!target.closest('.card-body') && target !== card && !card.contains(target)) {
+                    return;
+                }
+                
+                e.stopPropagation();
+                const period = this.getAttribute('data-period');
+                
+                // Update modal title
+                const periodLabels = {
+                    'total': 'Total Revenue - All Time',
+                    'yearly': 'Yearly Revenue',
+                    'monthly': 'Monthly Revenue',
+                    'weekly': 'Weekly Revenue',
+                    'daily': 'Daily Revenue'
+                };
+                if (modalLabel) {
+                    modalLabel.textContent = periodLabels[period] || 'Revenue Details';
+                }
+                
+                // Show loading state
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="text-center py-5">
+                            <div class="loading-spinner" style="margin: 0 auto;"></div>
+                            <p class="mt-3 text-muted">Loading revenue details...</p>
+                        </div>
+                    `;
+                }
+                
+                // Ensure any existing modals are closed first
+                const existingBackdrops = document.querySelectorAll('.modal-backdrop');
+                existingBackdrops.forEach(backdrop => backdrop.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Show modal without backdrop
+                const modalOptions = {
+                    backdrop: false,
+                    keyboard: true
+                };
+                modal.show();
+                
+                // Immediately remove any backdrop that might have been created
+                setTimeout(() => {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    backdrops.forEach(backdrop => backdrop.remove());
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                }, 10);
+                
+                // Fetch revenue details
+                fetch(`/api/revenue-details/?period=${period}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && modalContent) {
+                            displayRevenueDetails(data, modalContent);
+                        } else if (modalContent) {
+                            modalContent.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Error loading revenue details. Please try again.
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (modalContent) {
+                            modalContent.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Error loading revenue details. Please try again.
+                                </div>
+                            `;
+                        }
+                    });
+            });
+        });
+    });
+    
+    // ============================================
+    // ASSIGN STAFF FUNCTIONALITY
+    // ============================================
+    let currentOrderIdForStaff = null;
+    
+    function openAssignStaffModal(orderId, currentStaffId, currentStaffName) {
+        currentOrderIdForStaff = orderId;
+        
+        // Set the staff select dropdown
+        const staffSelect = document.getElementById('staffSelectOrders');
+        if (currentStaffId) {
+            // Check if currently assigned staff is busy (for reassignment)
+            const currentOption = Array.from(staffSelect.options).find(opt => opt.value === currentStaffId);
+            if (currentOption) {
+                const isBusy = currentOption.getAttribute('data-busy') === 'true';
+                if (!isBusy) {
+                    staffSelect.value = currentStaffId;
+                } else {
+                    staffSelect.value = ''; // Don't preselect if busy
+                }
+            } else {
+                staffSelect.value = '';
+            }
+        } else {
+            staffSelect.value = '';
+        }
+        
+        // Update info message
+        const infoDiv = document.getElementById('currentlyAssignedInfo');
+        if (currentStaffName) {
+            infoDiv.innerHTML = `<i class="fas fa-info-circle me-2"></i><strong>Currently Assigned:</strong> ${currentStaffName}`;
+            infoDiv.style.display = 'block';
+        } else {
+            infoDiv.style.display = 'none';
+        }
+        
+        // Clear notes
+        document.getElementById('staffNotesOrders').value = '';
+        
+        // Show warning about busy staff
+        document.getElementById('busyStaffWarning').style.display = 'block';
+        
+        // Add event listener to prevent selecting busy staff
+        staffSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const isBusy = selectedOption.getAttribute('data-busy') === 'true';
+            if (isBusy) {
+                alert('Cannot assign order to busy staff member. Please select an available staff member.');
+                this.value = '';
+            }
+        });
+        
+        // Open modal
+        const modal = new bootstrap.Modal(document.getElementById('assignStaffModalOrders'));
+        modal.show();
+    }
+    
+    function assignStaffFromOrders() {
+        const staffSelect = document.getElementById('staffSelectOrders');
+        const staffId = staffSelect.value;
+        const notes = document.getElementById('staffNotesOrders').value;
+        
+        if (!staffId) {
+            alert('Please select a staff member');
+            return;
+        }
+        
+        // Check if selected staff is busy
+        const selectedOption = staffSelect.options[staffSelect.selectedIndex];
+        const isBusy = selectedOption.getAttribute('data-busy') === 'true';
+        
+        if (isBusy) {
+            alert('Cannot assign order to busy staff member. Please select an available staff member.');
+            staffSelect.value = ''; // Reset selection
+            return;
+        }
+        
+        if (!currentOrderIdForStaff) {
+            alert('Error: Order ID not found');
+            return;
+        }
+        
+        // Get CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Show loading state
+        const assignBtn = document.getElementById('assignStaffBtnOrders');
+        const originalText = assignBtn.innerHTML;
+        assignBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
+        assignBtn.disabled = true;
+        
+        fetch(`/orders/${currentOrderIdForStaff}/assign-staff/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: new URLSearchParams({
+                'staff_id': staffId,
+                'notes': notes
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('assignStaffModalOrders'));
+                modal.hide();
+                // Reload page to show updated assignment
+                window.location.reload();
+            } else {
+                alert('Error: ' + data.error);
+                assignBtn.innerHTML = originalText;
+                assignBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to assign staff. Please try again.');
+            assignBtn.innerHTML = originalText;
+            assignBtn.disabled = false;
+        });
+    }
+</script>
+
+<!-- Assign Staff Modal for Orders Page -->
+<div class="modal fade" id="assignStaffModalOrders" tabindex="-1" aria-labelledby="assignStaffModalOrdersLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignStaffModalOrdersLabel">
+                    <i class="fas fa-user-plus me-2"></i>Assign Staff to Order
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="staffSelectOrders" class="form-label">Select Staff Member <span class="text-danger">*</span></label>
+                    <select class="form-select" id="staffSelectOrders" required>
+                        <option value="">-- Choose a staff member --</option>
+                        {% for staff_info in staff_with_status %}
+                        <option value="{{ staff_info.staff.id }}" 
+                                data-busy="{{ staff_info.is_busy|yesno:'true,false' }}"
+                                data-time="{{ staff_info.time_since_assignment|default:0 }}"
+                                {% if staff_info.is_busy %}disabled style="color: #999; background-color: #f5f5f5;"{% endif %}>
+                            {{ staff_info.staff.get_full_name|default:staff_info.staff.username }}
+                            {% if staff_info.staff.email %} ({{ staff_info.staff.email }}){% endif %}
+                            {% if staff_info.is_busy %}
+                                - {% if staff_info.time_since_assignment and staff_info.time_since_assignment >= 20 %}⚠️ Overdue ({{ staff_info.time_since_assignment }}m) - Cannot Assign{% else %}🔴 Busy ({{ staff_info.time_since_assignment|default:0 }}m) - Cannot Assign{% endif %}
+                            {% else %}
+                                - ✅ Available
+                            {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-text text-muted mt-1">
+                        <span class="badge bg-success">✅ Available</span>
+                        <span class="badge bg-danger">🔴 Busy</span>
+                        <span class="badge bg-warning">⚠️ Overdue</span>
+                    </small>
+                    <div class="alert alert-warning mt-2" id="busyStaffWarning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> Only available staff can be assigned. Busy staff members are disabled. Each staff member can only handle one order at a time.
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="staffNotesOrders" class="form-label">Notes (Optional)</label>
+                    <textarea class="form-control" id="staffNotesOrders" rows="3" placeholder="Add any special instructions or notes for the assigned staff..."></textarea>
+                </div>
+                <div class="alert alert-info" id="currentlyAssignedInfo" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Currently Assigned:</strong> <span id="currentStaffNameDisplay"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="assignStaffBtnOrders" onclick="assignStaffFromOrders()">
+                    <i class="fas fa-user-check me-2"></i>Assign Staff
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 

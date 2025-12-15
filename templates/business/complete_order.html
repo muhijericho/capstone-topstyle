@@ -3,45 +3,998 @@
 {% block title %}Complete Order - TopStyle Business{% endblock %}
 {% block page_title %}Complete Order{% endblock %}
 
+{% block extra_css %}
+<style>
+.complete-order-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.complete-order-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 8px 8px 0 0;
+    margin: 0;
+}
+
+.complete-order-header h4 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.complete-order-card {
+    background: white;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.complete-order-body {
+    padding: 25px;
+}
+
+.alert-info-custom {
+    background-color: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+    color: #0c5460;
+    padding: 15px 20px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.alert-info-custom i {
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+.order-details-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.order-details-section h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.order-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.order-detail-item:last-child {
+    border-bottom: none;
+}
+
+.order-detail-label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.order-detail-value {
+    color: #212529;
+    font-weight: 500;
+}
+
+.order-detail-value.status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.order-detail-value.amount {
+    color: #28a745;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.order-items-section {
+    margin-bottom: 25px;
+}
+
+.order-items-section h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.item-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.item-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.item-card.selected {
+    border-color: #ffc107;
+    background-color: #fff8e1;
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+}
+
+.item-image-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dee2e6;
+}
+
+.item-image-placeholder i {
+    font-size: 2rem;
+    color: #adb5bd;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-name {
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.item-details {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin: 2px 0;
+}
+
+.item-price {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn {
+    min-width: 160px;
+    padding: 12px 20px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+.individual-return-controls {
+    border-top: 1px solid #e9ecef;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.individual-return-controls .alert {
+    margin-bottom: 10px;
+}
+
+.badge-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-completed {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-returned {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.badge-ready-to-pick-up {
+    background-color: #20c997;
+    color: white;
+}
+
+.badge-repair-done {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-in-progress {
+    background-color: #17a2b8;
+    color: white;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Complete Order</h5>
+<div class="complete-order-container">
+    <div class="complete-order-card">
+        <!-- Blue Header -->
+        <div class="complete-order-header">
+            <h4>Complete Order</h4>
+        </div>
+        
+        <div class="complete-order-body">
+            <!-- Alert Box -->
+            <div class="alert-info-custom">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>
+                    {% if order.status == 'ready_to_pick_up' %}
+                        This order is ready to pick up. Mark as completed when the customer picks up the order.
+                    {% elif order.status == 'repair_done' %}
+                        This repair order is done. Mark as completed when the customer picks up the order.
+                    {% elif order.status == 'completed' %}
+                        This order has already been completed.
+                    {% else %}
+                        Are you sure you want to mark this order as completed?
+                    {% endif %}
+                </span>
             </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Are you sure you want to mark this order as completed?
+            
+            <!-- Order Details Section -->
+            <div class="order-details-section">
+                <h6>Order Details</h6>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">ORDER ID</span>
+                    <span class="order-detail-value">{{ order.order_identifier|default:order.id }}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">CUSTOMER</span>
+                    <span class="order-detail-value">{{ order.customer.name }}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">CURRENT STATUS</span>
+                    <span class="order-detail-value status-badge 
+                        {% if order.status == 'pending' %}badge-pending
+                        {% elif order.status == 'completed' %}badge-completed
+                        {% elif order.status == 'returned' %}badge-returned
+                        {% elif order.status == 'ready_to_pick_up' %}badge-ready-to-pick-up
+                        {% elif order.status == 'repair_done' %}badge-repair-done
+                        {% else %}badge-in-progress{% endif %}">
+                        <i class="fas {% if order.status == 'ready_to_pick_up' %}fa-box-check{% elif order.status == 'repair_done' %}fa-tools{% elif order.status == 'completed' %}fa-check-circle{% else %}fa-clock{% endif %} me-1"></i>{{ order.get_status_display }}
+                    </span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">ORDER TYPE</span>
+                    <span class="order-detail-value">{{ order.get_order_type_display }}</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">TOTAL AMOUNT</span>
+                    <span class="order-detail-value amount">₱{{ order.total_amount|floatformat:2 }}</span>
+                </div>
                 </div>
                 
-                <div class="order-details mb-4">
-                    <h6>Order Details:</h6>
-                    <ul class="list-unstyled">
-                        <li><strong>Order ID:</strong> {{ order.order_identifier|default:order.id }}</li>
-                        <li><strong>Customer:</strong> {{ order.customer.name }}</li>
-                        <li><strong>Order Type:</strong> {{ order.get_order_type_display }}</li>
-                        <li><strong>Total Amount:</strong> ₱{{ order.total_amount|floatformat:2 }}</li>
-                        <li><strong>Current Status:</strong> {{ order.get_status_display }}</li>
-                    </ul>
+            <!-- Order Items Section -->
+                {% if rental_items %}
+            <div class="order-items-section">
+                <h6>Rental Items ({{ rental_items|length }} items)</h6>
+                        {% for item in rental_items %}
+                <div class="item-card" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}">
+                    {% if order.order_type == 'rent' or order.order_type == 'rental' %}
+                        <div class="form-check">
+                            <input class="form-check-input item-checkbox" type="checkbox" value="{{ item.id }}" id="item_{{ item.id }}">
+                            <label class="form-check-label" for="item_{{ item.id }}"></label>
+                        </div>
+                    {% endif %}
+                    <!-- Prioritize product image for rental items -->
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% elif order.order_type == 'customize' and order.customize_image %}
+                        <img src="{{ order.customize_image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% elif order.order_type == 'customize' and order.customize_product_reference and order.customize_product_reference.image %}
+                        <img src="{{ order.customize_product_reference.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% else %}
+                        <div class="item-image-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                    <div class="item-info">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-details">Type: {{ item.product.product_type }}</div>
+                        <div class="item-details">Quantity: {{ item.quantity }}</div>
+                        <div class="item-details item-price">
+                            Price: ₱{{ item.display_price|floatformat:2 }}
+                        </div>
+                                {% if item.product.product_type == 'rental' %}
+                                    {% if item.product.rental_status == 'rented' %}
+                                        <span class="badge bg-warning">Currently Rented</span>
+                                    {% elif item.product.rental_status == 'available' %}
+                                        <span class="badge bg-warning" style="background-color: rgba(255, 193, 7, 0.1) !important; color: #856404 !important; border: 1px solid rgba(255, 193, 7, 0.3) !important;">Returned</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ item.product.rental_status|title }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    
+                    <!-- Individual Return Controls -->
+                    <div class="individual-return-controls mt-3" id="individualReturnControls" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span id="selectedItemsText">Select items to return individually</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="returnSelectedItems()">
+                                <i class="fas fa-undo me-1"></i>Return Selected Items
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="clearSelection()">
+                                <i class="fas fa-times me-1"></i>Clear Selection
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                {% else %}
+            <!-- Show all items if no rental items -->
+                {% if all_items %}
+            <div class="order-items-section">
+                <h6>All Order Items ({{ all_items|length }} items)</h6>
+                        {% for item in all_items %}
+                <div class="item-card" data-item-id="{{ item.id }}" data-product-id="{{ item.product.id }}">
+                                            <div class="form-check">
+                                                <input class="form-check-input item-checkbox" type="checkbox" value="{{ item.id }}" id="item_{{ item.id }}">
+                        <label class="form-check-label" for="item_{{ item.id }}"></label>
+                                            </div>
+                    {% if order.order_type == 'customize' and order.customize_image %}
+                        <img src="{{ order.customize_image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% elif order.order_type == 'customize' and order.customize_product_reference and order.customize_product_reference.image %}
+                        <img src="{{ order.customize_product_reference.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% elif item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                    {% else %}
+                        <div class="item-image-placeholder">
+                            <i class="fas fa-box"></i>
+                        </div>
+                    {% endif %}
+                    <div class="item-info">
+                        <div class="item-name">{{ item.product.name }}</div>
+                        <div class="item-details">Type: {{ item.product.product_type }}</div>
+                        <div class="item-details">Quantity: {{ item.quantity }}</div>
+                        <div class="item-details item-price">
+                            Price: ₱{{ item.display_price|floatformat:2 }}
+                        </div>
+                                {% if item.product.product_type == 'rental' %}
+                                    {% if item.product.rental_status == 'rented' %}
+                                        <span class="badge bg-warning">Currently Rented</span>
+                                    {% elif item.product.rental_status == 'available' %}
+                                        <span class="badge bg-warning" style="background-color: rgba(255, 193, 7, 0.1) !important; color: #856404 !important; border: 1px solid rgba(255, 193, 7, 0.3) !important;">Returned</span>
+                                    {% else %}
+                                        <span class="badge bg-info">{{ item.product.rental_status|title }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No items found for this order.
+                </div>
+                {% endif %}
+                {% endif %}
                 
-                <form method="post">
+            <!-- Action Buttons -->
+                <form method="post" id="completeOrderForm" action="{% url 'complete_order' order.id %}">
                     {% csrf_token %}
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-check me-2"></i>Mark as Completed
+                    <input type="hidden" name="filter_type" id="filterTypeInput" value="">
+                <div class="action-buttons">
+                    <!-- Mark as Completed button - Available for all order types -->
+                    <button type="submit" name="action" value="complete" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Mark as Completed
+                    </button>
+                        
+                        {% if order.order_type == 'rent' or order.order_type == 'rental' %}
+                        <button type="submit" name="action" value="return" class="btn btn-warning">
+                            <i class="fas fa-undo me-2"></i>Mark as Returned
                         </button>
-                        <a href="{% url 'orders' %}" class="btn btn-secondary">
+                        {% elif order.order_type == 'repair' %}
+                            {% if order.status != 'repair_done' and order.status != 'completed' %}
+                            <button type="submit" name="action" value="repair_done" class="btn btn-info">
+                                <i class="fas fa-tools me-2"></i>Repair Done
+                            </button>
+                            {% endif %}
+                        {% elif order.order_type == 'customize' %}
+                            {% if order.status != 'ready_to_pick_up' and order.status != 'completed' %}
+                            <button type="submit" name="action" value="customize_done" class="btn btn-primary">
+                                <i class="fas fa-paint-brush me-2"></i>Customization Done
+                            </button>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <!-- Assign Staff button - Only for Repair and Customize orders -->
+                        {% if order.order_type == 'repair' or order.order_type == 'customize' %}
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#assignStaffModal">
+                            <i class="fas fa-user-plus me-2"></i>Assign Staff
+                            {% if order.assigned_staff %}
+                                <span class="badge bg-light text-dark ms-1">{{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}</span>
+                            {% endif %}
+                        </button>
+                        {% endif %}
+                        
+                        <button type="button" class="btn btn-info" onclick="sendSMS()">
+                            <i class="fas fa-sms me-2"></i>Send SMS
+                        </button>
+                        
+                        <a href="{% url 'orders' %}" class="btn btn-secondary" id="cancelBtn">
                             <i class="fas fa-times me-2"></i>Cancel
                         </a>
                     </div>
                 </form>
-            </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+// Function to get CSRF token - must be defined first, before other functions use it
+function getCSRFToken() {
+    let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (csrfToken && csrfToken.value) {
+        return csrfToken.value;
+    }
+    
+    // Try to get from cookie
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    
+    if (cookieValue) {
+        // Update the form token if it exists
+        if (csrfToken) {
+            csrfToken.value = cookieValue;
+        }
+        return cookieValue;
+    }
+    
+    return null;
+}
+
+function sendSMS() {
+    const customerName = "{{ order.customer.name }}";
+    const defaultPhoneNumber = "{{ order.customer.phone|default:'' }}";
+    const orderDisplayId = "{{ order.order_identifier|default:order.id }}";
+    const orderId = {{ order.id }};
+    const totalAmount = "{{ order.total_amount|floatformat:2 }}";
+    const orderType = "{{ order.order_type }}";
+    
+    console.log('SMS Debug:', { customerName, defaultPhoneNumber, orderDisplayId, totalAmount, orderType });
+    
+    // Compose template message based on order type
+    let templateMessage = '';
+    if (orderType === 'repair') {
+        templateMessage = `Good day ${customerName} Topstyle just want to remind you that your repair order ${orderDisplayId} is already done feel free to claim it anytime Thank you`;
+    } else if (orderType === 'rent' || orderType === 'rental') {
+        templateMessage = `Good day ${customerName} your Rent Item is almost overdue please return the item at the exact return day or fine aditional penalty charge`;
+    } else if (orderType === 'customize') {
+        templateMessage = `Good day ${customerName} Topstyle just want to remind you that your customize order ${orderDisplayId} is already done feel free to claim it anytime Thank you`;
+    } else {
+        templateMessage = `Hello ${customerName}, your order ${orderDisplayId} has been completed. Total amount: ₱${totalAmount}. Thank you for your business!`;
+    }
+    
+    // Suggest a default E.164 phone number but allow editing
+    let suggestedPhone = defaultPhoneNumber || '';
+    if (suggestedPhone && !suggestedPhone.startsWith('+')) {
+        if (suggestedPhone.startsWith('0')) {
+            suggestedPhone = '+63' + suggestedPhone.substring(1);
+        } else if (suggestedPhone.startsWith('63')) {
+            suggestedPhone = '+' + suggestedPhone;
+        } else if (suggestedPhone.length === 10) {
+            suggestedPhone = '+63' + suggestedPhone;
+        }
+    }
+    
+    const userPhoneInput = prompt('Enter the phone number to send the SMS to (include country code, e.g. +639XXXXXXXXX):', suggestedPhone);
+    if (!userPhoneInput || userPhoneInput.trim() === '') {
+        alert('Phone number is required to send an SMS.');
+        return;
+    }
+    const normalizedPhone = userPhoneInput.trim();
+    
+    const userMessageInput = prompt('Enter the SMS message to send:', templateMessage);
+    if (!userMessageInput || userMessageInput.trim() === '') {
+        alert('Message is required to send an SMS.');
+        return;
+    }
+    const finalMessage = userMessageInput.trim();
+    
+    const confirmMsg = `Send SMS now?\n\n` +
+        `To: ${normalizedPhone}\n\n` +
+        `Message:\n${finalMessage}\n\n` +
+        `⚠️ Note: Twilio trial accounts can only send to verified numbers.`;
+    
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    
+    const csrfToken = getCSRFToken();
+    if (!csrfToken) {
+        alert('CSRF token not found. Please refresh the page and try again.');
+        return;
+    }
+    
+    fetch('{% url "send_sms" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+            phone_number: normalizedPhone,
+            message: finalMessage,
+            order_id: orderId
+        })
+    })
+    .then(async response => {
+        const data = await response.json();
+        console.log('SMS Response:', response.status, data);
+        if (!response.ok) {
+            throw data;
+        }
+        return data;
+    })
+    .then(data => {
+        if (data.success) {
+            alert('SMS sent successfully!');
+        } else {
+            handleSmsError(data, normalizedPhone);
+        }
+    })
+    .catch(error => {
+        console.error('SMS Error:', error);
+        handleSmsError(error, normalizedPhone);
+    });
+}
+
+function handleSmsError(errorPayload, fallbackPhone) {
+    if (!errorPayload) {
+        alert('Failed to send SMS due to an unknown error.');
+        return;
+    }
+    
+    let errorMsg = errorPayload.error || 'Unknown error';
+    const errorCode = errorPayload.error_code || errorPayload.code || '';
+    
+    if (errorCode === 21612 || (typeof errorMsg === 'string' && errorMsg.includes('21612'))) {
+        const fullMessage = `⚠️ SMS Sending Failed - Destination Not Allowed\n\n` +
+            `Error Code: 21612\n\n` +
+            `Twilio blocked this request because the current sender cannot reach ${fallbackPhone}.\n\n` +
+            `📋 How to Fix:\n` +
+            `1. In Twilio Console open Messaging → Settings → Geo permissions.\n` +
+            `2. Enable SMS for the recipient's country (e.g. Philippines).\n` +
+            `3. Use a Messaging Service or number that is allowed to send to that country.\n` +
+            `4. If needed, purchase a local sender ID/number for that country.\n\n` +
+            `After updating Twilio settings, try sending again.`;
+        alert(fullMessage);
+        return;
+    }
+    
+    if (errorCode === 21608 || (typeof errorMsg === 'string' && errorMsg.includes('21608'))) {
+        const fullMessage = `⚠️ SMS Sending Failed - Unverified Number\n\n` +
+            `Error Code: 21608\n\n` +
+            `The phone number ${fallbackPhone} is not verified in your Twilio account.\n\n` +
+            `📋 How to Fix:\n` +
+            `1. Open: https://console.twilio.com/us1/develop/phone-numbers/manage/verified\n` +
+            `2. Click "Add a new number"\n` +
+            `3. Enter: ${fallbackPhone}\n` +
+            `4. Complete verification\n\n` +
+            `💡 Alternative: Upgrade your Twilio account to send to any number.\n\n` +
+            `Note: Trial accounts can only send SMS to verified numbers.`;
+        alert(fullMessage);
+        if (confirm('Would you like to open the Twilio verification page now?')) {
+            window.open('https://console.twilio.com/us1/develop/phone-numbers/manage/verified', '_blank');
+        }
+        return;
+    }
+    
+    if (errorCode) {
+        errorMsg = `[Error Code: ${errorCode}]\n\n${errorMsg}`;
+    }
+    alert('Failed to send SMS:\n\n' + errorMsg);
+}
+
+    // Handle returned button click
+    document.addEventListener('DOMContentLoaded', function() {
+        const returnedButton = document.querySelector('button[value="returned"]');
+        if (returnedButton) {
+            returnedButton.addEventListener('click', function() {
+                // Refresh rental status after a short delay to allow backend processing
+                setTimeout(() => {
+                    if (typeof refreshRentalStatus === 'function') {
+                        refreshRentalStatus();
+                    }
+                }, 1000);
+            });
+        }
+        
+        // Handle individual item checkboxes
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectionUI();
+            });
+        });
+    });
+    
+    function updateSelectionUI() {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+        const controls = document.getElementById('individualReturnControls');
+        const selectedText = document.getElementById('selectedItemsText');
+        
+        // Update card styling
+        checkboxes.forEach(checkbox => {
+            const card = checkbox.closest('.item-card');
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+        
+        // Show/hide controls and update text
+        if (selectedCheckboxes.length > 0) {
+            controls.style.display = 'block';
+            const itemNames = Array.from(selectedCheckboxes).map(cb => {
+                const card = cb.closest('.item-card');
+                const productName = card.querySelector('h6').textContent;
+                return productName;
+            });
+            selectedText.textContent = `Selected items (${selectedCheckboxes.length}): ${itemNames.join(', ')}`;
+        } else {
+            controls.style.display = 'none';
+        }
+    }
+    
+    function clearSelection() {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        updateSelectionUI();
+    }
+    
+    function returnSelectedItems() {
+        const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one item to return.');
+            return;
+        }
+        
+        const itemNames = Array.from(selectedCheckboxes).map(cb => {
+            const card = cb.closest('.item-card');
+            return card.querySelector('h6').textContent;
+        });
+        
+        const confirmMessage = `Are you sure you want to return the following items?\n\n${itemNames.join('\n')}\n\nThis will mark these items as available for rental again.`;
+        
+        if (confirm(confirmMessage)) {
+            const itemIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+            const orderId = {{ order.id }};
+            
+            // Send AJAX request to return individual items
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                alert('CSRF token not found. Please refresh the page and try again.');
+                return;
+            }
+            
+            fetch('{% url "api_return_individual_items" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    item_ids: itemIds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message with order status info
+                    let message = data.message;
+                    if (data.all_items_returned) {
+                        message += '\n\n✅ All items have been returned! The order status is now "Returned". Click "Mark as Completed" to complete the order.';
+                    } else {
+                        message += `\n\n⚠️ ${data.remaining_rental_items} item(s) still need to be returned.`;
+                    }
+                    
+                    alert(message);
+                    // Refresh the page to show updated status
+                    window.location.reload();
+                } else {
+                    alert('Failed to return items: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to return items. Please try again.');
+            });
+        }
+    }
+    
+    // ============================================
+    // PRESERVE FILTER STATE WHEN COMPLETING ORDER
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get filter type from sessionStorage or referrer
+        const savedFilter = sessionStorage.getItem('orders_filter_type');
+        const referer = document.referrer;
+        let filterType = savedFilter || 'all';
+        
+        // Try to get from referrer URL
+        if (referer) {
+            const refererUrl = new URL(referer);
+            const refererFilter = refererUrl.searchParams.get('type');
+            if (refererFilter) {
+                filterType = refererFilter;
+            }
+        }
+        
+        // Set filter type in hidden input
+        const filterInput = document.getElementById('filterTypeInput');
+        if (filterInput) {
+            filterInput.value = filterType;
+        }
+        
+        // Update cancel button to preserve filter
+        const cancelBtn = document.getElementById('cancelBtn');
+        if (cancelBtn && filterType !== 'all') {
+            cancelBtn.href = `{% url 'orders' %}?type=${filterType}`;
+        }
+        
+        // Save filter state when form is submitted
+        const form = document.getElementById('completeOrderForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Ensure CSRF token is present and valid before submitting
+                let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+                
+                // Always refresh CSRF token from cookie to ensure it's current
+                const cookieValue = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('csrftoken='))
+                    ?.split('=')[1];
+                
+                if (cookieValue) {
+                    // Create hidden input if it doesn't exist
+                    if (!csrfToken) {
+                        csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = 'csrfmiddlewaretoken';
+                        form.insertBefore(csrfToken, form.firstChild);
+                    }
+                    // Always update with fresh token from cookie
+                    csrfToken.value = cookieValue;
+                } else if (!csrfToken || !csrfToken.value) {
+                    console.error('CSRF token missing, reloading page');
+                    e.preventDefault();
+                    alert('Security token is missing. Please refresh the page and try again.');
+                    window.location.reload();
+                    return false;
+                }
+                
+                sessionStorage.setItem('orders_filter_type', filterType);
+                // Allow form to submit normally
+            });
+        }
+    });
+    
+    // ============================================
+    // ASSIGN STAFF FUNCTIONALITY
+    // ============================================
+    function assignStaff() {
+        const staffId = document.getElementById('staffSelect').value;
+        const notes = document.getElementById('staffNotes').value;
+        const orderId = {{ order.id }};
+        
+        if (!staffId) {
+            alert('Please select a staff member');
+            return;
+        }
+        
+        // Get CSRF token
+        const csrfToken = getCSRFToken();
+        if (!csrfToken) {
+            alert('CSRF token not found. Please refresh the page and try again.');
+            return;
+        }
+        
+        // Show loading state
+        const assignBtn = document.getElementById('assignStaffBtn');
+        const originalText = assignBtn.innerHTML;
+        assignBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
+        assignBtn.disabled = true;
+        
+        fetch(`/orders/${orderId}/assign-staff/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            },
+            body: new URLSearchParams({
+                'staff_id': staffId,
+                'notes': notes
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('assignStaffModal'));
+                modal.hide();
+                // Reload page to show updated assignment
+                window.location.reload();
+            } else {
+                alert('Error: ' + data.error);
+                assignBtn.innerHTML = originalText;
+                assignBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to assign staff. Please try again.');
+            assignBtn.innerHTML = originalText;
+            assignBtn.disabled = false;
+        });
+    }
+</script>
+
+<!-- Assign Staff Modal -->
+<div class="modal fade" id="assignStaffModal" tabindex="-1" aria-labelledby="assignStaffModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignStaffModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Assign Staff to Order
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="staffSelect" class="form-label">Select Staff Member <span class="text-danger">*</span></label>
+                    <select class="form-select" id="staffSelect" required>
+                        <option value="">-- Choose a staff member --</option>
+                        {% for staff in staff_members %}
+                        <option value="{{ staff.id }}" {% if order.assigned_staff and order.assigned_staff.id == staff.id %}selected{% endif %}>
+                            {{ staff.get_full_name|default:staff.username }}
+                            {% if staff.email %} ({{ staff.email }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="staffNotes" class="form-label">Notes (Optional)</label>
+                    <textarea class="form-control" id="staffNotes" rows="3" placeholder="Add any special instructions or notes for the assigned staff..."></textarea>
+                </div>
+                {% if order.assigned_staff %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Currently Assigned:</strong> {{ order.assigned_staff.get_full_name|default:order.assigned_staff.username }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="assignStaffBtn" onclick="assignStaff()">
+                    <i class="fas fa-user-check me-2"></i>Assign Staff
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
 

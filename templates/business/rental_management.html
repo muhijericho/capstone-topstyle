@@ -3,167 +3,1353 @@
 {% block title %}Rental Management - TopStyle Business{% endblock %}
 {% block page_title %}Rental Management{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Custom styles for rental management */
+    .inventory-header {
+        background: rgba(255, 255, 255, 0.98);
+        padding: 20px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        margin-bottom: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    
+    .search-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        justify-content: flex-end;
+    }
+    
+    .view-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-right: 15px;
+    }
+    
+    .view-toggle-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+    }
+    
+    .view-toggle-buttons {
+        display: flex;
+        background: #f3f4f6;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    
+    .view-toggle-btn {
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        color: #6b7280;
+    }
+    
+    .view-toggle-btn.active {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+    }
+    
+    .view-toggle-btn:hover:not(.active) {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    
+    .search-bar {
+        position: relative;
+        width: 300px;
+    }
+    
+    .search-bar input {
+        padding: 10px 40px 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .search-bar .search-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+    }
+    
+    .add-product-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+    
+    .tabs-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        padding: 0;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+    }
+    
+    .nav-tabs {
+        border-bottom: none;
+        margin: 0;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        background: rgba(255, 255, 255, 0.95);
+        color: #111827;
+        padding: 8px 16px;
+        margin-right: 2px;
+        border-radius: 6px 6px 0 0;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-2px);
+    }
+    
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border-bottom: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .filter-section {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 0 0 8px 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .filter-row {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .filter-group label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-group select {
+        padding: 6px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        background: white;
+        color: #1f2937;
+        font-size: 13px;
+        min-width: 130px;
+    }
+    
+    .products-cards {
+        display: none;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(20px);
+    }
+    
+    .products-cards.active {
+        display: block;
+    }
+    
+    .products-table.active {
+        display: block;
+    }
+    
+    .products-table {
+        display: none;
+    }
+    
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 16px rgba(0, 255, 0, 0.4);
+        border: 1px solid #f3f4f6;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 450px;
+        max-height: 500px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 255, 0, 0.6);
+    }
+    
+    .product-card.rented {
+        border: 3px solid #ff8c00 !important;
+        background: linear-gradient(135deg, #fff8f0 0%, #ffe6cc 100%) !important;
+        box-shadow: 0 4px 16px rgba(255, 140, 0, 0.6) !important;
+        position: relative;
+    }
+    
+    .product-card.rented::before {
+        content: "RENTED";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #ff8c00;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 10;
+    }
+    
+    .product-card.rented:hover {
+        box-shadow: 0 8px 24px rgba(255, 140, 0, 0.6) !important;
+        transform: translateY(-4px);
+    }
+    
+    .product-card.overdue {
+        border: 3px solid rgba(220, 53, 69, 0.9) !important;
+        background: rgba(220, 53, 69, 0.1) !important;
+        box-shadow: 0 4px 16px rgba(220, 53, 69, 0.9) !important;
+        position: relative;
+    }
+    
+    .product-card.overdue::before {
+        content: "OVERDUE";
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 10;
+    }
+    
+    .product-card.overdue:hover {
+        box-shadow: 0 8px 24px rgba(220, 53, 69, 0.9) !important;
+        transform: translateY(-4px);
+        background: rgba(220, 53, 69, 0.15) !important;
+    }
+    
+    .product-card.overdue .card-title {
+        color: rgba(220, 53, 69, 0.9);
+    }
+    
+    .product-card.overdue .card-type {
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+    }
+    
+    .product-card.overdue .badge.bg-warning {
+        background: rgba(220, 53, 69, 0.9) !important;
+        color: white !important;
+    }
+    
+    .product-card.overdue .badge.bg-danger {
+        background: rgba(220, 53, 69, 0.9) !important;
+        color: white !important;
+    }
+    
+    .product-card.rented .card-title {
+        color: #ff8c00;
+    }
+    
+    .product-card.rented .card-type {
+        background: #ff8c00;
+        color: white;
+    }
+    
+    .product-card.rented .badge.bg-warning {
+        background: #ff8c00 !important;
+        color: white !important;
+    }
+    
+    .product-card.rented .badge.bg-danger {
+        background: #e67e22 !important;
+        color: white !important;
+    }
+    
+    .card-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .card-image-placeholder {
+        width: 100%;
+        height: 150px;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 36px;
+        margin-bottom: 12px;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        gap: 8px;
+        min-height: 40px;
+    }
+    
+    .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+        line-height: 1.3;
+        flex: 1;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+    
+    .card-type {
+        padding: 3px 6px;
+        border-radius: 10px;
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .card-type.rental {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .card-type.material {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .card-type.service {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .card-description {
+        font-size: 12px;
+        color: #6b7280;
+        margin-bottom: 12px;
+        line-height: 1.4;
+        flex-grow: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        max-height: 36px;
+    }
+    
+    .card-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+    
+    .card-detail {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-detail-label {
+        font-size: 10px;
+        color: #9ca3af;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+    }
+    
+    .card-detail-value {
+        font-size: 12px;
+        font-weight: 600;
+        color: #111827;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    .card-status {
+        margin-bottom: 12px;
+        flex-shrink: 0;
+    }
+    
+    .card-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+        margin-top: auto;
+        padding-top: 8px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+    }
+    
+    .card-action-btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .card-action-btn.btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .card-action-btn.btn-success {
+        background: #10b981;
+        color: white;
+    }
+    
+    .card-action-btn.btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .card-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border: none;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .badge.bg-info {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+        color: white !important;
+    }
+    
+    .badge.bg-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: white !important;
+    }
+    
+    .badge.bg-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        color: white !important;
+    }
+    
+    .badge.bg-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+        color: white !important;
+    }
+    
+    .table-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        color: #ffffff;
+        padding: 20px 24px;
+        font-weight: 600;
+        font-size: 18px;
+    }
+    .table-header h5 { color: #ffffff !important; }
+    
+    .products-table {
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    
+    .table {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+    
+    .table thead th {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        color: #ffffff;
+        border: none;
+        padding: 16px 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        z-index: 1;
+    }
+    
+    .table thead th:first-child {
+        border-top-left-radius: 0;
+    }
+    
+    .table thead th:last-child {
+        border-top-right-radius: 0;
+    }
+    
+    .table tbody td {
+        padding: 16px 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef2f7;
+        background: #ffffff;
+        color: #0f172a;
+        font-weight: 500;
+    }
+    
+    .table tbody tr:nth-child(even) td {
+        background: #f8fafc;
+    }
+    
+    .table tbody tr:hover td {
+        background-color: #eef2ff !important;
+    }
+    
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .product-image {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #f3f4f6;
+        transition: all 0.2s ease;
+    }
+    
+    .product-image:hover {
+        border-color: #d1d5db;
+        transform: scale(1.05);
+    }
+    
+    .product-image-placeholder {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        border: 2px solid #f3f4f6;
+        transition: all 0.2s ease;
+    }
+    
+    .product-image-placeholder:hover {
+        border-color: #d1d5db;
+        transform: scale(1.05);
+    }
+    
+    .product-name {
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #111827;
+        font-size: 14px;
+    }
+    
+    .product-description {
+        font-size: 12px;
+        color: #6b7280;
+        line-height: 1.4;
+        margin: 0;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .action-btn.btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white !important;
+    }
+    
+    .action-btn.btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white !important;
+    }
+    
+    .action-btn.btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white !important;
+    }
+    
+    .action-btn.btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white !important;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    .action-btn:active {
+        transform: translateY(0);
+    }
+    
+    .no-products {
+        text-align: center;
+        padding: 40px 15px;
+        color: #6b7280;
+    }
+    
+    .no-products i {
+        font-size: 36px;
+        margin-bottom: 15px;
+        color: #d1d5db;
+    }
+    
+    .stats-cards {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        flex: 1;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background: radial-gradient(circle at top right, rgba(255,255,255,0.4), transparent);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+    
+    .stat-card-blue {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .stat-card-green {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    
+    .stat-card-orange {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+    
+    .stat-card-purple {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+    }
+    
+    .stat-card h3 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-card p {
+        margin: 8px 0 0 0;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        font-weight: 600;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .text-success { color: #10b981 !important; }
+    .text-warning { color: #f59e0b !important; }
+    .text-danger { color: #ef4444 !important; }
+    .text-info { color: #3b82f6 !important; }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-tshirt me-2"></i>Rental Management</h2>
-    <a href="{% url 'inventory' %}" class="btn btn-outline-primary">
-        <i class="fas fa-arrow-left me-2"></i>Back to Inventory
-    </a>
-</div>
-
-<!-- Rental Statistics -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                <h5 class="card-title">{{ available_rentals }}</h5>
-                <p class="card-text">Available</p>
+{% csrf_token %}
+<!-- Header Section -->
+<div class="inventory-header">
+    <div class="search-section">
+        <div class="view-toggle">
+            <span class="view-toggle-label">View:</span>
+            <div class="view-toggle-buttons">
+                <button class="view-toggle-btn" onclick="switchView('table')" data-view="table">
+                    <i class="fas fa-table"></i> Table
+                </button>
+                <button class="view-toggle-btn" onclick="switchView('cards')" data-view="cards">
+                    <i class="fas fa-th-large"></i> Cards
+                </button>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-user-tie fa-2x text-warning mb-2"></i>
-                <h5 class="card-title">{{ rented_items }}</h5>
-                <p class="card-text">Rented</p>
-            </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search by name..." id="searchInput" value="{{ search_query }}">
+            <i class="fas fa-search search-icon"></i>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
-                <h5 class="card-title">{{ overdue_items }}</h5>
-                <p class="card-text">Overdue</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-tools fa-2x text-info mb-2"></i>
-                <h5 class="card-title">{{ maintenance_items }}</h5>
-                <p class="card-text">Maintenance</p>
-            </div>
+        <div class="btn-group">
+            <button class="add-product-btn" onclick="window.location.href='{% url 'add_product' %}'">
+                <i class="fas fa-plus"></i>
+                <span>Add Rental Item</span>
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Rental Items Table -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="mb-0">Rental Items</h5>
+<!-- Statistics Cards -->
+<div class="stats-cards">
+    <div class="stat-card stat-card-green">
+        <h3>{{ available_rentals }}</h3>
+        <p>Available</p>
     </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Status</th>
-                        <th>Customer</th>
-                        <th>Rental Start</th>
-                        <th>Due Date</th>
-                        <th>Days Overdue</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in rental_products %}
-                    <tr>
-                        <td>
-                            <strong>{{ product.name }}</strong>
-                            {% if product.description %}
-                                <br><small class="text-muted">{{ product.description|truncatechars:50 }}</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if product.rental_status == 'available' %}
-                                <span class="badge bg-success">Available</span>
-                            {% elif product.rental_status == 'rented' %}
-                                {% if product.is_overdue %}
-                                    <span class="badge bg-danger">Overdue</span>
-                                {% else %}
-                                    <span class="badge bg-warning">Rented</span>
-                                {% endif %}
-                            {% elif product.rental_status == 'maintenance' %}
-                                <span class="badge bg-info">Maintenance</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if product.current_rental_order %}
-                                {{ product.current_rental_order.customer.name }}
-                                <br><small class="text-muted">{{ product.current_rental_order.customer.phone }}</small>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if product.rental_start_date %}
-                                {{ product.rental_start_date|date:"M d, Y" }}
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if product.rental_due_date %}
-                                {{ product.rental_due_date|date:"M d, Y" }}
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if product.is_overdue %}
-                                <span class="text-danger">
-                                    {{ product.rental_due_date|timesince }} overdue
-                                </span>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                {% if product.rental_status == 'rented' %}
-                                    <button class="btn btn-sm btn-outline-success" onclick="returnProduct({{ product.id }}, '{{ product.name }}')" title="Return Item">
-                                        <i class="fas fa-undo"></i>
-                                    </button>
-                                    {% if product.is_overdue %}
-                                        <button class="btn btn-sm btn-outline-warning" onclick="notifyCustomer({{ product.id }}, '{{ product.name }}')" title="Send Overdue Notification">
-                                            <i class="fas fa-bell"></i>
-                                        </button>
-                                    {% endif %}
-                                {% endif %}
-                                <a href="{% url 'inventory' %}" class="btn btn-sm btn-outline-primary" title="View in Inventory">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            <i class="fas fa-tshirt fa-3x mb-3"></i>
-                            <p>No rental items found.</p>
-                        </td>
-                    </tr>
+    <div class="stat-card stat-card-orange">
+        <h3>{{ rented_items }}</h3>
+        <p>Rented</p>
+    </div>
+    <div class="stat-card stat-card-purple">
+        <h3>{{ overdue_items }}</h3>
+        <p>Overdue</p>
+    </div>
+    <div class="stat-card stat-card-blue">
+        <h3>{{ maintenance_items }}</h3>
+        <p>Maintenance</p>
+    </div>
+</div>
+
+<!-- Tabs Section -->
+<div class="tabs-container">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-filter="all">
+                <i class="fas fa-list me-2"></i>All Items
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-filter="available">
+                <i class="fas fa-check-circle me-2"></i>Available
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-filter="rented">
+                <i class="fas fa-user-tie me-2"></i>Rented
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-filter="overdue">
+                <i class="fas fa-exclamation-triangle me-2"></i>Overdue
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-filter="maintenance">
+                <i class="fas fa-tools me-2"></i>Maintenance
+            </a>
+        </li>
+    </ul>
+    
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.name }}" {% if category_filter == category.name %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="statusFilter">
+                    <option value="">All Status</option>
+                    {% for value, label in rental_status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
     </div>
+</div>
+
+<!-- Products Table -->
+<div class="products-table" id="productsTable">
+    <div class="table-header">
+        <h5 style="margin: 0; font-weight: 600;">Rental Items</h5>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table" id="productsTableContent">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Status</th>
+                    <th>Customer</th>
+                    <th>Rental Start</th>
+                    <th>Due Date</th>
+                    <th>Days Overdue</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr class="{% if product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% endif %}" data-status="{{ product.rental_status }}" data-category="{{ product.category.name|default:'No Category' }}" data-product-id="{{ product.id }}" {% if product.current_rental_order %}data-order-id="{{ product.current_rental_order.id }}"{% endif %}>
+                    <td>
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                            <div class="product-image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="product-name">{{ product.name }}</div>
+                        {% if product.description %}
+                            <div class="product-description">{{ product.description|truncatechars:40 }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.rental_status == 'available' %}
+                            <span class="badge bg-success">Available</span>
+                        {% elif product.rental_status == 'rented' %}
+                            {% if product.is_overdue or product.is_almost_due %}
+                                <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                                <span class="badge bg-warning">Rented</span>
+                            {% endif %}
+                        {% elif product.rental_status == 'maintenance' %}
+                            <span class="badge bg-info">Maintenance</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.current_rental_order %}
+                            <strong style="font-size: 14px; color: #111827; font-weight: 600;">{{ product.current_rental_order.customer.name }}</strong>
+                            <br><small class="text-muted" style="font-size: 12px; color: #6b7280;">{{ product.current_rental_order.customer.phone }}</small>
+                        {% else %}
+                            <span class="text-muted" style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.rental_start_date %}
+                            <span style="font-size: 14px; color: #111827; font-weight: 500;">{{ product.rental_start_date|date:"M d, Y" }}</span>
+                        {% else %}
+                            <span class="text-muted" style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.rental_due_date %}
+                            <span style="font-size: 14px; color: #111827; font-weight: 500;">{{ product.rental_due_date|date:"M d, Y" }}</span>
+                        {% else %}
+                            <span class="text-muted" style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.is_overdue %}
+                            <span style="color: #dc2626; font-weight: 600; font-size: 13px;">
+                                {{ product.rental_due_date|timesince }} overdue
+                            </span>
+                        {% else %}
+                            <span class="text-muted" style="color: #9ca3af;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            {% if product.rental_status == 'rented' %}
+                                <button class="action-btn btn-success" onclick="returnRentalItem({{ product.id }})" title="Return Item">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                {% if product.is_overdue %}
+                                    <button class="action-btn btn-warning" onclick="notifyCustomer({{ product.id }}, '{{ product.name }}')" title="Send Overdue Notification">
+                                        <i class="fas fa-bell"></i>
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                            <a href="{% url 'inventory' %}" class="action-btn btn-primary" title="View in Inventory">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted" style="padding: 40px;">
+                        <i class="fas fa-tshirt fa-3x mb-3"></i>
+                        <p>No rental items found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination for Table View -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Rental pagination">
+            <ul class="pagination">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ products.number }} of {{ products.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Products Cards -->
+<div class="products-cards" id="productsCards">
+    <div class="table-header">
+        <h5 style="margin: 0; font-weight: 600;">Rental Items</h5>
+    </div>
+    
+    <div class="cards-grid" id="cardsGrid">
+        {% for product in products %}
+        <div class="product-card {% if product.rental_status == 'rented' %}{% if product.is_overdue or product.is_almost_due %}overdue{% else %}rented{% endif %}{% endif %}" data-status="{{ product.rental_status }}" data-category="{{ product.category.name|default:'No Category' }}" data-product-id="{{ product.id }}" {% if product.current_rental_order %}data-order-id="{{ product.current_rental_order.id }}"{% endif %}>
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-image">
+            {% else %}
+                <div class="card-image-placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            {% endif %}
+            
+            <div class="card-header">
+                <h3 class="card-title">{{ product.name }}</h3>
+                <span class="card-type rental">Rental</span>
+            </div>
+            
+            {% if product.description %}
+                <div class="card-description">{{ product.description|truncatechars:80 }}</div>
+            {% endif %}
+            
+            <div class="card-details">
+                <div class="card-detail">
+                    <span class="card-detail-label">Category</span>
+                    <span class="card-detail-value">{{ product.category.name|default:"No Category" }}</span>
+                </div>
+                <div class="card-detail">
+                    <span class="card-detail-label">Price</span>
+                    <span class="card-detail-value">₱{{ product.price|floatformat:2 }}</span>
+                </div>
+                <div class="card-detail">
+                    <span class="card-detail-label">Cost</span>
+                    <span class="card-detail-value">₱{{ product.cost|floatformat:2 }}</span>
+                </div>
+                <div class="card-detail">
+                    <span class="card-detail-label">Quantity</span>
+                    <span class="card-detail-value">{{ product.quantity }}</span>
+                </div>
+            </div>
+            
+            <div class="card-status">
+                {% if product.rental_status == 'available' %}
+                    <span class="badge bg-success">Available</span>
+                {% elif product.rental_status == 'rented' %}
+                    {% if product.is_overdue or product.is_almost_due %}
+                        <span class="badge bg-danger">Overdue</span>
+                    {% else %}
+                        <span class="badge bg-warning">Rented</span>
+                    {% endif %}
+                {% elif product.rental_status == 'maintenance' %}
+                    <span class="badge bg-info">Maintenance</span>
+                {% endif %}
+            </div>
+            
+            <div class="card-actions">
+                {% if product.rental_status == 'rented' %}
+                    <button class="card-action-btn btn-success" onclick="returnRentalItem({{ product.id }})">
+                        <i class="fas fa-undo"></i> Return
+                    </button>
+                {% endif %}
+                <button class="card-action-btn btn-primary" onclick="editProduct({{ product.id }})">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="card-action-btn btn-danger" onclick="deleteProduct({{ product.id }}, '{{ product.name }}')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-muted" style="grid-column: 1 / -1; padding: 40px;">
+            <i class="fas fa-box-open fa-3x mb-3"></i>
+            <p>No rental items found.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination for Cards View -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Rental pagination">
+            <ul class="pagination">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ products.number }} of {{ products.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.view %}&view={{ request.GET.view }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
+
 <script>
-    function returnProduct(productId, productName) {
-        if (confirm(`Are you sure you want to mark "${productName}" as returned? This will make it available for rental again.`)) {
+    // View switching functionality
+    function switchView(viewType) {
+        const tableView = document.getElementById('productsTable');
+        const cardsView = document.getElementById('productsCards');
+        const toggleButtons = document.querySelectorAll('.view-toggle-btn');
+        
+        // Remove active class from all buttons
+        toggleButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        document.querySelector(`[data-view="${viewType}"]`).classList.add('active');
+        
+        // Show/hide views
+        if (viewType === 'table') {
+            tableView.classList.add('active');
+            cardsView.classList.remove('active');
+        } else {
+            tableView.classList.remove('active');
+            cardsView.classList.add('active');
+        }
+        
+        // Store preference in localStorage
+        localStorage.setItem('rentalView', viewType);
+    }
+    
+    // Load saved view preference on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load saved view preference
+        loadSavedViewPreference();
+        
+        // Tab filtering functionality
+        const tabLinks = document.querySelectorAll('.nav-link[data-filter]');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        
+        // Tab filtering
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active tab
+                tabLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Filter by status
+                const status = this.dataset.filter;
+                filterProducts('', '', '', status);
+            });
+        });
+        
+        // Category and status filter
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', function() {
+                filterProducts();
+            });
+        }
+        
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
+                filterProducts();
+            });
+        }
+    });
+    
+    // Function to load and apply saved view preference
+    function loadSavedViewPreference() {
+        const savedView = localStorage.getItem('rentalView');
+        if (savedView) {
+            console.log('[RENTAL] Loading saved view preference:', savedView);
+            switchView(savedView);
+        } else {
+            console.log('[RENTAL] No saved view preference found, using default table view');
+            // Default to table view if no preference is saved
+            switchView('table');
+        }
+    }
+    
+    // Search functionality for both views
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        // Search in table view
+        const tableRows = document.querySelectorAll('#productsTableContent tbody tr');
+        tableRows.forEach(row => {
+            if (row.cells && row.cells[1]) {
+                const productName = row.cells[1].textContent.toLowerCase();
+                if (productName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+        
+        // Search in cards view
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const productName = card.querySelector('.card-title').textContent.toLowerCase();
+            if (productName.includes(searchTerm)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter products function
+    function filterProducts(searchTerm = '', category = '', status = '', tabStatus = '') {
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        
+        const search = searchTerm || (searchInput ? searchInput.value.toLowerCase() : '');
+        const cat = category || (categoryFilter ? categoryFilter.value : '');
+        const stat = status || (statusFilter ? statusFilter.value : '');
+        const tabStat = tabStatus || '';
+        
+        // Filter table rows
+        const tableRows = document.querySelectorAll('#productsTableContent tbody tr');
+        tableRows.forEach(row => {
+            const productCategory = row.dataset.category || '';
+            const productStatus = row.dataset.status || '';
+            const productName = row.querySelector('.product-name')?.textContent.toLowerCase() || '';
+            
+            const matchesSearch = !search || productName.includes(search);
+            const matchesCategory = !cat || productCategory === cat;
+            const matchesStatus = !stat || productStatus === stat;
+            const matchesTabStatus = !tabStat || productStatus === tabStat || (tabStat === 'overdue' && row.classList.contains('overdue'));
+            
+            if (matchesSearch && matchesCategory && matchesStatus && matchesTabStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Filter cards
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const productCategory = card.dataset.category || '';
+            const productStatus = card.dataset.status || '';
+            const productName = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+            
+            const matchesSearch = !search || productName.includes(search);
+            const matchesCategory = !cat || productCategory === cat;
+            const matchesStatus = !stat || productStatus === stat;
+            const matchesTabStatus = !tabStat || productStatus === tabStat || (tabStat === 'overdue' && card.classList.contains('overdue'));
+            
+            if (matchesSearch && matchesCategory && matchesStatus && matchesTabStatus) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function editProduct(productId) {
+        // Placeholder for edit functionality
+        alert('Edit product functionality will be implemented');
+    }
+
+    function deleteProduct(productId, productName) {
+        if (confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
             // Create a form and submit it
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/inventory/${productId}/return/`;
+            form.action = `/inventory/${productId}/delete/`;
             
             // Add CSRF token
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
@@ -180,6 +1366,21 @@
         }
     }
 
+    function returnRentalItem(productId) {
+        // Navigate to the complete order page for this rental item
+        const productCard = document.querySelector(`[data-product-id="${productId}"]`);
+        if (productCard) {
+            const orderId = productCard.getAttribute('data-order-id');
+            if (orderId) {
+                // Navigate directly to the complete order page
+                window.location.href = `/orders/${orderId}/complete/`;
+            } else {
+                // Fallback to orders page if no order ID found
+                window.location.href = '/orders/';
+            }
+        }
+    }
+    
     function notifyCustomer(productId, productName) {
         if (confirm(`Send overdue notification to customer for "${productName}"?`)) {
             // Create a form and submit it

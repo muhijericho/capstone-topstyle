@@ -1,0 +1,276 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Admin Settings - TopStyle Business Management{% endblock %}
+
+{% block page_title %}Admin Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <!-- Profile Settings and Privacy & Security Side by Side -->
+    <div class="col-lg-10 col-xl-9">
+        <div class="row">
+            <!-- Profile Settings -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user me-2"></i>Profile Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                <div class="form-text">Username cannot be changed</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name|default:'' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name|default:'' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email" value="{{ user.email|default:'' }}">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" name="update_profile" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Update Profile
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy & Security -->
+            <div class="col-lg-6 col-md-6 mb-4" id="privacy-security-section">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>Privacy & Security
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="change-password-form">
+                            {% csrf_token %}
+                            <h6 class="text-primary mb-3">Change Password</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control" name="old_password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" name="new_password" required minlength="8">
+                                <div class="form-text">Password must be at least 8 characters long</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" name="confirm_password" required minlength="8">
+                            </div>
+                            <div class="d-grid mb-4">
+                                <button type="submit" name="change_password" class="btn btn-warning">
+                                    <i class="fas fa-key me-2"></i>Change Password
+                                </button>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6 class="text-primary mb-3">Account Information</h6>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <input type="text" class="form-control form-control-sm" value="Active" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Login</label>
+                                        <input type="text" class="form-control form-control-sm" value="{{ user.last_login|default:'Never' }}" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Date Joined</label>
+                                        <input type="text" class="form-control form-control-sm" value="{{ user.date_joined|date:'M d, Y' }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-lg-10 col-xl-9">
+        <div class="row">
+            <!-- Background Image Settings -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-image me-2"></i>Background Image Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">System Background Image</label>
+                                <input type="file" class="form-control" name="background_image" accept="image/*" id="backgroundImageInput">
+                                <div class="form-text">Upload an image to use as the system background. Recommended size: 1920x1080 or larger.</div>
+                            </div>
+                            
+                            {% if system_settings and system_settings.background_image %}
+                            <div class="mb-3">
+                                <label class="form-label">Current Background Image</label>
+                                <div class="border rounded p-2 mb-2" style="max-height: 200px; overflow: hidden;">
+                                    <img src="{{ system_settings.background_image.url }}" alt="Current Background" class="img-fluid rounded" style="max-width: 100%; height: auto;">
+                                </div>
+                                <button type="submit" name="remove_background" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove the background image?')">
+                                    <i class="fas fa-trash me-1"></i>Remove Background Image
+                                </button>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="d-grid">
+                                <button type="submit" name="upload_background" class="btn btn-primary">
+                                    <i class="fas fa-upload me-2"></i>Upload Background Image
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Theme Settings -->
+            <div class="col-lg-6 col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-palette me-2"></i>Theme Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="darkMode" name="dark_mode" 
+                                           {% if dark_mode %}checked{% endif %}>
+                                    <label class="form-check-label" for="darkMode">
+                                        <i class="fas fa-moon me-2"></i>Dark Mode
+                                    </label>
+                                </div>
+                                <div class="form-text">Toggle between light and dark themes</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Color Scheme</label>
+                                <select class="form-select" disabled>
+                                    <option selected>Blue Gradient (Default)</option>
+                                    <option>Green Theme</option>
+                                    <option>Purple Theme</option>
+                                    <option>Red Theme</option>
+                                </select>
+                                <div class="form-text">More themes coming soon</div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6 class="text-primary mb-3">Interface Settings</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Font Size</label>
+                                        <select class="form-select form-select-sm" disabled>
+                                            <option selected>Medium (16px)</option>
+                                            <option>Small (14px)</option>
+                                            <option>Large (18px)</option>
+                                            <option>Extra Large (20px)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sidebar</label>
+                                        <select class="form-select form-select-sm" disabled>
+                                            <option selected>Auto-collapse</option>
+                                            <option>Always expanded</option>
+                                            <option>Always collapsed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" name="toggle_dark_mode" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Save Theme Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-2">
+    <div class="col-lg-10 col-xl-9">
+        <!-- System Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <i class="fas fa-server fa-lg text-primary mb-2"></i>
+                        <h6 class="mb-1">System</h6>
+                        <small class="text-muted">v2.0</small>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-database fa-lg text-success mb-2"></i>
+                        <h6 class="mb-1">Database</h6>
+                        <small class="text-muted">Connected</small>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-shield-alt fa-lg text-warning mb-2"></i>
+                        <h6 class="mb-1">Security</h6>
+                        <small class="text-muted">Secure</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to Privacy & Security section when hash is present in URL
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.hash === '#privacy-security-section') {
+            const element = document.getElementById('privacy-security-section');
+            if (element) {
+                setTimeout(function() {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Highlight the section briefly
+                    element.style.transition = 'box-shadow 0.3s ease';
+                    element.style.boxShadow = '0 0 20px rgba(30, 58, 138, 0.5)';
+                    setTimeout(function() {
+                        element.style.boxShadow = '';
+                    }, 2000);
+                }, 100);
+            }
+        }
+    });
+</script>
+{% endblock %}

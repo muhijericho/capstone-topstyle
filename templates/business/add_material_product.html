@@ -1,0 +1,1436 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Add Material Product - TopStyle Business{% endblock %}
+{% block page_title %}Add New Material Product{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Compact form styling */
+.form-control {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    height: auto;
+}
+.form-label {
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+.card-body {
+    padding: 1rem 1.25rem;
+}
+.card-header {
+    padding: 0.6rem 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+.card-header h5 {
+    font-size: 1rem;
+    margin: 0;
+}
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.btn-secondary {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+.input-group-text {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+    color: #495057;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+.material-info {
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+.material-info h6 {
+    color: #495057;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+}
+.material-info p {
+    color: #6c757d;
+    font-size: 0.75rem;
+    margin-bottom: 0.2rem;
+    line-height: 1.4;
+}
+.dynamic-field {
+    display: none;
+}
+.dynamic-field.show {
+    display: block;
+}
+.image-preview {
+    max-width: 150px;
+    max-height: 150px;
+    margin-top: 8px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+.image-upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 5px;
+    padding: 12px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.image-upload-area:hover {
+    border-color: #007bff;
+    background-color: #e3f2fd;
+    border-width: 2px;
+}
+.image-upload-area.dragover {
+    border-color: #007bff;
+    background-color: #e3f2fd;
+    border-width: 3px;
+    border-style: solid;
+}
+.image-upload-area:active {
+    background-color: #d1ecf1;
+}
+.image-upload-area i {
+    font-size: 1.5rem;
+}
+.image-upload-area p {
+    font-size: 0.8rem;
+    margin: 0.5rem 0;
+}
+.image-upload-area small {
+    font-size: 0.7rem;
+}
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+.image-item {
+    position: relative;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+.image-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    display: block;
+}
+.image-item .remove-btn {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
+}
+.image-item .remove-btn:hover {
+    background: rgba(220, 53, 69, 1);
+}
+.image-count {
+    background: #007bff;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    margin-left: 8px;
+}
+/* Reduce spacing between form rows */
+.row.mb-3 {
+    margin-bottom: 0.75rem !important;
+}
+.row.mb-4 {
+    margin-bottom: 1rem !important;
+}
+.form-text {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+/* Sidebar compact */
+.col-md-4 .card {
+    font-size: 0.875rem;
+}
+.col-md-4 .card-body {
+    padding: 0.75rem;
+}
+.col-md-4 .card-header {
+    padding: 0.5rem 0.75rem;
+}
+.col-md-4 .card-header h6 {
+    font-size: 0.9rem;
+    margin: 0;
+}
+.col-md-4 ul {
+    font-size: 0.75rem;
+    padding-left: 1.25rem;
+}
+.col-md-4 ul li {
+    margin-bottom: 0.3rem;
+}
+/* Make form container narrower on larger screens */
+@media (min-width: 992px) {
+    .col-md-8 {
+        max-width: 65%;
+        flex: 0 0 65%;
+    }
+    .col-md-4 {
+        max-width: 35%;
+        flex: 0 0 35%;
+    }
+}
+/* Compact checkbox and radio buttons */
+.form-check {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+}
+.form-check-input {
+    margin-top: 0.25rem;
+}
+.form-check-label {
+    font-size: 0.8rem;
+    margin-left: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Material Product Information</h5>
+            </div>
+            <div class="card-body">
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                <form method="post" enctype="multipart/form-data" id="material-product-form">
+                    {% csrf_token %}
+                    
+                    <!-- Material Name and Material Type in same row -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="id_name" class="form-label">Material Name *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="id_material_type" class="form-label">Material Type *</label>
+                            {{ form.material_type }}
+                            {% if form.material_type.errors %}
+                                <div class="text-danger small mt-1">{{ form.material_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Add Images - Compact -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">
+                                Add Images
+                                <span id="imageCount" class="image-count" style="display: none;">0</span>
+                            </label>
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <div id="imageUploadContent">
+                                    <i class="fas fa-cloud-upload-alt text-muted"></i>
+                                    <p class="mb-1">Drag & drop or click to browse</p>
+                                    <small class="text-muted">JPG, PNG, GIF (Max 5MB)</small>
+                                </div>
+                                {{ form.image }}
+                            </div>
+                            
+                            <!-- Image Gallery -->
+                            <div id="imageGallery" class="image-gallery" style="display: none;">
+                                <!-- Images will be dynamically added here -->
+                            </div>
+                            
+                            <!-- Clear All Images Button -->
+                            <div id="clearImagesBtn" style="display: none; margin-top: 8px;">
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearAllImages()">
+                                    <i class="fas fa-trash me-1"></i>Clear All
+                                </button>
+                            </div>
+                            
+                            {% if form.image.errors %}
+                                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Buttons Fields -->
+                    <div id="buttons-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Button Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_button_type" class="form-label">Button Type *</label>
+                                {{ form.button_type }}
+                                {% if form.button_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.button_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_quantity_buttons" class="form-label">QT per pieces *</label>
+                                <input type="number" name="quantity" id="id_quantity_buttons" class="form-control" min="1" step="1" placeholder="Enter quantity">
+                                {% if form.quantity.errors %}
+                                    <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_button_brand" class="form-label">Brand *</label>
+                                {{ form.button_brand }}
+                                {% if form.button_brand.errors %}
+                                    <div class="text-danger small mt-1">{{ form.button_brand.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_button_color" class="form-label">Color *</label>
+                                {{ form.button_color }}
+                                {% if form.button_color.errors %}
+                                    <div class="text-danger small mt-1">{{ form.button_color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_button_cost" class="form-label" id="button-cost-label">Cost per Group *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.button_cost }}
+                                </div>
+                                {% if form.button_cost.errors %}
+                                    <div class="text-danger small mt-1">{{ form.button_cost.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_button_selling_price" class="form-label" id="button-selling-label">Selling Price Per Group *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.button_selling_price }}
+                                </div>
+                                {% if form.button_selling_price.errors %}
+                                    <div class="text-danger small mt-1">{{ form.button_selling_price.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Fabric Fields -->
+                    <div id="fabric-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Fabric Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_fabric_type" class="form-label">Type Of Fabric *</label>
+                                {{ form.fabric_type }}
+                                {% if form.fabric_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_fabric_color" class="form-label">Color</label>
+                                {{ form.fabric_color }}
+                                {% if form.fabric_color.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Color Input (shown when "Add Another Color" is selected) -->
+                        <div class="row mb-3" id="fabric-custom-color-field" style="display: none;">
+                            <div class="col-md-6">
+                                <label for="id_fabric_custom_color" class="form-label">Custom Color *</label>
+                                {{ form.fabric_custom_color }}
+                                {% if form.fabric_custom_color.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_custom_color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_fabric_yard" class="form-label">Yard *</label>
+                                {{ form.fabric_yard }}
+                                {% if form.fabric_yard.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_yard.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_fabric_cost_per_yard" class="form-label">Cost Per Yard *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.fabric_cost_per_yard }}
+                                </div>
+                                {% if form.fabric_cost_per_yard.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_cost_per_yard.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_fabric_selling_price_per_yard" class="form-label">Selling Price Per Yard *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.fabric_selling_price_per_yard }}
+                                </div>
+                                {% if form.fabric_selling_price_per_yard.errors %}
+                                    <div class="text-danger small mt-1">{{ form.fabric_selling_price_per_yard.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Garter Fields -->
+                    <div id="garter-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Garter Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_garter_length_cm" class="form-label" id="garter-length-label">Garter Length (inch) *</label>
+                                {{ form.garter_length_cm }}
+                                {% if form.garter_length_cm.errors %}
+                                    <div class="text-danger small mt-1">{{ form.garter_length_cm.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_garter_cost_per_cm" class="form-label" id="garter-cost-label">Cost Per Inches *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.garter_cost_per_cm }}
+                                </div>
+                                {% if form.garter_cost_per_cm.errors %}
+                                    <div class="text-danger small mt-1">{{ form.garter_cost_per_cm.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_garter_selling_price_per_cm" class="form-label" id="garter-selling-label">Selling Price Per Inches *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.garter_selling_price_per_cm }}
+                                </div>
+                                {% if form.garter_selling_price_per_cm.errors %}
+                                    <div class="text-danger small mt-1">{{ form.garter_selling_price_per_cm.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Thread Fields -->
+                    <div id="thread-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Thread Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_thread_brand" class="form-label">Type Of Thread *</label>
+                                {{ form.thread_brand }}
+                                {% if form.thread_brand.errors %}
+                                    <div class="text-danger small mt-1">{{ form.thread_brand.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_thread_color" class="form-label">Color *</label>
+                                {{ form.thread_color }}
+                                {% if form.thread_color.errors %}
+                                    <div class="text-danger small mt-1">{{ form.thread_color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Color Field (shown when "Other / Add New Color" is selected) -->
+                        <div id="thread-color-other-field" class="dynamic-field" style="display: none;">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="id_thread_color_other" class="form-label">Custom Color Name *</label>
+                                    {{ form.thread_color_other }}
+                                    {% if form.thread_color_other.errors %}
+                                        <div class="text-danger small mt-1">{{ form.thread_color_other.errors }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Enter the name of the custom color</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_thread_length" class="form-label">Length *</label>
+                                {{ form.thread_length }}
+                                {% if form.thread_length.errors %}
+                                    <div class="text-danger small mt-1">{{ form.thread_length.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_quantity" class="form-label">Quantity (meters) *</label>
+                                {{ form.quantity }}
+                                <small class="form-text text-muted">Enter the total quantity in meters</small>
+                                {% if form.quantity.errors %}
+                                    <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_thread_cost_per_meters" class="form-label">Cost Per Meters *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.thread_cost_per_meters }}
+                                </div>
+                                {% if form.thread_cost_per_meters.errors %}
+                                    <div class="text-danger small mt-1">{{ form.thread_cost_per_meters.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_thread_selling_price_per_meters" class="form-label">Selling Price Per Meters *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.thread_selling_price_per_meters }}
+                                </div>
+                                {% if form.thread_selling_price_per_meters.errors %}
+                                    <div class="text-danger small mt-1">{{ form.thread_selling_price_per_meters.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Locks/Kawit Fields -->
+                    <div id="locks-kawit-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Locks/Kawit Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_locks_type" class="form-label">Type *</label>
+                                {{ form.locks_type }}
+                                {% if form.locks_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.locks_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_quantity_locks" class="form-label">Quantity (Groups) *</label>
+                                <input type="number" name="quantity" id="id_quantity_locks" class="form-control" min="1" step="1" placeholder="Enter number of groups">
+                                <small class="form-text text-muted">Each group = 4 pieces</small>
+                                {% if form.quantity.errors %}
+                                    <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_locks_cost_per_meters" class="form-label" id="locks-cost-label">Cost Per Group *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.locks_cost_per_meters }}
+                                </div>
+                                <small class="form-text text-muted">Each group = 4 pieces</small>
+                                {% if form.locks_cost_per_meters.errors %}
+                                    <div class="text-danger small mt-1">{{ form.locks_cost_per_meters.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_locks_selling_price_per_group" class="form-label">Selling Price Per Group *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.locks_selling_price_per_group }}
+                                </div>
+                                <small class="form-text text-muted">₱14 per group (4 pieces)</small>
+                                {% if form.locks_selling_price_per_group.errors %}
+                                    <div class="text-danger small mt-1">{{ form.locks_selling_price_per_group.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Zippers Fields -->
+                    <div id="zippers-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Zippers Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_zipper_color" class="form-label">Color *</label>
+                                {{ form.zipper_color }}
+                                {% if form.zipper_color.errors %}
+                                    <div class="text-danger small mt-1">{{ form.zipper_color.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Other Color Field (shown when "Other Color" is selected) -->
+                        <div id="zipper-color-other-field" class="dynamic-field" style="display: none;">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="id_zipper_color_other" class="form-label">Other Color *</label>
+                                    {{ form.zipper_color_other }}
+                                    {% if form.zipper_color_other.errors %}
+                                        <div class="text-danger small mt-1">{{ form.zipper_color_other.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_zipper_length_cm" class="form-label" id="zipper-length-label">Length (inch) *</label>
+                                {{ form.zipper_length_cm }}
+                                {% if form.zipper_length_cm.errors %}
+                                    <div class="text-danger small mt-1">{{ form.zipper_length_cm.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_zipper_type" class="form-label">Type *</label>
+                                {{ form.zipper_type }}
+                                {% if form.zipper_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.zipper_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_zipper_cost_per_centimeters" class="form-label" id="zipper-cost-label">Cost Per Inches *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.zipper_cost_per_centimeters }}
+                                </div>
+                                {% if form.zipper_cost_per_centimeters.errors %}
+                                    <div class="text-danger small mt-1">{{ form.zipper_cost_per_centimeters.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_zipper_selling_price_per_centimeters" class="form-label" id="zipper-selling-label">Selling Price Per Inches *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.zipper_selling_price_per_centimeters }}
+                                </div>
+                                {% if form.zipper_selling_price_per_centimeters.errors %}
+                                    <div class="text-danger small mt-1">{{ form.zipper_selling_price_per_centimeters.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Needles Fields -->
+                    <div id="needles-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Needles Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_needle_size" class="form-label">Sizes *</label>
+                                {{ form.needle_size }}
+                                {% if form.needle_size.errors %}
+                                    <div class="text-danger small mt-1">{{ form.needle_size.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_needle_cost_per_bundle" class="form-label">Cost Per Bundle *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.needle_cost_per_bundle }}
+                                </div>
+                                {% if form.needle_cost_per_bundle.errors %}
+                                    <div class="text-danger small mt-1">{{ form.needle_cost_per_bundle.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_needle_selling_price_per_bundle" class="form-label">Selling Price Per Bundle *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.needle_selling_price_per_bundle }}
+                                </div>
+                                {% if form.needle_selling_price_per_bundle.errors %}
+                                    <div class="text-danger small mt-1">{{ form.needle_selling_price_per_bundle.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Patches Fields -->
+                    <div id="patches-fields" class="dynamic-field" style="display: none;">
+                        <h6 class="mb-3 mt-3" style="color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 8px;">Patches Details</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_patch_type" class="form-label">Types *</label>
+                                {{ form.patch_type }}
+                                {% if form.patch_type.errors %}
+                                    <div class="text-danger small mt-1">{{ form.patch_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_patch_size" class="form-label">Size *</label>
+                                {{ form.patch_size }}
+                                {% if form.patch_size.errors %}
+                                    <div class="text-danger small mt-1">{{ form.patch_size.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_patch_cost" class="form-label">Cost *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.patch_cost }}
+                                </div>
+                                {% if form.patch_cost.errors %}
+                                    <div class="text-danger small mt-1">{{ form.patch_cost.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_patch_selling_price" class="form-label">Selling Price *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₱</span>
+                                    {{ form.patch_selling_price }}
+                                </div>
+                                {% if form.patch_selling_price.errors %}
+                                    <div class="text-danger small mt-1">{{ form.patch_selling_price.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                        <a href="{% url 'materials_management' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Add Material
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Material Types</h6>
+            </div>
+            <div class="card-body">
+                <div class="material-info mb-3">
+                    <h6><i class="fas fa-circle me-2 text-primary"></i>Buttons</h6>
+                    <p>Various types of buttons for clothing</p>
+                    <p><strong>Options:</strong> Type (Formal/Normal), Color (Assorted/Black/White/Gold), Brand</p>
+                </div>
+                
+                <div class="material-info mb-3">
+                    <h6><i class="fas fa-circle me-2 text-success"></i>Garter</h6>
+                    <p>Elastic garter bands for clothing</p>
+                    <p><strong>Options:</strong> Color (Black/White), Brand</p>
+                </div>
+                
+                <div class="material-info mb-3">
+                    <h6><i class="fas fa-circle me-2 text-warning"></i>Zippers</h6>
+                    <p>Various sizes and types of zippers</p>
+                    <p><strong>Options:</strong> Size (#3/#5/#7/#8/#10), Brand</p>
+                </div>
+                
+                <div class="material-info">
+                    <h6><i class="fas fa-circle me-2 text-info"></i>Thread</h6>
+                    <p>Sewing thread in various colors</p>
+                    <p><strong>Options:</strong> Type (Polyester/Edging/Rugged), Quantity Type (Per Bundle/Per Piece), Color (Assorted/White/Black/Red/Green/Yellow/Brown/Gold/Pink/Custom), Meters (500/1000/3000), Brand (Normal/Apple/Custom)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Pricing Tips</h6>
+            </div>
+            <div class="card-body">
+                <ul class="small mb-0">
+                    <li><strong>Per Piece:</strong> Individual unit pricing</li>
+                    <li><strong>Per Group:</strong> Bulk pricing for grouped items</li>
+                    <li>Set competitive but profitable prices</li>
+                    <li>Consider bulk discounts for group pricing</li>
+                    <li>Track cost vs. selling price for profit margins</li>
+                    <li>Automatic 50% markup applied to cost price</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle fabric color selection
+    const fabricColorSelect = document.getElementById('id_fabric_color');
+    const fabricCustomColorField = document.getElementById('fabric-custom-color-field');
+    const fabricCustomColorInput = document.getElementById('id_fabric_custom_color');
+    
+    if (fabricColorSelect) {
+        fabricColorSelect.addEventListener('change', function() {
+            if (this.value === 'add_another_color') {
+                // Show custom color input
+                if (fabricCustomColorField) {
+                    fabricCustomColorField.style.display = 'block';
+                }
+                if (fabricCustomColorInput) {
+                    fabricCustomColorInput.style.display = 'block';
+                    fabricCustomColorInput.required = true;
+                    fabricCustomColorInput.focus();
+                }
+            } else {
+                // Hide custom color input
+                if (fabricCustomColorField) {
+                    fabricCustomColorField.style.display = 'none';
+                }
+                if (fabricCustomColorInput) {
+                    fabricCustomColorInput.style.display = 'none';
+                    fabricCustomColorInput.required = false;
+                    fabricCustomColorInput.value = '';
+                }
+            }
+        });
+    }
+    
+    const materialTypeSelect = document.getElementById('id_material_type');
+    
+    // Function to show/hide dynamic fields based on material type
+    function toggleDynamicFields() {
+        if (!materialTypeSelect) return;
+        
+        // Get the selected option's text (MaterialType name) instead of value (ID)
+        const selectedOption = materialTypeSelect.options[materialTypeSelect.selectedIndex];
+        const materialTypeName = selectedOption ? selectedOption.text.trim().toLowerCase() : '';
+        
+        // Normalize material type name for matching (handle variations)
+        let normalizedType = '';
+        if (materialTypeName.includes('button')) {
+            normalizedType = 'buttons';
+        } else if (materialTypeName.includes('fabric')) {
+            normalizedType = 'fabric';
+        } else if (materialTypeName.includes('garter')) {
+            normalizedType = 'garter';
+        } else if (materialTypeName.includes('thread')) {
+            normalizedType = 'thread';
+        } else if (materialTypeName.includes('lock') || materialTypeName.includes('kawit')) {
+            normalizedType = 'locks_kawit';
+        } else if (materialTypeName.includes('zipper')) {
+            normalizedType = 'zippers';
+        } else if (materialTypeName.includes('needle')) {
+            normalizedType = 'needles';
+        } else if (materialTypeName.includes('patch')) {
+            normalizedType = 'patches';
+        }
+        
+        // Hide all dynamic fields first
+        const allFields = [
+            'buttons-fields', 'fabric-fields', 'garter-fields', 'thread-fields',
+            'locks-kawit-fields', 'zippers-fields', 'needles-fields', 'patches-fields'
+        ];
+        
+        allFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.style.display = 'none';
+            }
+        });
+        
+        // Remove required from all quantity fields when hiding sections
+        const quantityFieldLocks = document.getElementById('id_quantity_locks');
+        if (quantityFieldLocks) {
+            quantityFieldLocks.required = false;
+        }
+        const quantityFieldButtons = document.getElementById('id_quantity_buttons');
+        if (quantityFieldButtons) {
+            quantityFieldButtons.required = false;
+        }
+        const quantityFieldThread = document.getElementById('id_quantity');
+        if (quantityFieldThread && quantityFieldThread.closest('#thread-fields')) {
+            quantityFieldThread.required = false;
+        }
+        
+        // Show relevant fields based on selection
+        if (normalizedType) {
+            if (normalizedType === 'buttons') {
+                const buttonsFields = document.getElementById('buttons-fields');
+                if (buttonsFields) buttonsFields.style.display = 'block';
+                // Ensure quantity field is visible and properly configured for Buttons
+                const quantityFieldButtons = document.getElementById('id_quantity_buttons');
+                if (quantityFieldButtons) {
+                    quantityFieldButtons.required = true;
+                    quantityFieldButtons.min = 1;
+                    quantityFieldButtons.placeholder = 'Enter number of pieces';
+                }
+                // Remove required from other quantity fields
+                const quantityFieldLocks = document.getElementById('id_quantity_locks');
+                if (quantityFieldLocks) {
+                    quantityFieldLocks.required = false;
+                }
+                const quantityFieldThread = document.getElementById('id_quantity');
+                if (quantityFieldThread && quantityFieldThread.closest('#thread-fields')) {
+                    quantityFieldThread.required = false;
+                }
+            } else if (normalizedType === 'fabric') {
+                const fabricFields = document.getElementById('fabric-fields');
+                if (fabricFields) fabricFields.style.display = 'block';
+            } else if (normalizedType === 'garter') {
+                const garterFields = document.getElementById('garter-fields');
+                if (garterFields) garterFields.style.display = 'block';
+                // Update labels to use inches for Garter
+                const garterLengthLabel = document.getElementById('garter-length-label');
+                const garterCostLabel = document.getElementById('garter-cost-label');
+                const garterSellingLabel = document.getElementById('garter-selling-label');
+                if (garterLengthLabel) garterLengthLabel.textContent = 'Garter Length (inch) *';
+                if (garterCostLabel) garterCostLabel.textContent = 'Cost Per Inches *';
+                if (garterSellingLabel) garterSellingLabel.textContent = 'Selling Price Per Inches *';
+            } else if (normalizedType === 'thread') {
+                const threadFields = document.getElementById('thread-fields');
+                if (threadFields) threadFields.style.display = 'block';
+                // Ensure quantity field is visible and properly labeled for Thread
+                const quantityField = document.getElementById('id_quantity');
+                if (quantityField) {
+                    quantityField.required = true;
+                    quantityField.min = 1;
+                    quantityField.placeholder = 'Enter quantity in meters (e.g., 500)';
+                }
+                // Check and show custom color field if "other" is already selected
+                toggleThreadColorOtherField();
+            } else if (normalizedType === 'locks_kawit') {
+                const locksFields = document.getElementById('locks-kawit-fields');
+                if (locksFields) locksFields.style.display = 'block';
+                // Update label to "Cost Per Group" for Locks/Kawit (4 pieces per group)
+                const locksCostLabel = document.getElementById('locks-cost-label');
+                if (locksCostLabel) locksCostLabel.textContent = 'Cost Per Group *';
+                // Ensure quantity field is visible and properly configured for Locks/Kawit
+                const quantityFieldLocks = document.getElementById('id_quantity_locks');
+                if (quantityFieldLocks) {
+                    quantityFieldLocks.required = true;
+                    quantityFieldLocks.min = 1;
+                    quantityFieldLocks.placeholder = 'Enter number of groups';
+                }
+                // Remove required from other quantity fields
+                const quantityFieldButtons = document.getElementById('id_quantity_buttons');
+                if (quantityFieldButtons) {
+                    quantityFieldButtons.required = false;
+                }
+                const quantityFieldThread = document.getElementById('id_quantity');
+                if (quantityFieldThread && quantityFieldThread.closest('#thread-fields')) {
+                    quantityFieldThread.required = false;
+                }
+            } else if (normalizedType === 'zippers') {
+                const zippersFields = document.getElementById('zippers-fields');
+                if (zippersFields) zippersFields.style.display = 'block';
+                // Update labels to use inches for Zippers
+                const zipperLengthLabel = document.getElementById('zipper-length-label');
+                const zipperCostLabel = document.getElementById('zipper-cost-label');
+                const zipperSellingLabel = document.getElementById('zipper-selling-label');
+                if (zipperLengthLabel) zipperLengthLabel.textContent = 'Length (inch) *';
+                if (zipperCostLabel) zipperCostLabel.textContent = 'Cost Per Inches *';
+                if (zipperSellingLabel) zipperSellingLabel.textContent = 'Selling Price Per Inches *';
+            } else if (normalizedType === 'needles') {
+                const needlesFields = document.getElementById('needles-fields');
+                if (needlesFields) needlesFields.style.display = 'block';
+            } else if (normalizedType === 'patches') {
+                const patchesFields = document.getElementById('patches-fields');
+                if (patchesFields) patchesFields.style.display = 'block';
+            }
+        }
+    }
+    
+    
+    // Function to show/hide zipper color other field
+    function toggleZipperColorOtherField() {
+        const zipperColorSelect = document.getElementById('id_zipper_color');
+        const zipperColorOtherField = document.getElementById('zipper-color-other-field');
+        
+        if (zipperColorSelect && zipperColorOtherField) {
+            if (zipperColorSelect.value === 'other') {
+                zipperColorOtherField.style.display = 'block';
+            } else {
+                zipperColorOtherField.style.display = 'none';
+            }
+        }
+    }
+    
+    // Function to show/hide thread custom color field
+    function toggleThreadColorOtherField() {
+        const threadColorSelect = document.getElementById('id_thread_color');
+        const threadColorOtherField = document.getElementById('thread-color-other-field');
+        
+        if (threadColorSelect && threadColorOtherField) {
+            if (threadColorSelect.value === 'other') {
+                threadColorOtherField.style.display = 'block';
+            } else {
+                threadColorOtherField.style.display = 'none';
+            }
+        }
+    }
+    
+    // Event listeners
+    if (materialTypeSelect) {
+        materialTypeSelect.addEventListener('change', toggleDynamicFields);
+    }
+    
+    // Zipper color change listener
+    const zipperColorSelect = document.getElementById('id_zipper_color');
+    if (zipperColorSelect) {
+        zipperColorSelect.addEventListener('change', toggleZipperColorOtherField);
+    }
+    
+    // Thread color change listener
+    const threadColorSelect = document.getElementById('id_thread_color');
+    if (threadColorSelect) {
+        threadColorSelect.addEventListener('change', toggleThreadColorOtherField);
+    }
+    
+    // Initial setup
+    toggleDynamicFields();
+    toggleZipperColorOtherField();
+    toggleThreadColorOtherField();
+    
+    // Image upload functionality
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    const imageInput = document.getElementById('id_image');
+    const imageGallery = document.getElementById('imageGallery');
+    const imageUploadContent = document.getElementById('imageUploadContent');
+    const imageCount = document.getElementById('imageCount');
+    const clearImagesBtn = document.getElementById('clearImagesBtn');
+    
+    let selectedFiles = [];
+    let imagePreviews = [];
+    
+    // Setup file input - make it properly accessible for image upload
+    if (imageInput) {
+        // Style the file input to be visible and clickable within the upload area
+        imageInput.style.position = 'absolute';
+        imageInput.style.width = '100%';
+        imageInput.style.height = '100%';
+        imageInput.style.top = '0';
+        imageInput.style.left = '0';
+        imageInput.style.opacity = '0';
+        imageInput.style.cursor = 'pointer';
+        imageInput.style.zIndex = '10';
+        
+        // Ensure accept attribute is set for images only
+        if (!imageInput.hasAttribute('accept') || imageInput.getAttribute('accept') === '') {
+            imageInput.setAttribute('accept', 'image/*');
+        }
+        
+        // Ensure multiple attribute is set to allow multiple file selection
+        if (!imageInput.hasAttribute('multiple')) {
+            imageInput.setAttribute('multiple', 'multiple');
+        }
+        
+        console.log('✓ File input configured for multiple image upload');
+    }
+    
+    // Click to upload - trigger file input when clicking the upload area
+    if (imageUploadArea && imageInput) {
+        imageUploadArea.addEventListener('click', function(e) {
+            // Don't trigger if clicking on interactive elements (gallery, buttons, etc.)
+            const clickedElement = e.target;
+            const isInteractive = clickedElement.closest('#imageGallery') || 
+                                 clickedElement.closest('#clearImagesBtn') || 
+                                 clickedElement.closest('.remove-btn') ||
+                                 clickedElement.classList.contains('remove-btn') ||
+                                 clickedElement.closest('.image-item') ||
+                                 clickedElement.closest('button') ||
+                                 clickedElement.tagName === 'BUTTON' ||
+                                 clickedElement === imageInput;
+            
+            if (isInteractive) {
+                e.stopPropagation();
+                return;
+            }
+            
+            // Trigger the file input click
+            try {
+                imageInput.click();
+                console.log('✓ File picker opened');
+            } catch (err) {
+                console.error('Error triggering file input:', err);
+            }
+        });
+    }
+    
+    // Drag and drop functionality
+    if (imageUploadArea) {
+        imageUploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            imageUploadArea.classList.add('dragover');
+        });
+        
+        imageUploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // Only remove dragover if we're actually leaving the upload area
+            if (!imageUploadArea.contains(e.relatedTarget)) {
+                imageUploadArea.classList.remove('dragover');
+            }
+        });
+        
+        imageUploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            imageUploadArea.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                // Process all dropped files
+                handleImageFiles(files);
+                
+                // Create a FileList and assign to input for drag-drop files
+                if (imageInput && files.length > 0) {
+                    try {
+                        const dataTransfer = new DataTransfer();
+                        files.forEach(file => {
+                            try {
+                                dataTransfer.items.add(file);
+                            } catch (err) {
+                                console.warn(`Could not add ${file.name} to DataTransfer:`, err);
+                            }
+                        });
+                        if (dataTransfer.files.length > 0) {
+                            imageInput.files = dataTransfer.files;
+                            console.log(`✓ Drag-drop ${dataTransfer.files.length} file(s) assigned to input`);
+                        }
+                    } catch (err) {
+                        console.warn('Could not assign drag-drop files to input:', err);
+                        alert('Please use the file picker to select images.');
+                    }
+                }
+            }
+        });
+    }
+    
+    // File input change - when user selects files through the file picker
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files.length > 0) {
+                const files = Array.from(e.target.files);
+                console.log(`File picker: ${files.length} file(s) selected`);
+                
+                // Validate and show previews for all selected files
+                handleImageFiles(files);
+            }
+        });
+    }
+    
+    // Handle image files (multiple file upload)
+    function handleImageFiles(files) {
+        if (!files || files.length === 0) return;
+        
+        const validFiles = [];
+        const invalidFiles = [];
+        
+        Array.from(files).forEach(file => {
+            // Validate file type
+            if (!file.type || !file.type.startsWith('image/')) {
+                invalidFiles.push({name: file.name, reason: 'Not an image file'});
+                return;
+            }
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                invalidFiles.push({name: file.name, reason: 'File too large (max 5MB)'});
+                return;
+            }
+            
+            // Check if file already exists
+            const exists = selectedFiles.some(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified);
+            if (exists) {
+                console.log(`File "${file.name}" already selected`);
+                return;
+            }
+            
+            validFiles.push(file);
+        });
+        
+        // Show error messages for invalid files
+        if (invalidFiles.length > 0) {
+            const errorMsg = invalidFiles.map(f => `"${f.name}": ${f.reason}`).join('\n');
+            alert(`Some files could not be added:\n${errorMsg}`);
+        }
+        
+        if (validFiles.length > 0) {
+            // Add all valid files to selectedFiles and show previews
+            validFiles.forEach(file => {
+                selectedFiles.push(file);
+                addImagePreview(file);
+            });
+            
+            // Update the file input with all selected files
+            updateFileInputWithAllFiles();
+            
+            updateImageCount();
+            updateUploadAreaDisplay();
+            
+            console.log(`✓ Added ${validFiles.length} image(s). Total: ${selectedFiles.length}`);
+        }
+    }
+    
+    // Update file input with all selected files (works for both picker and drag-drop)
+    function updateFileInputWithAllFiles() {
+        if (!imageInput || selectedFiles.length === 0) {
+            if (imageInput && selectedFiles.length === 0) {
+                imageInput.value = '';
+            }
+            return;
+        }
+        
+        try {
+            // Create a new DataTransfer object to hold all files
+            const dataTransfer = new DataTransfer();
+            
+            selectedFiles.forEach(file => {
+                try {
+                    dataTransfer.items.add(file);
+                } catch (err) {
+                    console.warn(`Could not add file ${file.name} to DataTransfer:`, err);
+                }
+            });
+            
+            // Assign all files to the input
+            if (dataTransfer.files.length > 0) {
+                imageInput.files = dataTransfer.files;
+                console.log(`✓ File input updated with ${imageInput.files.length} file(s)`);
+            } else {
+                console.warn('No files could be added to DataTransfer');
+            }
+        } catch (error) {
+            console.error('Error updating file input:', error);
+            // If DataTransfer fails, the files selected via file picker should still be in the input
+            // For drag-drop files, we'll show a warning
+            if (selectedFiles.length > 0 && (!imageInput.files || imageInput.files.length === 0)) {
+                console.warn('Could not attach dragged files. Please use the file picker to select images.');
+            }
+        }
+    }
+    
+    // Add image preview to gallery
+    function addImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageId = 'img_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-item';
+            imageItem.id = imageId;
+            imageItem.setAttribute('data-file-name', file.name);
+            imageItem.setAttribute('data-file-size', file.size);
+            
+            imageItem.innerHTML = `
+                <img src="${e.target.result}" alt="${file.name}">
+                <button type="button" class="remove-btn" onclick="removeImagePreview('${imageId}')" title="Remove image">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            if (imageGallery) {
+                imageGallery.appendChild(imageItem);
+            }
+            
+            imagePreviews.push({
+                id: imageId,
+                file: file,
+                element: imageItem
+            });
+            
+            // Show gallery and clear button if it's the first image
+            if (imagePreviews.length === 1 && imageGallery) {
+                imageGallery.style.display = 'grid';
+                if (clearImagesBtn) {
+                    clearImagesBtn.style.display = 'block';
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Remove image preview
+    window.removeImagePreview = function(imageId) {
+        const imageIndex = imagePreviews.findIndex(img => img.id === imageId);
+        if (imageIndex !== -1) {
+            const preview = imagePreviews[imageIndex];
+            const file = preview.file;
+            
+            // Remove from previews
+            preview.element.remove();
+            imagePreviews.splice(imageIndex, 1);
+            
+            // Remove from selectedFiles
+            selectedFiles = selectedFiles.filter(f => 
+                !(f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)
+            );
+            
+            // Update file input to reflect remaining files
+            if (imageInput) {
+                if (selectedFiles.length > 0) {
+                    updateFileInputWithAllFiles();
+                } else {
+                    // Clear input if no files left
+                    imageInput.value = '';
+                }
+            }
+            
+            updateImageCount();
+            updateUploadAreaDisplay();
+            
+            // Hide gallery and clear button if no images left
+            if (imagePreviews.length === 0) {
+                if (imageGallery) {
+                    imageGallery.style.display = 'none';
+                }
+                if (clearImagesBtn) {
+                    clearImagesBtn.style.display = 'none';
+                }
+                if (imageInput) {
+                    imageInput.value = '';
+                }
+            }
+        }
+    };
+    
+    // Update image count display
+    function updateImageCount() {
+        const count = selectedFiles.length;
+        if (imageCount) {
+            if (count > 0) {
+                imageCount.textContent = count;
+                imageCount.style.display = 'inline-block';
+            } else {
+                imageCount.style.display = 'none';
+            }
+        }
+    }
+    
+    // Update upload area display
+    function updateUploadAreaDisplay() {
+        if (imageUploadContent && selectedFiles.length > 0) {
+            // Show count in upload area
+            const countText = selectedFiles.length === 1 ? '1 image selected' : `${selectedFiles.length} images selected`;
+            if (!imageUploadContent.querySelector('.selected-count')) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'selected-count';
+                countDiv.style.marginTop = '8px';
+                countDiv.style.fontSize = '0.875rem';
+                countDiv.style.color = '#28a745';
+                countDiv.style.fontWeight = '600';
+                imageUploadContent.appendChild(countDiv);
+            }
+            imageUploadContent.querySelector('.selected-count').textContent = countText;
+        } else if (imageUploadContent) {
+            const countDiv = imageUploadContent.querySelector('.selected-count');
+            if (countDiv) {
+                countDiv.remove();
+            }
+        }
+    }
+    
+    // Clear all images
+    window.clearAllImages = function() {
+        selectedFiles = [];
+        imagePreviews.forEach(img => img.element.remove());
+        imagePreviews = [];
+        
+        if (imageInput) {
+            imageInput.value = '';
+        }
+        
+        if (imageGallery) {
+            imageGallery.style.display = 'none';
+        }
+        if (clearImagesBtn) {
+            clearImagesBtn.style.display = 'none';
+        }
+        
+        updateImageCount();
+        updateUploadAreaDisplay();
+    };
+    
+    // Form validation
+    const form = document.getElementById('material-product-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const materialName = document.getElementById('id_name');
+            const materialType = document.getElementById('id_material_type');
+            
+            // Basic validation
+            if (materialName && !materialName.value.trim()) {
+                e.preventDefault();
+                alert('Material name is required.');
+                materialName.focus();
+                return false;
+            }
+            
+            if (materialType && !materialType.value) {
+                e.preventDefault();
+                alert('Please select a material type.');
+                materialType.focus();
+                return false;
+            }
+            
+            // Verify image files are attached before submission
+            if (imageInput && imageInput.files && imageInput.files.length > 0) {
+                const fileCount = imageInput.files.length;
+                const totalSize = Array.from(imageInput.files).reduce((sum, f) => sum + f.size, 0);
+                console.log(`✓ Form submission: ${fileCount} image(s) (${(totalSize / 1024).toFixed(2)} KB total) ready to upload`);
+            } else {
+                console.log('Form submission: No image files selected (optional field)');
+            }
+            
+            // Django form will handle all other validation and file upload
+            return true;
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,410 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking - TopStyle</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1a2d5f 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .result-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+            transition: opacity 0.3s;
+        }
+        
+        .back-btn:hover {
+            opacity: 0.8;
+            color: white;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #856404;
+        }
+        
+        .status-in-progress {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .status-repairing {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .status-ready {
+            background: #6f42c1;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .order-header {
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .order-header h2 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .items-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #e9ecef;
+            border: 3px solid white;
+        }
+        
+        .timeline-item.completed::before {
+            background: #28a745;
+        }
+        
+        .timeline-item.current::before {
+            background: #1e3a8a;
+            box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.2);
+        }
+        
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .status-message-banner {
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .status-message-banner.completed {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        
+        .status-message-banner.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffc107;
+        }
+        
+        .status-message-banner.in-progress {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #17a2b8;
+        }
+        
+        @media (max-width: 768px) {
+            .result-card {
+                padding: 1.5rem;
+            }
+            
+            .order-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <a href="{% url 'public_track_order' %}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Track Another Order</span>
+        </a>
+        
+        {% if found and order %}
+        <div class="result-card">
+            {% if order.status == 'completed' or order.status == 'ready' %}
+            <div class="status-message-banner completed">
+                <i class="fas fa-check-circle me-2"></i>Your Order Is Completed, and ready for pick up
+            </div>
+            {% elif order.status == 'pending' %}
+            <div class="status-message-banner pending">
+                <i class="fas fa-clock me-2"></i>Please wait for a few more minutes to finish the order
+            </div>
+            {% elif order.status == 'in_progress' or order.status == 'repairing' %}
+            <div class="status-message-banner in-progress">
+                <i class="fas fa-tools me-2"></i>Please wait for a few more minutes to finish the order
+            </div>
+            {% endif %}
+            
+            <div class="order-header">
+                <h2><i class="fas fa-receipt me-2"></i>Order Details</h2>
+                <span class="status-badge status-{{ order.status|lower|slugify }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="order-info">
+                <div class="info-item">
+                    <div class="info-label">Order ID</div>
+                    <div class="info-value">{{ order.order_identifier }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Order Type</div>
+                    <div class="info-value">{{ order.get_order_type_display }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Customer</div>
+                    <div class="info-value">{{ order.customer.name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Amount</div>
+                    <div class="info-value">₱{{ order.total_amount|floatformat:2 }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Date Created</div>
+                    <div class="info-value">{{ order.created_at|date:"M d, Y" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">{{ order.get_status_display }}</div>
+                </div>
+            </div>
+            
+            {% if order.items.all %}
+            <h4 class="mb-3"><i class="fas fa-list me-2"></i>Order Items</h4>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{% if item.product %}{{ item.product.name }}{% else %}Item #{{ item.id }}{% endif %}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                        <td>₱{{ item.total_price|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+            <div class="timeline">
+                <h4 class="mb-3"><i class="fas fa-history me-2"></i>Order Timeline</h4>
+                
+                <div class="timeline-item completed">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order Created</div>
+                        <div class="timeline-date">{{ order.created_at|date:"F d, Y g:i A" }}</div>
+                    </div>
+                </div>
+                
+                {% if order.status == 'completed' %}
+                <div class="timeline-item {% if order.status == 'in_progress' or order.status == 'repairing' %}current{% else %}completed{% endif %}">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order In Progress</div>
+                        <div class="timeline-date">Processing your order</div>
+                    </div>
+                </div>
+                <div class="timeline-item completed">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order Completed</div>
+                        <div class="timeline-date">Your Order Is Completed, and ready for pick up</div>
+                    </div>
+                </div>
+                {% elif order.status == 'ready' %}
+                <div class="timeline-item {% if order.status == 'in_progress' or order.status == 'repairing' %}current{% else %}completed{% endif %}">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order In Progress</div>
+                        <div class="timeline-date">Processing your order</div>
+                    </div>
+                </div>
+                <div class="timeline-item current">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order Ready</div>
+                        <div class="timeline-date">Your Order Is Completed, and ready for pick up</div>
+                    </div>
+                </div>
+                {% elif order.status == 'pending' %}
+                <div class="timeline-item current">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order Pending</div>
+                        <div class="timeline-date">Please wait for a few more minutes to finish the order</div>
+                    </div>
+                </div>
+                {% elif order.status == 'in_progress' or order.status == 'repairing' %}
+                <div class="timeline-item {% if order.status == 'in_progress' or order.status == 'repairing' %}current{% else %}completed{% endif %}">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order In Progress</div>
+                        <div class="timeline-date">Processing your order</div>
+                    </div>
+                </div>
+                <div class="timeline-item current">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Currently {{ order.get_status_display }}</div>
+                        <div class="timeline-date">Please wait for a few more minutes to finish the order</div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="timeline-item {% if order.status == 'in_progress' or order.status == 'repairing' %}current{% else %}completed{% endif %}">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Order In Progress</div>
+                        <div class="timeline-date">Processing your order</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="result-card">
+            <div class="text-center">
+                <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: #ffc107; margin-bottom: 1rem;"></i>
+                <h3>Order Not Found</h3>
+                <p class="text-muted">The order you're looking for could not be found. Please check your Order ID and try again.</p>
+                <a href="{% url 'public_track_order' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-search me-2"></i>Try Again
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

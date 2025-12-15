@@ -1,0 +1,654 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Reports - TopStyle Business{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+<form method="get" class="mb-3">
+	<div class="card">
+		<div class="card-body row g-2 align-items-end">
+			<div class="col-md-3">
+				<label class="form-label">From</label>
+				<input type="date" class="form-control" name="from" value="{{ date_from }}">
+			</div>
+			<div class="col-md-3">
+				<label class="form-label">To</label>
+				<input type="date" class="form-control" name="to" value="{{ date_to }}">
+			</div>
+			<div class="col-md-3">
+				<button class="btn btn-primary w-100"><i class="fas fa-filter me-2"></i>Apply</button>
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="row mb-4">
+	<div class="col-md-3 mb-3">
+		<a href="{% url 'orders' %}" class="text-decoration-none d-block stat-card-click">
+			<div class="card stat-card stat-card-blue">
+				<div class="card-body text-center">
+					<i class="fas fa-receipt fa-2x mb-2"></i>
+					<div class="stat-number">{{ total_orders }}</div>
+					<div>Total Orders</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	<div class="col-md-3 mb-3">
+		<a href="{% url 'orders' %}?status=completed" class="text-decoration-none d-block stat-card-click">
+			<div class="card stat-card stat-card-green">
+				<div class="card-body text-center">
+					<i class="fas fa-check-circle fa-2x mb-2"></i>
+					<div class="stat-number">{{ completed_orders }}</div>
+					<div>Completed</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	<div class="col-md-3 mb-3">
+		<a href="{% url 'orders' %}?status=pending" class="text-decoration-none d-block stat-card-click">
+			<div class="card stat-card stat-card-orange">
+				<div class="card-body text-center">
+					<i class="fas fa-clock fa-2x mb-2"></i>
+					<div class="stat-number">{{ pending_orders }}</div>
+					<div>Pending</div>
+				</div>
+			</div>
+		</a>
+	</div>
+	<div class="col-md-3 mb-3">
+		<a href="{% url 'sales' %}" class="text-decoration-none d-block stat-card-click">
+			<div class="card stat-card stat-card-purple">
+				<div class="card-body text-center">
+					<i class="fas fa-coins fa-2x mb-2"></i>
+					<div class="stat-number">₱{{ total_revenue|floatformat:2 }}</div>
+					<div>Total Revenue</div>
+				</div>
+			</div>
+		</a>
+	</div>
+</div>
+
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Export Reports</h5>
+	</div>
+	<div class="card-body">
+		<div class="row g-3">
+			<div class="col-md-4">
+				<div class="d-grid position-relative">
+					<a class="btn btn-primary {% if not orders_ready %}disabled{% endif %}" href="{% url 'pdf_report' 'orders' %}?from={{ date_from }}&to={{ date_to }}">
+						<i class="fas fa-file-pdf me-2"></i>Download Orders (PDF)
+					</a>
+					{% if orders_ready %}
+					<span class="badge bg-success position-absolute" style="top:-10px;right:-10px;">20+ Ready</span>
+					{% endif %}
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="d-grid position-relative">
+					<a class="btn btn-primary {% if not orders_ready %}disabled{% endif %}" href="{% url 'excel_report' 'orders' %}?from={{ date_from }}&to={{ date_to }}">
+						<i class="fas fa-file-excel me-2"></i>Download Orders (Excel)
+					</a>
+					{% if orders_ready %}
+					<span class="badge bg-success position-absolute" style="top:-10px;right:-10px;">20+ Ready</span>
+					{% endif %}
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="d-grid position-relative">
+					<a class="btn btn-outline-primary {% if not sales_ready %}disabled{% endif %}" href="{% url 'excel_report' 'sales' %}?from={{ date_from }}&to={{ date_to }}">
+						<i class="fas fa-file-excel me-2"></i>Download Sales (Excel)
+					</a>
+					{% if sales_ready %}
+					<span class="badge bg-success position-absolute" style="top:-10px;right:-10px;">20+ Ready</span>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Completed Orders (range) -->
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-list me-2"></i>Completed Orders ({{ date_from }} → {{ date_to }})</h5>
+		<span class="badge bg-primary">Count: {{ completed_orders_count_range }}</span>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<table class="table table-hover mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>ID</th>
+						<th>Order</th>
+						<th>Order Type</th>
+						<th>Customer</th>
+						<th>Total</th>
+						<th>Owner Revenue</th>
+						<th>Staff Revenue</th>
+						<th>Status</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for order_data in orders %}
+					{% with o=order_data.order %}
+					<tr>
+						<td>{{ o.id }}</td>
+						<td>{{ o.order_identifier }}</td>
+						<td>
+							{% if o.order_type == 'rental' or o.order_type == 'rent' %}
+								<span class="badge bg-info">Rental</span>
+							{% elif o.order_type == 'repair' %}
+								<span class="badge bg-danger">Repair</span>
+							{% elif o.order_type == 'customize' %}
+								<span class="badge bg-warning">Customize</span>
+							{% else %}
+								<span class="badge bg-secondary">{{ o.get_order_type_display }}</span>
+							{% endif %}
+						</td>
+						<td>{{ o.customer.name }}</td>
+						<td>₱{{ o.total_amount|floatformat:2 }}</td>
+						<td>
+							<span class="text-success fw-bold">₱{{ order_data.owner_revenue|floatformat:2 }}</span>
+							{% if o.order_type == 'repair' or o.order_type == 'customize' %}
+								<small class="text-muted d-block">(60%)</small>
+							{% endif %}
+						</td>
+						<td>
+							{% if o.order_type == 'repair' or o.order_type == 'customize' %}
+								<span class="text-info fw-bold">₱{{ order_data.staff_revenue|floatformat:2 }}</span>
+								<small class="text-muted d-block">(40%)</small>
+							{% else %}
+								<span class="text-muted">N/A</span>
+							{% endif %}
+						</td>
+						<td><span class="badge bg-success">Completed</span></td>
+						<td>{{ o.created_at|date:'Y-m-d H:i' }}</td>
+					</tr>
+					{% endwith %}
+					{% empty %}
+					<tr><td colspan="9" class="text-center text-muted">No orders in range.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- Pagination for Orders -->
+		{% if orders.has_other_pages %}
+		<div class="d-flex justify-content-center mt-3">
+			<nav aria-label="Orders pagination">
+				<ul class="pagination">
+					{% if orders.has_previous %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&orders_page=1">First</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&orders_page={{ orders.previous_page_number }}">Previous</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">First</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Previous</span>
+						</li>
+					{% endif %}
+					
+					<li class="page-item active">
+						<span class="page-link">
+							Page {{ orders.number }} of {{ orders.paginator.num_pages }}
+						</span>
+					</li>
+					
+					{% if orders.has_next %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&orders_page={{ orders.next_page_number }}">Next</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&orders_page={{ orders.paginator.num_pages }}">Last</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">Next</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Last</span>
+						</li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+	</div>
+	<div class="card-footer text-end">
+		<a class="btn btn-sm btn-outline-primary {% if not orders_ready %}disabled{% endif %}" href="{% url 'pdf_report' 'orders' %}?from={{ date_from }}&to={{ date_to }}"><i class="fas fa-file-pdf me-2"></i>PDF</a>
+		<a class="btn btn-sm btn-primary {% if not orders_ready %}disabled{% endif %}" href="{% url 'excel_report' 'orders' %}?from={{ date_from }}&to={{ date_to }}"><i class="fas fa-file-excel me-2"></i>Excel</a>
+	</div>
+</div>
+
+<!-- Sales (range) -->
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-peso-sign me-2"></i>Sales ({{ date_from }} → {{ date_to }})</h5>
+		<span class="badge bg-primary">Count: {{ sales_list.paginator.count|default:sales_list|length }}</span>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<table class="table table-hover mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>ID</th>
+						<th>Order</th>
+						<th>Amount</th>
+						<th>Owner Revenue</th>
+						<th>Staff Revenue</th>
+						<th>Date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for sale_data in sales_list %}
+					{% with s=sale_data.sale %}
+					<tr>
+						<td>{{ s.id }}</td>
+						<td>{{ s.order.order_identifier }}</td>
+						<td>₱{{ s.amount|floatformat:2 }}</td>
+						<td>
+							<span class="text-success fw-bold">₱{{ sale_data.owner_revenue|floatformat:2 }}</span>
+							{% if s.order.order_type == 'repair' or s.order.order_type == 'customize' %}
+								<small class="text-muted d-block">(60%)</small>
+							{% endif %}
+						</td>
+						<td>
+							{% if s.order.order_type == 'repair' or s.order.order_type == 'customize' %}
+								<span class="text-info fw-bold">₱{{ sale_data.staff_revenue|floatformat:2 }}</span>
+								<small class="text-muted d-block">(40%)</small>
+							{% else %}
+								<span class="text-muted">N/A</span>
+							{% endif %}
+						</td>
+						<td>{{ s.created_at|date:'Y-m-d H:i' }}</td>
+					</tr>
+					{% endwith %}
+					{% empty %}
+					<tr><td colspan="6" class="text-center text-muted">No sales in range.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- Pagination for Sales -->
+		{% if sales_list.has_other_pages %}
+		<div class="d-flex justify-content-center mt-3">
+			<nav aria-label="Sales pagination">
+				<ul class="pagination">
+					{% if sales_list.has_previous %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&sales_page=1">First</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&sales_page={{ sales_list.previous_page_number }}">Previous</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">First</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Previous</span>
+						</li>
+					{% endif %}
+					
+					<li class="page-item active">
+						<span class="page-link">
+							Page {{ sales_list.number }} of {{ sales_list.paginator.num_pages }}
+						</span>
+					</li>
+					
+					{% if sales_list.has_next %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&sales_page={{ sales_list.next_page_number }}">Next</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&sales_page={{ sales_list.paginator.num_pages }}">Last</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">Next</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Last</span>
+						</li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+	</div>
+	<div class="card-footer text-end">
+		<a class="btn btn-sm btn-primary {% if not sales_ready %}disabled{% endif %}" href="{% url 'excel_report' 'sales' %}?from={{ date_from }}&to={{ date_to }}"><i class="fas fa-file-excel me-2"></i>Excel</a>
+	</div>
+</div>
+
+<!-- Staff Revenue & Salary (bucket since last withdrawal) -->
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Staff Revenue & Salary ({{ date_from }} → {{ date_to }})</h5>
+		<span class="badge bg-primary">Staff: {{ staff_reports|length }}</span>
+	</div>
+	<div class="card-body">
+		<!-- Bar chart -->
+		<div class="mb-4">
+			<canvas id="staffRevenueChart" height="120"></canvas>
+		</div>
+		
+		<div class="table-responsive">
+			<table class="table table-hover mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>Staff</th>
+						<th>Completed Orders</th>
+						<th>Bucket Start (after last withdrawal)</th>
+						<th>Total Revenue</th>
+						<th>Owner Revenue (60%)</th>
+						<th>Staff Revenue (40%)</th>
+						<th>Last Withdrawal</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for s in staff_reports %}
+					<tr>
+						<td>
+							<strong>{{ s.staff.get_full_name|default:s.staff.username }}</strong><br>
+							<small class="text-muted">@{{ s.staff.username }}</small>
+						</td>
+						<td>{{ s.completed_orders }}</td>
+						<td>
+							{% if s.bucket_start %}
+								{{ s.bucket_start|date:'Y-m-d H:i' }}
+							{% else %}
+								<small class="text-muted">No withdrawals yet</small>
+							{% endif %}
+						</td>
+						<td><span class="fw-bold text-primary">₱{{ s.total_revenue|floatformat:2 }}</span></td>
+						<td><span class="fw-bold text-success">₱{{ s.owner_revenue|floatformat:2 }}</span></td>
+						<td><span class="fw-bold text-info">₱{{ s.staff_revenue|floatformat:2 }}</span></td>
+						<td>
+							{% if s.last_withdrawal %}
+								{{ s.last_withdrawal.created_at|date:'Y-m-d H:i' }}<br>
+								<small class="text-muted">₱{{ s.last_withdrawal.withdrawal_amount|floatformat:2 }}</small>
+							{% else %}
+								<small class="text-muted">None</small>
+							{% endif %}
+						</td>
+					</tr>
+					{% empty %}
+					<tr><td colspan="7" class="text-center text-muted">No staff revenue data for this range.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script id="staffRevenueChartData" type="application/json">{{ staff_chart_data|safe }}</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	const chartElem = document.getElementById('staffRevenueChart');
+	const dataElem = document.getElementById('staffRevenueChartData');
+	if (!chartElem || !dataElem) return;
+	
+	let chartData = [];
+	try {
+		chartData = JSON.parse(dataElem.textContent);
+	} catch (e) {
+		console.error('Failed to parse staff chart data', e);
+		return;
+	}
+	
+	if (!chartData.length || typeof Chart === 'undefined') return;
+	
+	const labels = chartData.map(item => item.label);
+	const staffRevenue = chartData.map(item => item.staff_revenue);
+	const ownerRevenue = chartData.map(item => item.owner_revenue);
+	
+	const ctx = chartElem.getContext('2d');
+	new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels: labels,
+			datasets: [
+				{
+					label: 'Staff Revenue',
+					data: staffRevenue,
+					backgroundColor: 'rgba(14, 165, 233, 0.7)',
+					borderColor: 'rgba(14, 165, 233, 1)',
+					borderWidth: 1
+				},
+				{
+					label: 'Owner Revenue',
+					data: ownerRevenue,
+					backgroundColor: 'rgba(34, 197, 94, 0.6)',
+					borderColor: 'rgba(34, 197, 94, 1)',
+					borderWidth: 1
+				}
+			]
+		},
+		options: {
+			responsive: true,
+			maintainAspectRatio: false,
+			scales: {
+				y: {
+					beginAtZero: true,
+					ticks: {
+						callback: function(value) { return '₱' + value; }
+					}
+				}
+			},
+			plugins: {
+				legend: { position: 'top' },
+				tooltip: {
+					callbacks: {
+						label: function(context) {
+							return `${context.dataset.label}: ₱${context.parsed.y.toFixed(2)}`;
+						}
+					}
+				}
+			}
+		}
+	});
+});
+</script>
+
+<!-- Materials Inventory Tracking -->
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-boxes me-2"></i>Materials Inventory Tracking ({{ date_from }} → {{ date_to }})</h5>
+		<span class="badge bg-primary">Rows: {% if materials_logs %}{{ materials_logs.paginator.count }}{% else %}0{% endif %}</span>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<table class="table table-hover mb-0" style="border-collapse: collapse;">
+				<thead class="table-light" style="background-color: #343a40; color: white;">
+					<tr>
+						<th style="border: 1px solid #dee2e6; padding: 8px;">ID</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px;">ORDER-TYPE</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px;">CATEGORY</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px;">MATERIALS-USED</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px;">DATE/TIME</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in materials_logs %}
+					<tr>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.id }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{% if item.order_type and item.order_type != 'N/A' %}{{ item.order_type }}{% else %}General Service{% endif %}{% if item.order_identifier %}<br><small class="text-muted">({{ item.order_identifier }})</small>{% endif %}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{% if item.category and item.category != 'N/A' and item.category != 'Uncategorized' %}{{ item.category }}{% else %}General Service{% endif %}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; white-space: pre-line; vertical-align: top; line-height: 1.6;">{{ item.materials_used|linebreaksbr }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">
+							{{ item.date_time|date:'Y-m-d' }}<br>
+							<small>{{ item.date_time|time:'g:i a' }}</small>
+						</td>
+					</tr>
+					{% empty %}
+					<tr><td colspan="5" class="text-center text-muted" style="border: 1px solid #dee2e6; padding: 8px;">No materials inventory logs in range.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- Pagination for Materials Logs -->
+		{% if materials_logs and materials_logs.has_other_pages %}
+		<div class="d-flex justify-content-center mt-3">
+			<nav aria-label="Materials pagination">
+				<ul class="pagination">
+					{% if materials_logs.has_previous %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&materials_page=1">First</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&materials_page={{ materials_logs.previous_page_number }}">Previous</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">First</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Previous</span>
+						</li>
+					{% endif %}
+					
+					<li class="page-item active">
+						<span class="page-link">
+							Page {{ materials_logs.number }} of {{ materials_logs.paginator.num_pages }}
+						</span>
+					</li>
+					
+					{% if materials_logs.has_next %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&materials_page={{ materials_logs.next_page_number }}">Next</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&materials_page={{ materials_logs.paginator.num_pages }}">Last</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">Next</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Last</span>
+						</li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+	</div>
+	<div class="card-footer text-end">
+		<a class="btn btn-sm btn-primary" href="{% url 'excel_report' 'materials' %}?from={{ date_from }}&to={{ date_to }}"><i class="fas fa-file-excel me-2"></i>Excel</a>
+	</div>
+</div>
+
+<!-- Rental Items (Products) Inventory Tracking -->
+<div class="card mb-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h5 class="mb-0"><i class="fas fa-tshirt me-2"></i>Rental Items (Products) Inventory Tracking</h5>
+		<span class="badge bg-primary">Rows: {% if rental_items %}{{ rental_items.paginator.count }}{% else %}0{% endif %}</span>
+	</div>
+	<div class="card-body">
+		<div class="table-responsive">
+			<table class="table table-bordered mb-0" style="border-collapse: collapse;">
+				<thead style="background-color: #f8f9fa;">
+					<tr>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Order Number</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Order ID</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Order</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">QT</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Added Item/QT</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Rented Date</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Returned Date</th>
+						<th style="border: 1px solid #dee2e6; padding: 8px; vertical-align: middle;">Penalties</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in rental_items %}
+					<tr>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.order_number }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.order_id }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.product_name }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.quantity }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.added_items|default:'None' }}</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">
+							{{ item.rented_date|date:'Y-m-d' }}<br>
+							<small style="display: block; margin-top: 4px;">{{ item.rented_date|date:'g:ia' }}</small>
+						</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">
+							{% if item.returned_date %}
+								{{ item.returned_date|date:'Y-m-d' }}<br>
+								<small style="display: block; margin-top: 4px;">{{ item.returned_date|date:'g:ia' }}</small>
+							{% else %}
+								<span class="text-muted">Not Returned</span>
+							{% endif %}
+						</td>
+						<td style="border: 1px solid #dee2e6; padding: 8px; vertical-align: top;">{{ item.penalty|default:'None' }}</td>
+					</tr>
+					{% empty %}
+					<tr><td colspan="8" class="text-center text-muted" style="border: 1px solid #dee2e6; padding: 8px;">No rental items in range.</td></tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		
+		<!-- Pagination for Rental Items -->
+		{% if rental_items and rental_items.has_other_pages %}
+		<div class="d-flex justify-content-center mt-3">
+			<nav aria-label="Rental pagination">
+				<ul class="pagination">
+					{% if rental_items.has_previous %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&rental_page=1">First</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&rental_page={{ rental_items.previous_page_number }}">Previous</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">First</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Previous</span>
+						</li>
+					{% endif %}
+					
+					<li class="page-item active">
+						<span class="page-link">
+							Page {{ rental_items.number }} of {{ rental_items.paginator.num_pages }}
+						</span>
+					</li>
+					
+					{% if rental_items.has_next %}
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&rental_page={{ rental_items.next_page_number }}">Next</a>
+						</li>
+						<li class="page-item">
+							<a class="page-link" href="?from={{ date_from }}&to={{ date_to }}&rental_page={{ rental_items.paginator.num_pages }}">Last</a>
+						</li>
+					{% else %}
+						<li class="page-item disabled">
+							<span class="page-link">Next</span>
+						</li>
+						<li class="page-item disabled">
+							<span class="page-link">Last</span>
+						</li>
+					{% endif %}
+				</ul>
+			</nav>
+		</div>
+		{% endif %}
+	</div>
+	<div class="card-footer text-end">
+		<a class="btn btn-sm btn-primary" href="{% url 'excel_report' 'rental_items' %}?from={{ date_from }}&to={{ date_to }}"><i class="fas fa-file-excel me-2"></i>Excel</a>
+	</div>
+</div>
+{% endblock %}
+

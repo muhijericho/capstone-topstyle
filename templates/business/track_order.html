@@ -282,161 +282,7 @@
         box-shadow: 0 5px 15px rgba(30, 58, 138, 0.3);
     }
     
-    .bottom-sections {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-    }
-    
-    .description-section {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .desc-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        border: 1px solid #e9ecef;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .desc-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.03), transparent);
-        transition: left 0.6s;
-    }
-    
-    .desc-card:hover::before {
-        left: 100%;
-    }
-    
-    .desc-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
-        border-color: #1e3a8a;
-    }
-    
-    .desc-icon {
-        font-size: 2rem;
-        color: #1e3a8a;
-        margin-bottom: 10px;
-    }
-    
-    .desc-title {
-        font-size: 1rem;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 8px;
-    }
-    
-    .desc-text {
-        color: #666;
-        font-size: 0.85rem;
-        line-height: 1.5;
-    }
-    
-    .recent-searches {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e9ecef;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .recent-searches::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.03), transparent);
-        transition: left 0.6s;
-    }
-    
-    .recent-searches:hover::before {
-        left: 100%;
-    }
-    
-    .recent-searches:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(30, 58, 138, 0.12);
-        border-color: #1e3a8a;
-    }
-    
-    .recent-title {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .recent-item {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left: 4px solid #1e3a8a;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .recent-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.05), transparent);
-        transition: left 0.4s;
-    }
-    
-    .recent-item:hover::before {
-        left: 100%;
-    }
-    
-    .recent-item:hover {
-        background: #e9ecef;
-        transform: translateX(8px);
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
-        border-left-color: #1e40af;
-    }
-    
-    .recent-order-id {
-        font-weight: bold;
-        color: #1e3a8a;
-        font-size: 0.9rem;
-    }
-    
-    .recent-customer {
-        color: #666;
-        font-size: 0.8rem;
-    }
-    
-    .recent-date {
-        color: #999;
-        font-size: 0.75rem;
-    }
+    /* Removed bottom sections styles - no longer needed */
     
     .file-input-wrapper {
         position: relative;
@@ -527,9 +373,7 @@
             gap: 20px;
         }
         
-        .bottom-sections {
-            gap: 20px;
-        }
+        /* Removed bottom sections responsive styles */
     }
     
     @media (max-width: 768px) {
@@ -548,10 +392,7 @@
             margin-bottom: 30px;
         }
         
-        .bottom-sections {
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
+        /* Removed bottom sections mobile styles */
         
         .track-title {
             font-size: 2rem;
@@ -570,13 +411,7 @@
             padding: 20px;
         }
         
-        .desc-card {
-            padding: 15px;
-        }
-        
-        .recent-searches {
-            padding: 20px;
-        }
+        /* Removed desc-card and recent-searches mobile styles */
         
         .qr-icon {
             font-size: 3rem;
@@ -608,9 +443,7 @@
             padding: 15px;
         }
         
-        .desc-card, .recent-searches {
-            padding: 15px;
-        }
+        /* Removed desc-card and recent-searches small mobile styles */
         
         .btn-track, .btn-qr {
             padding: 10px 16px;
@@ -660,7 +493,7 @@
                 <h3 class="panel-title">
                     <i class="fas fa-search"></i>Search by Order ID
                 </h3>
-                <form method="POST" id="trackForm">
+                <form method="POST" id="trackForm" action="{% url 'track_order' %}">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="order_id" class="form-label">Order ID</label>
@@ -668,7 +501,8 @@
                                class="form-control" 
                                id="order_id" 
                                name="order_id" 
-                               placeholder="Enter your order ID (e.g., ORD-2024-001)"
+                               value="{% if order_id %}{{ order_id }}{% endif %}"
+                               placeholder="Enter your order ID (e.g., TS01REP-037)"
                                required>
                         <div class="form-hint">
                             You can find your Order ID on your receipt or confirmation email.
@@ -709,41 +543,7 @@
             </div>
         </div>
         
-        <!-- Bottom Sections -->
-        <div class="bottom-sections">
-            <!-- Description Section -->
-            <div class="description-section">
-                <div class="desc-card">
-                    <div class="desc-icon">
-                        <i class="fas fa-keyboard"></i>
-                    </div>
-                    <h4 class="desc-title">Manual Search</h4>
-                    <p class="desc-text">
-                        Enter your order ID to search for your order details and current status.
-                    </p>
-                </div>
-                
-                <div class="desc-card">
-                    <div class="desc-icon">
-                        <i class="fas fa-qrcode"></i>
-                    </div>
-                    <h4 class="desc-title">QR Code Scan</h4>
-                    <p class="desc-text">
-                        Upload a QR code image or scan with your camera to instantly find your order.
-                    </p>
-                </div>
-            </div>
-            
-            <!-- Recent Searches Section -->
-            <div class="recent-searches">
-                <h4 class="recent-title">
-                    <i class="fas fa-history"></i>Recent Searches
-                </h4>
-                <div id="recentSearches">
-                    <p class="text-muted text-center">No recent searches found.</p>
-                </div>
-            </div>
-        </div>
+        <!-- Bottom Sections - Removed unnecessary content -->
     </div>
 </div>
 
@@ -768,33 +568,39 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
-    // Load recent searches from localStorage
+    // Initialize CSRF token verification on page load
     document.addEventListener('DOMContentLoaded', function() {
-        loadRecentSearches();
+        // Ensure CSRF token is present and valid
+        const form = document.getElementById('trackForm');
+        if (!form) return;
+        
+        let csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfInput) {
+            // Create token input if missing
+            csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            form.appendChild(csrfInput);
+        }
+        
+        // Always refresh token from cookie on page load to ensure it's current
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('csrftoken=')) {
+                const tokenValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                csrfInput.value = tokenValue;
+                break;
+            }
+        }
     });
     
-    // Handle QR file upload
-    function handleQRFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            // Simulate QR code scanning
-            const qrData = {
-                orderId: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-                customerName: 'Sample Customer',
-                totalAmount: '1,500.00',
-                orderType: 'Customize',
-                date: new Date().toISOString(),
-                business: 'TopStyle Rugged Tailoring'
-            };
-            
-            processQRData(qrData);
-        };
-        reader.readAsDataURL(file);
-    }
+    // Load recent searches from localStorage - REMOVED
+    // document.addEventListener('DOMContentLoaded', function() {
+    //     loadRecentSearches();
+    // });
     
     // Start camera scan
     function startCameraScan() {
@@ -828,7 +634,24 @@
         } catch (e) {
             // If not JSON, treat as order ID
             document.getElementById('order_id').value = decodedText;
-            document.getElementById('trackForm').submit();
+            // Add from_qr hidden input if it doesn't exist
+            let fromQrInput = document.getElementById('from_qr');
+            if (!fromQrInput) {
+                fromQrInput = document.createElement('input');
+                fromQrInput.type = 'hidden';
+                fromQrInput.name = 'from_qr';
+                fromQrInput.id = 'from_qr';
+                fromQrInput.value = 'true';
+                document.getElementById('trackForm').appendChild(fromQrInput);
+            } else {
+                fromQrInput.value = 'true';
+            }
+            // Ensure CSRF token is present before submission
+            if (ensureCSRFToken()) {
+                document.getElementById('trackForm').submit();
+            } else {
+                showNotification('CSRF token error. Please refresh the page and try again.', 'error');
+            }
         }
     }
     
@@ -839,61 +662,123 @@
     
     // Process QR data
     function processQRData(qrData) {
-        // Add to recent searches
-        addToRecentSearches(qrData.orderId, qrData.customerName);
+        // Add to recent searches - REMOVED
+        // addToRecentSearches(qrData.orderId, qrData.customerName);
         
         // Submit form with order ID
         document.getElementById('order_id').value = qrData.orderId;
-        document.getElementById('trackForm').submit();
-    }
-    
-    // Add to recent searches
-    function addToRecentSearches(orderId, customerName) {
-        let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-        
-        // Remove if already exists
-        recentSearches = recentSearches.filter(item => item.orderId !== orderId);
-        
-        // Add to beginning
-        recentSearches.unshift({
-            orderId: orderId,
-            customerName: customerName,
-            date: new Date().toISOString()
-        });
-        
-        // Keep only last 5
-        recentSearches = recentSearches.slice(0, 5);
-        
-        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-        loadRecentSearches();
-    }
-    
-    // Load recent searches
-    function loadRecentSearches() {
-        const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-        const container = document.getElementById('recentSearches');
-        
-        if (recentSearches.length === 0) {
-            container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
-            return;
+        // Add from_qr hidden input if it doesn't exist
+        let fromQrInput = document.getElementById('from_qr');
+        if (!fromQrInput) {
+            fromQrInput = document.createElement('input');
+            fromQrInput.type = 'hidden';
+            fromQrInput.name = 'from_qr';
+            fromQrInput.id = 'from_qr';
+            fromQrInput.value = 'true';
+            document.getElementById('trackForm').appendChild(fromQrInput);
+        } else {
+            fromQrInput.value = 'true';
         }
-        
-        container.innerHTML = recentSearches.map(item => `
-            <div class="recent-item" onclick="searchOrder('${item.orderId}')">
-                <div class="recent-order-id">${item.orderId}</div>
-                <div class="recent-customer">${item.customerName}</div>
-                <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
-            </div>
-        `).join('');
-    }
-    
-    // Search order from recent searches
-    function searchOrder(orderId) {
-        document.getElementById('order_id').value = orderId;
+        // Ensure CSRF token is present before submission
+        ensureCSRFToken();
         document.getElementById('trackForm').submit();
     }
+    
+    // Add to recent searches - REMOVED
+    // function addToRecentSearches(orderId, customerName) {
+    //     let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+    //     
+    //     // Remove if already exists
+    //     recentSearches = recentSearches.filter(item => item.orderId !== orderId);
+    //     
+    //     // Add to beginning
+    //     recentSearches.unshift({
+    //         orderId: orderId,
+    //         customerName: customerName,
+    //         date: new Date().toISOString()
+    //     });
+    //     
+    //     // Keep only last 5
+    //     recentSearches = recentSearches.slice(0, 5);
+    //     
+    //     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    //     loadRecentSearches();
+    // }
+    
+    // Load recent searches - REMOVED
+    // function loadRecentSearches() {
+    //     const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+    //     const container = document.getElementById('recentSearches');
+    //     
+    //     if (recentSearches.length === 0) {
+    //         container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
+    //         return;
+    //     }
+    //     
+    //     container.innerHTML = recentSearches.map(item => `
+    //         <div class="recent-item" onclick="searchOrder('${item.orderId}')">
+    //             <div class="recent-order-id">${item.orderId}</div>
+    //             <div class="recent-customer">${item.customerName}</div>
+    //             <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
+    //         </div>
+    //     `).join('');
+    // }
+    
+    // Search order from recent searches - REMOVED
+    // function searchOrder(orderId) {
+    //     document.getElementById('order_id').value = orderId;
+    //     document.getElementById('trackForm').submit();
+    // }
     
     // Enhanced form validation with loading states
+    // Ensure CSRF token exists in form (don't modify it, just verify it's there)
+    function ensureCSRFToken() {
+        const form = document.getElementById('trackForm');
+        if (!form) {
+            console.error('Track form not found');
+            return false;
+        }
+        
+        let csrfInput = form.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfInput) {
+            // Token is missing, create it from cookie as fallback
+            csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            form.appendChild(csrfInput);
+            
+            // Get token from cookie
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    const tokenValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                    csrfInput.value = tokenValue;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Token exists - verify it has a value
+        if (!csrfInput.value || csrfInput.value.trim() === '') {
+            // Token exists but is empty, get from cookie
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    const tokenValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                    csrfInput.value = tokenValue;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Token exists and has value - don't modify it (it's from the template)
+        return true;
+    }
+    
     document.getElementById('trackForm').addEventListener('submit', function(e) {
         const orderId = document.getElementById('order_id').value.trim();
         const submitBtn = this.querySelector('.btn-track');
@@ -904,18 +789,46 @@
             return;
         }
         
+        // Verify and refresh CSRF token before submission
+        const csrfInput = this.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfInput) {
+            e.preventDefault();
+            showNotification('CSRF token error. Please refresh the page and try again.', 'error');
+            return;
+        }
+        
+        // Get fresh token from cookie if token is empty or seems invalid
+        if (!csrfInput.value || csrfInput.value.length < 10) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('csrftoken=')) {
+                    const tokenValue = decodeURIComponent(cookie.substring('csrftoken='.length));
+                    csrfInput.value = tokenValue;
+                    break;
+                }
+            }
+        }
+        
+        // Final check - if still no token, prevent submission
+        if (!csrfInput.value || csrfInput.value.length < 10) {
+            e.preventDefault();
+            showNotification('CSRF token error. Please refresh the page and try again.', 'error');
+            return;
+        }
+        
         // Add loading state
         submitBtn.classList.add('btn-loading', 'loading');
         submitBtn.disabled = true;
         
-        // Add to recent searches
-        addToRecentSearches(orderId, 'Unknown Customer');
-        
         // Show loading notification
         showNotification('Searching for your order...', 'info');
+        
+        // Let the form submit naturally - don't prevent default
+        // The CSRF token is now ensured to be valid
     });
     
-    // Enhanced QR file handling
+    // Enhanced QR file handling with actual QR code decoding
     function handleQRFile(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -936,20 +849,109 @@
         
         const reader = new FileReader();
         reader.onload = function(e) {
-            // Simulate QR code scanning with delay
-            setTimeout(() => {
-                const qrData = {
-                    orderId: 'TS03-' + Math.floor(Math.random() * 100).toString().padStart(2, '0'),
-                    customerName: 'Sample Customer',
-                    totalAmount: '1,500.00',
-                    orderType: 'Customize',
-                    date: new Date().toISOString(),
-                    business: 'TopStyle Rugged Tailoring'
-                };
+            const img = new Image();
+            img.onload = function() {
+                // Use jsQR to decode QR code
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
                 
-                processQRData(qrData);
-                showNotification('QR code processed successfully!', 'success');
-            }, 1500);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                
+                // Try to decode QR code using jsQR library
+                if (typeof jsQR !== 'undefined') {
+                    try {
+                        const code = jsQR(imageData.data, imageData.width, imageData.height);
+                        
+                        if (code) {
+                            const decodedText = code.data;
+                            showNotification('QR code decoded successfully!', 'success');
+                            
+                            // Parse the QR code text to extract order ID
+                            let orderId = null;
+                            let qrData = null;
+                            
+                            // Try to parse as JSON first (for newer QR codes with full details)
+                            try {
+                                qrData = JSON.parse(decodedText);
+                                // Support both new format (id) and old format (order_id, order_identifier, order_uuid, orderId)
+                                orderId = qrData.id || qrData.orderId || qrData.order_id || qrData.order_identifier || qrData.order_uuid;
+                                
+                                // If QR code contains full details, process them
+                                if (orderId && (qrData.customer || qrData.customer_name || qrData.type || qrData.order_type || qrData.balance !== undefined)) {
+                                    processQRData(qrData);
+                                    return;
+                                }
+                            } catch (e) {
+                                // If not JSON, parse the text format
+                                // Format: "ORDER ID : TS03-95" or similar
+                                const orderIdMatch = decodedText.match(/ORDER\s+ID\s*:\s*([A-Z0-9\-O]+)/i);
+                                if (orderIdMatch) {
+                                    orderId = orderIdMatch[1].trim();
+                                } else {
+                                    // Try to find any pattern that looks like an order ID
+                                    // Match patterns like: TS01REP-O37, TS01REP-037, TS02-30, etc.
+                                    const idPattern = /(TS\d{2}[A-Z]+-O?\d{2,}|TS\d{2}-\d{2,}|ORD-[A-Z0-9]+)/i;
+                                    const match = decodedText.match(idPattern);
+                                    if (match) {
+                                        orderId = match[1].trim();
+                                    } else {
+                                        // Last resort: use the whole text if it looks like an order ID
+                                        const trimmed = decodedText.trim();
+                                        if (trimmed.length < 50 && /[A-Z0-9\-O]/.test(trimmed)) {
+                                            orderId = trimmed;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (orderId) {
+                                // Submit the form with the extracted order ID
+                                document.getElementById('order_id').value = orderId;
+                                
+                                // Add hidden input to indicate this is from QR scan
+                                let fromQrInput = document.getElementById('from_qr');
+                                if (!fromQrInput) {
+                                    fromQrInput = document.createElement('input');
+                                    fromQrInput.type = 'hidden';
+                                    fromQrInput.name = 'from_qr';
+                                    fromQrInput.id = 'from_qr';
+                                    fromQrInput.value = 'true';
+                                    document.getElementById('trackForm').appendChild(fromQrInput);
+                                } else {
+                                    fromQrInput.value = 'true';
+                                }
+                                
+                                showNotification('Order ID found: ' + orderId, 'success');
+                                setTimeout(() => {
+                                    // Ensure CSRF token is present before submission
+                                    ensureCSRFToken();
+                                    // Ensure CSRF token is present before submission
+                ensureCSRFToken();
+                document.getElementById('trackForm').submit();
+                                }, 500);
+                            } else {
+                                showNotification('Could not extract Order ID from QR code', 'error');
+                            }
+                        } else {
+                            // If jsQR fails, try backend API as fallback
+                            showNotification('Trying alternative method...', 'info');
+                            uploadQRToBackend(file);
+                        }
+                    } catch (error) {
+                        console.error('QR decode error:', error);
+                        // Try backend API as fallback
+                        uploadQRToBackend(file);
+                    }
+                } else {
+                    // If jsQR is not available, use backend API
+                    showNotification('Using server-side QR decoding...', 'info');
+                    uploadQRToBackend(file);
+                }
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
@@ -999,6 +1001,18 @@
         } catch (e) {
             // If not JSON, treat as order ID
             document.getElementById('order_id').value = decodedText;
+            // Mark as from QR scan
+            let fromQrInput = document.getElementById('from_qr');
+            if (!fromQrInput) {
+                fromQrInput = document.createElement('input');
+                fromQrInput.type = 'hidden';
+                fromQrInput.name = 'from_qr';
+                fromQrInput.id = 'from_qr';
+                fromQrInput.value = 'true';
+                document.getElementById('trackForm').appendChild(fromQrInput);
+            } else {
+                fromQrInput.value = 'true';
+            }
             showNotification('Order ID found: ' + decodedText, 'success');
             
             // Close modal and submit form
@@ -1006,7 +1020,12 @@
             modal.hide();
             
             setTimeout(() => {
-                document.getElementById('trackForm').submit();
+                // Ensure CSRF token is present before submission
+                if (ensureCSRFToken()) {
+                    document.getElementById('trackForm').submit();
+                } else {
+                    showNotification('CSRF token error. Please refresh the page and try again.', 'error');
+                }
             }, 1000);
         }
     }
@@ -1019,77 +1038,176 @@
         }
     }
     
+    // Upload QR image to backend for decoding (fallback method)
+    function uploadQRToBackend(file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        fetch('/api/decode-qr-image/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.qr_data) {
+                    // Process full QR data
+                    processQRData(data.qr_data);
+                } else if (data.order_id) {
+                    // Just order ID
+                    document.getElementById('order_id').value = data.order_id;
+                    
+                    // Add hidden input to indicate this is from QR scan
+                    let fromQrInput = document.getElementById('from_qr');
+                    if (!fromQrInput) {
+                        fromQrInput = document.createElement('input');
+                        fromQrInput.type = 'hidden';
+                        fromQrInput.name = 'from_qr';
+                        fromQrInput.id = 'from_qr';
+                        fromQrInput.value = 'true';
+                        document.getElementById('trackForm').appendChild(fromQrInput);
+                    } else {
+                        fromQrInput.value = 'true';
+                    }
+                    
+                    showNotification('Order ID found: ' + data.order_id, 'success');
+                    setTimeout(() => {
+                        // Ensure CSRF token is present before submission
+                        ensureCSRFToken();
+                        document.getElementById('trackForm').submit();
+                    }, 500);
+                }
+            } else {
+                showNotification(data.error || 'Failed to decode QR code', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Backend QR decode error:', error);
+            showNotification('Failed to process QR code image. Please try again.', 'error');
+        });
+    }
+    
     // Enhanced QR data processing
     function processQRData(qrData) {
         showNotification('Processing order data...', 'info');
         
-        // Add to recent searches
-        addToRecentSearches(qrData.orderId, qrData.customerName);
+        // Handle both object and string formats
+        let orderId = null;
         
-        // Submit form with order ID
-        setTimeout(() => {
-            document.getElementById('order_id').value = qrData.orderId;
-            document.getElementById('trackForm').submit();
-        }, 1000);
-    }
-    
-    // Enhanced recent searches with better data
-    function addToRecentSearches(orderId, customerName) {
-        let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-        
-        // Remove if already exists
-        recentSearches = recentSearches.filter(item => item.orderId !== orderId);
-        
-        // Add to beginning
-        recentSearches.unshift({
-            orderId: orderId,
-            customerName: customerName,
-            date: new Date().toISOString()
-        });
-        
-        // Keep only last 5
-        recentSearches = recentSearches.slice(0, 5);
-        
-        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-        loadRecentSearches();
-    }
-    
-    // Enhanced recent searches loading
-    function loadRecentSearches() {
-        const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
-        const container = document.getElementById('recentSearches');
-        
-        if (recentSearches.length === 0) {
-            container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
-            return;
+        // Check if qrData is already an object with order details
+        if (typeof qrData === 'object' && qrData !== null) {
+            // Support both old and new QR code formats
+            // New format: id, type, customer, date, balance
+            // Old format: order_id, order_identifier, order_uuid, customer_name, order_type, order_date
+            orderId = qrData.id || qrData.orderId || qrData.order_id || qrData.order_identifier || qrData.order_uuid;
+            
+            // Display order details if available (support both formats)
+            if (orderId && (qrData.customer || qrData.customer_name || qrData.type || qrData.order_type || qrData.balance !== undefined)) {
+                console.log('QR Code contains full order details:', qrData);
+                // Show a preview of the order details
+                const details = [];
+                const customer = qrData.customer || qrData.customer_name;
+                const orderType = qrData.type || qrData.order_type;
+                const orderDate = qrData.date || qrData.order_date;
+                
+                if (customer) details.push(`Customer: ${customer}`);
+                if (orderType) details.push(`Type: ${orderType}`);
+                if (qrData.balance !== undefined) details.push(`Balance: ₱${parseFloat(qrData.balance).toFixed(2)}`);
+                if (orderDate) details.push(`Date: ${orderDate}`);
+                
+                if (details.length > 0) {
+                    showNotification(`Order found: ${details.join(' • ')}`, 'success');
+                }
+            }
+        } else if (typeof qrData === 'string') {
+            orderId = qrData;
         }
         
-        container.innerHTML = recentSearches.map(item => `
-            <div class="recent-item" onclick="searchOrder('${item.orderId}')">
-                <div class="recent-order-id">${item.orderId}</div>
-                <div class="recent-customer">${item.customerName}</div>
-                <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
-            </div>
-        `).join('');
+        if (orderId) {
+            // Submit form with order ID and mark as from QR scan
+            document.getElementById('order_id').value = orderId;
+            // Add hidden input to indicate this is from QR scan
+            let fromQrInput = document.getElementById('from_qr');
+            if (!fromQrInput) {
+                fromQrInput = document.createElement('input');
+                fromQrInput.type = 'hidden';
+                fromQrInput.name = 'from_qr';
+                fromQrInput.id = 'from_qr';
+                fromQrInput.value = 'true';
+                document.getElementById('trackForm').appendChild(fromQrInput);
+            } else {
+                fromQrInput.value = 'true';
+            }
+            setTimeout(() => {
+                // Ensure CSRF token is present before submission
+                ensureCSRFToken();
+                document.getElementById('trackForm').submit();
+            }, 500);
+        } else {
+            showNotification('Could not extract Order ID from QR code data', 'error');
+        }
     }
     
-    // Enhanced order search from recent searches
-    function searchOrder(orderId) {
-        showNotification('Loading order: ' + orderId, 'info');
-        
-        document.getElementById('order_id').value = orderId;
-        
-        // Add visual feedback
-        const form = document.getElementById('trackForm');
-        const submitBtn = form.querySelector('.btn-track');
-        
-        submitBtn.classList.add('btn-loading', 'loading');
-        submitBtn.disabled = true;
-        
-        setTimeout(() => {
-            form.submit();
-        }, 500);
-    }
+    // Enhanced recent searches with better data - REMOVED
+    // function addToRecentSearches(orderId, customerName) {
+    //     let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+    //     
+    //     // Remove if already exists
+    //     recentSearches = recentSearches.filter(item => item.orderId !== orderId);
+    //     
+    //     // Add to beginning
+    //     recentSearches.unshift({
+    //         orderId: orderId,
+    //         customerName: customerName,
+    //         date: new Date().toISOString()
+    //     });
+    //     
+    //     // Keep only last 5
+    //     recentSearches = recentSearches.slice(0, 5);
+    //     
+    //     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    //     loadRecentSearches();
+    // }
+    
+    // Enhanced recent searches loading - REMOVED
+    // function loadRecentSearches() {
+    //     const recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+    //     const container = document.getElementById('recentSearches');
+    //     
+    //     if (recentSearches.length === 0) {
+    //         container.innerHTML = '<p class="text-muted text-center">No recent searches found.</p>';
+    //         return;
+    //     }
+    //     
+    //     container.innerHTML = recentSearches.map(item => `
+    //         <div class="recent-item" onclick="searchOrder('${item.orderId}')">
+    //             <div class="recent-order-id">${item.orderId}</div>
+    //             <div class="recent-customer">${item.customerName}</div>
+    //             <div class="recent-date">${new Date(item.date).toLocaleDateString()}</div>
+    //         </div>
+    //     `).join('');
+    // }
+    
+    // Enhanced order search from recent searches - REMOVED
+    // function searchOrder(orderId) {
+    //     showNotification('Loading order: ' + orderId, 'info');
+    //     
+    //     document.getElementById('order_id').value = orderId;
+    //     
+    //     // Add visual feedback
+    //     const form = document.getElementById('trackForm');
+    //     const submitBtn = form.querySelector('.btn-track');
+    //     
+    //     submitBtn.classList.add('btn-loading', 'loading');
+    //     submitBtn.disabled = true;
+    //     
+    //     setTimeout(() => {
+    //         form.submit();
+    //     }, 500);
+    // }
     
     // Notification system
     function showNotification(message, type = 'info') {

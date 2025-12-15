@@ -1,0 +1,51 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║     TopStyle Business Management System                        ║
+║     ONE COMMAND TO START EVERYTHING                           ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+🚀 QUICK START - JUST RUN ONE OF THESE:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 FOR WINDOWS USERS (EASIEST):
+   
+   → Double-click: START_SYSTEM.bat
+   
+   OR
+   
+   → Right-click START_SYSTEM.ps1 → "Run with PowerShell"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 FOR LINUX/MAC USERS:
+   
+   → Run: ./START_SYSTEM.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📌 USING DJANGO COMMAND (ALL PLATFORMS):
+   
+   → python manage.py start_system
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ WHAT IT DOES AUTOMATICALLY:
+
+   ✓ Checks Python installation
+   ✓ Creates virtual environment (if needed)
+   ✓ Installs all dependencies
+   ✓ Runs database migrations
+   ✓ Collects static files
+   ✓ Starts the server
+   ✓ Opens browser automatically
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 For detailed documentation, see: QUICK_START.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 THAT'S IT! Just run one command and everything starts!
+

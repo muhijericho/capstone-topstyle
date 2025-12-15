@@ -1,0 +1,147 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Edit Material - TopStyle Business{% endblock %}
+{% block page_title %}Edit Material{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Material: {{ product.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Material Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="text-danger small">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Material Type</label>
+                    {{ form.material_type }}
+                    {% if form.material_type.errors %}
+                        <div class="text-danger small">{{ form.material_type.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" id="quantity-label">Quantity{% if product.material_type.name|lower == 'thread' %} (meters){% endif %}</label>
+                    {{ form.quantity }}
+                    {% if form.quantity.errors %}
+                        <div class="text-danger small">{{ form.quantity.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Unit of Measurement</label>
+                    <input type="text" name="unit_of_measurement" id="unit_of_measurement" value="{% if product.material_type.name|lower == 'thread' %}meters{% else %}{{ product.unit_of_measurement|default:'piece' }}{% endif %}" class="form-control" placeholder="piece, kg, meter, etc." {% if product.material_type.name|lower == 'thread' %}readonly{% endif %}>
+                    {% if product.material_type.name|lower == 'thread' %}
+                        <small class="text-muted">Thread materials use meters as the unit of measurement</small>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Price</label>
+                    <input type="number" name="price" value="{{ product.price }}" step="0.01" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Cost Price</label>
+                    <input type="number" name="cost_price" value="{{ product.cost|default:0 }}" step="0.01" class="form-control" min="0" placeholder="0.00">
+                    {% if form.cost_price.errors %}
+                        <div class="text-danger small">{{ form.cost_price.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Minimum Quantity</label>
+                <input type="number" name="min_quantity" value="{{ product.min_quantity|default:0 }}" min="0" class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="3">{{ product.description }}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Image</label>
+                {% if product.image %}
+                    <div class="mb-2">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 200px; max-height: 200px; border-radius: 5px;">
+                        <p class="text-muted small mt-2">Current image</p>
+                    </div>
+                {% endif %}
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div class="text-danger small">{{ form.image.errors }}</div>
+                {% endif %}
+                <small class="text-muted">Leave empty to keep current image</small>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'materials_management' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const materialTypeSelect = document.getElementById('id_material_type');
+    const quantityLabel = document.getElementById('quantity-label');
+    const unitOfMeasurementInput = document.getElementById('unit_of_measurement');
+    
+    function updateQuantityLabelAndUnit() {
+        if (materialTypeSelect && quantityLabel && unitOfMeasurementInput) {
+            const selectedOption = materialTypeSelect.options[materialTypeSelect.selectedIndex];
+            const materialTypeName = selectedOption.text.toLowerCase();
+            
+            if (materialTypeName === 'thread') {
+                quantityLabel.textContent = 'Quantity (meters)';
+                unitOfMeasurementInput.value = 'meters';
+                unitOfMeasurementInput.readOnly = true;
+                unitOfMeasurementInput.style.backgroundColor = '#f8f9fa';
+                // Show helper text if not already shown
+                let helperText = unitOfMeasurementInput.parentElement.querySelector('.text-muted');
+                if (!helperText) {
+                    helperText = document.createElement('small');
+                    helperText.className = 'text-muted';
+                    helperText.textContent = 'Thread materials use meters as the unit of measurement';
+                    unitOfMeasurementInput.parentElement.appendChild(helperText);
+                }
+            } else {
+                quantityLabel.textContent = 'Quantity';
+                unitOfMeasurementInput.readOnly = false;
+                unitOfMeasurementInput.style.backgroundColor = '';
+                // Remove helper text if exists
+                let helperText = unitOfMeasurementInput.parentElement.querySelector('.text-muted');
+                if (helperText) {
+                    helperText.remove();
+                }
+            }
+        }
+    }
+    
+    // Update on page load
+    updateQuantityLabelAndUnit();
+    
+    // Update when material type changes
+    if (materialTypeSelect) {
+        materialTypeSelect.addEventListener('change', updateQuantityLabelAndUnit);
+    }
+});
+</script>
+{% endblock %}
+

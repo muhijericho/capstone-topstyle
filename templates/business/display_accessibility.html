@@ -1,0 +1,132 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Display & Accessibility - TopStyle Business Management{% endblock %}
+
+{% block page_title %}Display & Accessibility{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-adjust me-2"></i>Display & Accessibility
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Theme Settings</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Color Theme</label>
+                            <select class="form-select" disabled>
+                                <option selected>Default Blue Theme</option>
+                                <option>Dark Theme</option>
+                                <option>Light Theme</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Font Size</label>
+                            <select class="form-select" disabled>
+                                <option selected>Medium</option>
+                                <option>Small</option>
+                                <option>Large</option>
+                                <option>Extra Large</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sidebar Behavior</label>
+                            <select class="form-select" disabled>
+                                <option selected>Auto-collapse</option>
+                                <option>Always expanded</option>
+                                <option>Always collapsed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">Accessibility Options</h6>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="highContrast" disabled>
+                            <label class="form-check-label" for="highContrast">
+                                High Contrast Mode
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="reducedMotion" disabled>
+                            <label class="form-check-label" for="reducedMotion">
+                                Reduce Motion
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="screenReader" disabled>
+                            <label class="form-check-label" for="screenReader">
+                                Screen Reader Support
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="keyboardNav" disabled>
+                            <label class="form-check-label" for="keyboardNav">
+                                Enhanced Keyboard Navigation
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-primary mb-3">Current Settings</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Display and accessibility settings are currently read-only. 
+                            The system is optimized for accessibility by default.
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-palette fa-2x text-primary mb-3"></i>
+                                        <h6>Theme</h6>
+                                        <p class="text-muted">Blue Gradient</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-text-height fa-2x text-success mb-3"></i>
+                                        <h6>Font Size</h6>
+                                        <p class="text-muted">Medium (16px)</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-eye fa-2x text-warning mb-3"></i>
+                                        <h6>Contrast</h6>
+                                        <p class="text-muted">Standard</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-universal-access fa-2x text-info mb-3"></i>
+                                        <h6>Accessibility</h6>
+                                        <p class="text-muted">Enabled</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

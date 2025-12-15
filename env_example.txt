@@ -3,3 +3,8 @@ DEBUG=True
 SMS_API_KEY=your-sms-api-key-here
 SMS_SENDER_ID=TopStyle
 
+# Email Configuration (Gmail)
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-gmail-app-password
+DEFAULT_FROM_EMAIL=your-email@gmail.com
+

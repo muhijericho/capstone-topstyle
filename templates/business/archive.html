@@ -1,0 +1,871 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Archive - TopStyle Business{% endblock %}
+{% block page_title %}Archive{% endblock %}
+
+{% block extra_css %}
+<style>
+    .archive-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .archive-stats {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card {
+        text-align: center;
+        padding: 20px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.1;
+        background: radial-gradient(circle at top right, rgba(255,255,255,0.3), transparent);
+        z-index: 1;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.25) !important;
+    }
+    
+    /* Different colors for each stat card */
+    .stat-card-total {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .stat-card-products {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3) !important;
+    }
+    
+    .stat-card-orders {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3) !important;
+    }
+    
+    .stat-card-customers {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3) !important;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: #ffffff !important;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3), 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #ffffff !important;
+        opacity: 0.95;
+        position: relative;
+        z-index: 2;
+        text-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+    
+    .filter-tabs {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .filter-tab {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-right: 10px;
+        border-radius: 25px;
+        text-decoration: none;
+        color: #6c757d;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-tab:hover {
+        color: #1e3a8a;
+        background: #e3f2fd;
+        text-decoration: none;
+    }
+    
+    .filter-tab.active {
+        background: #1e3a8a;
+        color: white;
+        border-color: #1e3a8a;
+    }
+    
+    .archive-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+        color: #1e3a8a;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1e3a8a;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+    }
+    
+    .archive-item {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .archive-item:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .item-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .item-title {
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+    
+    .item-date {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .item-details {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .item-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-restore {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-restore:hover {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #dee2e6;
+    }
+    
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 15px;
+    }
+    
+    .product-image-placeholder {
+        width: 50px;
+        height: 50px;
+        background: #dee2e6;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: #6c757d;
+    }
+    
+    .bulk-actions {
+        background: white;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .bulk-actions.show {
+        display: flex;
+    }
+    
+    .bulk-actions-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .bulk-actions-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-bulk-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-bulk-delete:hover {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+    
+    .item-checkbox {
+        margin-right: 15px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .section-header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .select-all-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    /* Pagination Styles */
+    .pagination-container {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .pagination li {
+        display: inline-block;
+    }
+    
+    .pagination a,
+    .pagination span {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #495057;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+        min-width: 40px;
+        text-align: center;
+    }
+    
+    .pagination a:hover {
+        background: #1e3a8a;
+        color: white;
+        border-color: #1e3a8a;
+        transform: translateY(-2px);
+    }
+    
+    .pagination .active span {
+        background: #1e3a8a;
+        color: white;
+        border-color: #1e3a8a;
+        font-weight: 600;
+    }
+    
+    .pagination .disabled span {
+        background: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .pagination-info {
+        text-align: center;
+        margin-top: 10px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="archive-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-archive me-2"></i>Archive</h2>
+        <div class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            All deleted items are stored here for recovery
+        </div>
+    </div>
+
+    <!-- Archive Statistics -->
+    <div class="archive-stats">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card stat-card-total">
+                    <div class="stat-number">{{ total_count }}</div>
+                    <div class="stat-label">Total Archived</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-products">
+                    <div class="stat-number">{{ products_count }}</div>
+                    <div class="stat-label">Products</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-orders">
+                    <div class="stat-number">{{ orders_count }}</div>
+                    <div class="stat-label">Orders</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card stat-card-customers">
+                    <div class="stat-number">{{ customers_count }}</div>
+                    <div class="stat-label">Customers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+        <a href="?type=all" class="filter-tab {% if current_filter == 'all' %}active{% endif %}">
+            <i class="fas fa-list me-1"></i>All Items
+        </a>
+        <a href="?type=products" class="filter-tab {% if current_filter == 'products' %}active{% endif %}">
+            <i class="fas fa-box me-1"></i>Products ({{ products_count }})
+        </a>
+        <a href="?type=orders" class="filter-tab {% if current_filter == 'orders' %}active{% endif %}">
+            <i class="fas fa-shopping-cart me-1"></i>Orders ({{ orders_count }})
+        </a>
+        <a href="?type=customers" class="filter-tab {% if current_filter == 'customers' %}active{% endif %}">
+            <i class="fas fa-users me-1"></i>Customers ({{ customers_count }})
+        </a>
+    </div>
+
+    <!-- Bulk Actions Bar -->
+    <div class="bulk-actions" id="bulkActionsBar">
+        <div class="bulk-actions-info">
+            <span id="selectedCount">0</span>
+            <span>item(s) selected</span>
+        </div>
+        <div class="bulk-actions-buttons">
+            <button type="button" class="btn-bulk-delete" onclick="bulkDeleteItems()">
+                <i class="fas fa-trash me-1"></i>Delete Selected
+            </button>
+        </div>
+    </div>
+
+    <!-- Archived Products -->
+    {% if archived_products.paginator.count > 0 %}
+    <div class="archive-section">
+        <div class="section-header-actions">
+            <h4 class="section-title" style="margin-bottom: 0; border-bottom: none;">
+                <i class="fas fa-box"></i>Archived Products
+            </h4>
+            <div class="select-all-container">
+                <label style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="select-all-checkbox" data-item-type="product" onchange="toggleSelectAll('product', this.checked)">
+                    <span style="font-size: 0.9rem; color: #6c757d;">Select All</span>
+                </label>
+            </div>
+        </div>
+        {% for product in archived_products %}
+        <div class="archive-item">
+            <div class="d-flex align-items-center">
+                <input type="checkbox" class="item-checkbox" data-item-type="product" data-item-id="{{ product.id }}" onchange="updateBulkActions()">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <div class="product-image-placeholder">
+                        <i class="fas fa-image"></i>
+                    </div>
+                {% endif %}
+                <div class="flex-grow-1">
+                    <div class="item-header">
+                        <h6 class="item-title">{{ product.name }}</h6>
+                        <small class="item-date">{{ product.updated_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="item-details">
+                        <strong>Category:</strong> {{ product.category.name }} | 
+                        <strong>Type:</strong> {{ product.get_product_type_display }} | 
+                        <strong>Price:</strong> ₱{{ product.price|floatformat:2 }}
+                        {% if product.description %}
+                            <br><strong>Description:</strong> {{ product.description|truncatechars:100 }}
+                        {% endif %}
+                    </div>
+                    <div class="item-actions">
+                        <a href="{% url 'restore_item' 'product' product.id %}" class="btn-restore" onclick="return confirm('Restore this product?')">
+                            <i class="fas fa-undo me-1"></i>Restore
+                        </a>
+                        <a href="{% url 'delete_permanent' 'product' product.id %}" class="btn-delete" onclick="return confirm('Permanently delete this product? This action cannot be undone!')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Products Pagination -->
+        {% if products_paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <ul class="pagination">
+                {% if archived_products.has_previous %}
+                    <li><a href="?type={{ current_filter }}&products_page=1&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.number }}">&laquo; First</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.previous_page_number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.number }}">&lsaquo; Prev</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo; First</span></li>
+                    <li class="disabled"><span>&lsaquo; Prev</span></li>
+                {% endif %}
+                
+                {% for num in products_paginator.page_range %}
+                    {% if archived_products.number == num %}
+                        <li class="active"><span>{{ num }}</span></li>
+                    {% elif num > archived_products.number|add:'-3' and num < archived_products.number|add:'3' %}
+                        <li><a href="?type={{ current_filter }}&products_page={{ num }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.number }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if archived_products.has_next %}
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.next_page_number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.number }}">Next &rsaquo;</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ products_paginator.num_pages }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.number }}">Last &raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>Next &rsaquo;</span></li>
+                    <li class="disabled"><span>Last &raquo;</span></li>
+                {% endif %}
+            </ul>
+            <div class="pagination-info">
+                Showing {{ archived_products.start_index }} to {{ archived_products.end_index }} of {{ products_paginator.count }} products
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Cancelled Orders -->
+    {% if cancelled_orders.paginator.count > 0 %}
+    <div class="archive-section">
+        <div class="section-header-actions">
+            <h4 class="section-title" style="margin-bottom: 0; border-bottom: none;">
+                <i class="fas fa-shopping-cart"></i>Cancelled Orders
+            </h4>
+            <div class="select-all-container">
+                <label style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="select-all-checkbox" data-item-type="order" onchange="toggleSelectAll('order', this.checked)">
+                    <span style="font-size: 0.9rem; color: #6c757d;">Select All</span>
+                </label>
+            </div>
+        </div>
+        {% for order in cancelled_orders %}
+        <div class="archive-item">
+            <div class="d-flex align-items-center">
+                <input type="checkbox" class="item-checkbox" data-item-type="order" data-item-id="{{ order.id }}" onchange="updateBulkActions()">
+                <div class="flex-grow-1">
+                    <div class="item-header">
+                        <h6 class="item-title">Order {{ order.order_identifier }}</h6>
+                        <small class="item-date">{{ order.updated_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="item-details">
+                        <strong>Customer:</strong> {{ order.customer.name }} | 
+                        <strong>Type:</strong> {{ order.get_order_type_display }} | 
+                        <strong>Amount:</strong> ₱{{ order.total_amount|floatformat:2 }}
+                        {% if order.notes %}
+                            <br><strong>Notes:</strong> {{ order.notes|truncatechars:100 }}
+                        {% endif %}
+                    </div>
+                    <div class="item-actions">
+                        <a href="{% url 'restore_item' 'order' order.id %}" class="btn-restore" onclick="return confirm('Restore this order?')">
+                            <i class="fas fa-undo me-1"></i>Restore
+                        </a>
+                        <a href="{% url 'delete_permanent' 'order' order.id %}" class="btn-delete" onclick="return confirm('Permanently delete this order? This action cannot be undone!')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Orders Pagination -->
+        {% if orders_paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <ul class="pagination">
+                {% if cancelled_orders.has_previous %}
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page=1&customers_page={{ archived_customers.number }}">&laquo; First</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.previous_page_number }}&customers_page={{ archived_customers.number }}">&lsaquo; Prev</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo; First</span></li>
+                    <li class="disabled"><span>&lsaquo; Prev</span></li>
+                {% endif %}
+                
+                {% for num in orders_paginator.page_range %}
+                    {% if cancelled_orders.number == num %}
+                        <li class="active"><span>{{ num }}</span></li>
+                    {% elif num > cancelled_orders.number|add:'-3' and num < cancelled_orders.number|add:'3' %}
+                        <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ num }}&customers_page={{ archived_customers.number }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if cancelled_orders.has_next %}
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.next_page_number }}&customers_page={{ archived_customers.number }}">Next &rsaquo;</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ orders_paginator.num_pages }}&customers_page={{ archived_customers.number }}">Last &raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>Next &rsaquo;</span></li>
+                    <li class="disabled"><span>Last &raquo;</span></li>
+                {% endif %}
+            </ul>
+            <div class="pagination-info">
+                Showing {{ cancelled_orders.start_index }} to {{ cancelled_orders.end_index }} of {{ orders_paginator.count }} orders
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Archived Customers -->
+    {% if archived_customers.paginator.count > 0 %}
+    <div class="archive-section">
+        <div class="section-header-actions">
+            <h4 class="section-title" style="margin-bottom: 0; border-bottom: none;">
+                <i class="fas fa-users"></i>Archived Customers
+            </h4>
+            <div class="select-all-container">
+                <label style="margin: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" class="select-all-checkbox" data-item-type="customer" onchange="toggleSelectAll('customer', this.checked)">
+                    <span style="font-size: 0.9rem; color: #6c757d;">Select All</span>
+                </label>
+            </div>
+        </div>
+        {% for customer in archived_customers %}
+        <div class="archive-item">
+            <div class="d-flex align-items-center">
+                <input type="checkbox" class="item-checkbox" data-item-type="customer" data-item-id="{{ customer.id }}" onchange="updateBulkActions()">
+                <div class="flex-grow-1">
+                    <div class="item-header">
+                        <h6 class="item-title">{{ customer.name }}</h6>
+                        <small class="item-date">{{ customer.updated_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                    <div class="item-details">
+                        <strong>Phone:</strong> {{ customer.phone }} | 
+                        <strong>Email:</strong> {{ customer.email|default:"Not provided" }}
+                        {% if customer.address %}
+                            <br><strong>Address:</strong> {{ customer.address|truncatechars:100 }}
+                        {% endif %}
+                    </div>
+                    <div class="item-actions">
+                        <a href="{% url 'restore_item' 'customer' customer.id %}" class="btn-restore" onclick="return confirm('Restore this customer?')">
+                            <i class="fas fa-undo me-1"></i>Restore
+                        </a>
+                        <a href="{% url 'delete_permanent' 'customer' customer.id %}" class="btn-delete" onclick="return confirm('Permanently delete this customer? This action cannot be undone!')">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Customers Pagination -->
+        {% if customers_paginator.num_pages > 1 %}
+        <div class="pagination-container">
+            <ul class="pagination">
+                {% if archived_customers.has_previous %}
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.number }}&customers_page=1">&laquo; First</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.previous_page_number }}">&lsaquo; Prev</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo; First</span></li>
+                    <li class="disabled"><span>&lsaquo; Prev</span></li>
+                {% endif %}
+                
+                {% for num in customers_paginator.page_range %}
+                    {% if archived_customers.number == num %}
+                        <li class="active"><span>{{ num }}</span></li>
+                    {% elif num > archived_customers.number|add:'-3' and num < archived_customers.number|add:'3' %}
+                        <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if archived_customers.has_next %}
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ archived_customers.next_page_number }}">Next &rsaquo;</a></li>
+                    <li><a href="?type={{ current_filter }}&products_page={{ archived_products.number }}&orders_page={{ cancelled_orders.number }}&customers_page={{ customers_paginator.num_pages }}">Last &raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>Next &rsaquo;</span></li>
+                    <li class="disabled"><span>Last &raquo;</span></li>
+                {% endif %}
+            </ul>
+            <div class="pagination-info">
+                Showing {{ archived_customers.start_index }} to {{ archived_customers.end_index }} of {{ customers_paginator.count }} customers
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Empty State -->
+    {% if archived_products.paginator.count == 0 and cancelled_orders.paginator.count == 0 and archived_customers.paginator.count == 0 %}
+    <div class="archive-section">
+        <div class="empty-state">
+            <i class="fas fa-archive"></i>
+            <h4>Archive is Empty</h4>
+            <p>No archived items found. Deleted products, orders, and customers will appear here.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add some interactive features
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to archive items
+        const archiveItems = document.querySelectorAll('.archive-item');
+        archiveItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#1e3a8a';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#e9ecef';
+            });
+        });
+        
+        // Add confirmation for permanent deletion
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('⚠️ WARNING: This will permanently delete the item and cannot be undone!\n\nAre you sure you want to continue?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Initialize bulk actions
+        updateBulkActions();
+    });
+    
+    // Update bulk actions bar visibility and selected count
+    function updateBulkActions() {
+        const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+        const selectedCount = checkedBoxes.length;
+        const bulkActionsBar = document.getElementById('bulkActionsBar');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        
+        if (selectedCount > 0) {
+            bulkActionsBar.classList.add('show');
+            selectedCountSpan.textContent = selectedCount;
+        } else {
+            bulkActionsBar.classList.remove('show');
+        }
+        
+        // Update select all checkboxes
+        const itemTypes = ['product', 'order', 'customer'];
+        itemTypes.forEach(type => {
+            const checkboxes = document.querySelectorAll(`.item-checkbox[data-item-type="${type}"]`);
+            const checkedCheckboxes = document.querySelectorAll(`.item-checkbox[data-item-type="${type}"]:checked`);
+            const selectAllCheckbox = document.querySelector(`.select-all-checkbox[data-item-type="${type}"]`);
+            
+            if (selectAllCheckbox && checkboxes.length > 0) {
+                selectAllCheckbox.checked = checkedCheckboxes.length === checkboxes.length;
+                selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < checkboxes.length;
+            }
+        });
+    }
+    
+    // Toggle select all for a specific item type
+    function toggleSelectAll(itemType, checked) {
+        const checkboxes = document.querySelectorAll(`.item-checkbox[data-item-type="${itemType}"]`);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = checked;
+        });
+        updateBulkActions();
+    }
+    
+    // Bulk delete selected items
+    function bulkDeleteItems() {
+        const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            alert('Please select at least one item to delete.');
+            return;
+        }
+        
+        // Group items by type
+        const itemsByType = {};
+        checkedBoxes.forEach(checkbox => {
+            const itemType = checkbox.getAttribute('data-item-type');
+            const itemId = parseInt(checkbox.getAttribute('data-item-id'));
+            
+            if (!itemsByType[itemType]) {
+                itemsByType[itemType] = [];
+            }
+            itemsByType[itemType].push(itemId);
+        });
+        
+        // Confirm deletion
+        const totalItems = checkedBoxes.length;
+        const confirmMessage = `⚠️ WARNING: You are about to permanently delete ${totalItems} item(s). This action cannot be undone!\n\nAre you sure you want to continue?`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        // Delete items by type (can only delete one type at a time)
+        const itemTypes = Object.keys(itemsByType);
+        if (itemTypes.length > 1) {
+            alert('Please select items of the same type for bulk deletion. You can only delete products, orders, or customers at once, not mixed types.');
+            return;
+        }
+        
+        const itemType = itemTypes[0];
+        const itemIds = itemsByType[itemType];
+        
+        // Send bulk delete request
+        fetch('{% url "bulk_delete_permanent" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                'item_type': itemType,
+                'item_ids': itemIds
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to show updated archive
+                window.location.reload();
+            } else {
+                alert('Error deleting items: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting items. Please try again.');
+        });
+    }
+    
+    // Get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
+

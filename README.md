@@ -275,3 +275,26 @@ For support and questions:
 ---
 
 **TopStyle Business Management System** - Streamlining your tailoring and rental business operations.
+
+## 🔁 Quick start (Windows)
+
+If you see an error like "\START_SYSTEM.bat : The term '\START_SYSTEM.bat' is not recognized...", that means PowerShell interpreted a leading backslash as an absolute path.
+
+To start the system from the project root use one of these safe commands:
+
+PowerShell (recommended):
+```powershell
+.\run-start.ps1
+```
+
+Cmd or double-clickable wrapper:
+```powershell
+.\run-start.bat
+```
+
+You can also run the built-in PowerShell starter directly with an execution policy bypass:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\START_SYSTEM.ps1
+```
+
+These wrappers ensure the project scripts are executed from the repository folder so relative paths like `venv\` and `manage.py` resolve correctly.

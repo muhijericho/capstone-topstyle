@@ -1,0 +1,450 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Order Details - TopStyle Business{% endblock %}
+{% block page_title %}Order Details{% endblock %}
+
+{% block content %}
+<style>
+    .order-detail-container {
+        background: linear-gradient(135deg, #1e3a8a 0%, #0891b2 50%, #0d9488 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .order-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(16px);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        border: 2px solid rgba(6, 182, 212, 0.3);
+        margin-bottom: 20px;
+    }
+    
+    .order-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+    }
+    
+    .order-id {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .order-status {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .status-pending { background: #f59e0b; color: white; }
+    .status-confirmed { background: #0891b2; color: white; }
+    .status-completed { background: #10b981; color: white; }
+    .status-cancelled { background: #ef4444; color: white; }
+    .status-overdue { background: #dc2626; color: white; }
+    
+    .order-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 16px;
+        border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    
+    .info-label {
+        color: #ffffff;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .info-value {
+        color: white;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    
+    .items-table th {
+        background: rgba(6, 182, 212, 0.2);
+        color: #ffffff;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid rgba(6, 182, 212, 0.3);
+    }
+    
+    .items-table td {
+        padding: 12px;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .items-table tr:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-info { background: #0891b2; color: white; }
+    
+    .btn-action:hover {
+        transform: scale(1.05);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .rental-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        border-radius: 8px;
+        padding: 16px;
+        margin: 20px 0;
+        color: white;
+    }
+    
+    .rental-warning.danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .activity-log {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 20px;
+    }
+    
+    .activity-item {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+        color: white;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-time {
+        color: #a5f3fc;
+        font-size: 0.875rem;
+    }
+    /* Force all text inside order area to white for consistency */
+    .order-detail-container, .order-detail-container * {
+        color: #ffffff !important;
+    }
+    
+    .item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid rgba(6, 182, 212, 0.3);
+        margin-right: 12px;
+    }
+    
+    .item-details {
+        display: flex;
+        align-items: center;
+    }
+    
+    .item-info {
+        flex: 1;
+    }
+    
+    .measurements-box {
+        background: rgba(6, 182, 212, 0.15);
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .measurements-title {
+        font-weight: 600;
+        color: #06b6d4;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+    }
+    
+    .measurement-item {
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+    }
+    
+    .measurement-item:last-child {
+        border-bottom: none;
+    }
+    
+    .measurement-label {
+        font-weight: 600;
+        color: #a5f3fc;
+        display: inline-block;
+        min-width: 120px;
+    }
+    
+    .measurement-value {
+        color: #ffffff;
+    }
+    
+    .no-image-placeholder {
+        width: 80px;
+        height: 80px;
+        background: rgba(6, 182, 212, 0.2);
+        border-radius: 8px;
+        border: 2px solid rgba(6, 182, 212, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        color: #a5f3fc;
+        font-size: 1.5rem;
+    }
+</style>
+
+<div class="order-detail-container">
+    <div class="order-card">
+        <!-- Order Header -->
+        <div class="order-header">
+            <div>
+                <div class="order-id">Order #{{ order.order_identifier|default:order.id }}</div>
+                <div style="color: #a5f3fc; font-size: 0.875rem;">
+                    Created: {{ order.created_at|date:"M d, Y H:i" }}
+                </div>
+            </div>
+            <div>
+                <span class="order-status status-{{ order.status }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Order Information -->
+        <div class="order-info-grid">
+            <div class="info-card">
+                <div class="info-label">Customer</div>
+                <div class="info-value">{{ order.customer.name }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Order Type</div>
+                <div class="info-value">{{ order.get_order_type_display }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Total Amount</div>
+                <div class="info-value">₱{{ order.total_amount|floatformat:2 }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Balance</div>
+                <div class="info-value">₱{{ order.balance|floatformat:2 }}</div>
+            </div>
+            {% if order.payment_method %}
+            <div class="info-card">
+                <div class="info-label">Payment Method</div>
+                <div class="info-value">{{ order.get_payment_method_display }}</div>
+            </div>
+            {% endif %}
+            {% if order.notes %}
+            <div class="info-card">
+                <div class="info-label">Notes</div>
+                <div class="info-value">{{ order.notes }}</div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Rental Warning -->
+        {% if has_rental_items and rental_status.overdue_items > 0 %}
+        <div class="rental-warning danger">
+            <h4>⚠️ Overdue Rental Items</h4>
+            <p>{{ rental_status.overdue_items }} item(s) are overdue for return:</p>
+            <ul>
+                {% for item in rental_status.overdue_items_list %}
+                <li>{{ item.product.name }} - Due: {{ item.product.rental_due_date|date:"M d, Y" }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% elif has_rental_items %}
+        <div class="rental-warning">
+            <h4>📋 Rental Items</h4>
+            <p>{{ rental_status.total_rental_items }} rental item(s) in this order</p>
+        </div>
+        {% endif %}
+        
+        <!-- Order Items -->
+        <h3 style="color: white; margin-bottom: 15px;">Order Items ({{ total_items }})</h3>
+        {% if order_items %}
+        <div style="overflow-x: auto;">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Type</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                        {% if has_rental_items %}
+                        <th>Rental Status</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>
+                            <div class="item-details">
+                                {% if item.product.product_type == 'rental' and item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                                {% elif item.product.product_type == 'rental' %}
+                                    <div class="no-image-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="item-info">
+                                    <strong>{{ item.product.name }}</strong>
+                                    {% if item.product.description %}
+                                        {% if order.order_type == 'customize' %}
+                                            {# Display measurements for customize orders #}
+                                            <div class="measurements-box">
+                                                <div class="measurements-title">
+                                                    <i class="fas fa-ruler-combined me-2"></i>Measurements & Details
+                                                </div>
+                                                {# Display other details first #}
+                                                {% if item.parsed_details %}
+                                                    {% for key, value in item.parsed_details.items %}
+                                                        <div class="measurement-item">
+                                                            <span class="measurement-label">{{ key|title }}:</span>
+                                                            <span class="measurement-value">{{ value }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endif %}
+                                                {# Display measurements #}
+                                                {% if item.parsed_measurements %}
+                                                    {% for key, value in item.parsed_measurements.items %}
+                                                        {% if value %}
+                                                            <div class="measurement-item">
+                                                                <span class="measurement-label">{{ key|title }}:</span>
+                                                                <span class="measurement-value">{{ value }}</span>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <br><small style="color: #a5f3fc;">{{ item.product.description|truncatewords:20 }}</small>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if order.order_type == 'customize' %}
+                                {% if item.type_of_customize %}
+                                    {{ item.type_of_customize }}
+                                {% elif item.parsed_details.Type %}
+                                    {{ item.parsed_details.Type }}
+                                {% else %}
+                                    {{ item.product.get_product_type_display }}
+                                {% endif %}
+                            {% else %}
+                                {{ item.product.get_product_type_display }}
+                            {% endif %}
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₱{{ item.unit_price|floatformat:2 }}</td>
+                        <td><strong>₱{{ item.total_price|floatformat:2 }}</strong></td>
+                        {% if has_rental_items %}
+                        <td>
+                            {% if item.product.product_type == 'rental' %}
+                                {% if item.product.is_overdue %}
+                                    <span style="color: #ef4444; font-weight: bold;">Overdue</span>
+                                {% elif item.product.rental_status == 'rented' %}
+                                    <span style="color: #f59e0b;">Rented</span>
+                                {% else %}
+                                    <span style="color: #10b981;">Available</span>
+                                {% endif %}
+                            {% else %}
+                                <span style="color: #6b7280;">-</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color: #a5f3fc; text-align: center; padding: 20px;">No items found for this order.</p>
+        {% endif %}
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{% url 'orders' %}" class="btn-action btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </a>
+            {% if order.status != 'completed' %}
+            <a href="{% url 'order_items' order.id %}" class="btn-action btn-info">
+                <i class="fas fa-edit"></i> Edit Items
+            </a>
+            <a href="{% url 'complete_order' order.id %}" class="btn-action btn-success">
+                <i class="fas fa-check"></i> Complete Order
+            </a>
+            {% endif %}
+            <a href="{% url 'order_receipt' order.id %}" class="btn-action btn-warning">
+                <i class="fas fa-receipt"></i> View Receipt
+            </a>
+        </div>
+        
+        <!-- Activity Log -->
+        {% if order_activities %}
+        <div class="activity-log">
+            <h4 style="color: white; margin-bottom: 15px;">Order Activity</h4>
+            {% for activity in order_activities %}
+            <div class="activity-item">
+                <div>{{ activity.description }}</div>
+                <div class="activity-time">{{ activity.created_at|date:"M d, Y H:i" }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

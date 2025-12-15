@@ -1,0 +1,627 @@
+{% extends 'business/base.html' %}
+{% load static %}
+
+{% block title %}Uniform Measurement Form - TopStyle{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="margin-left: 220px; padding: 20px;">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-ruler-combined me-2"></i>
+                        Uniform Measurement Form Generator
+                    </h3>
+                    <p class="mb-0 mt-2" style="font-size: 0.9rem; opacity: 0.9;">
+                        Collect measurements for custom uniforms - Men & Women
+                    </p>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" id="measurementForm">
+                        {% csrf_token %}
+                        
+                        <!-- Customize a - FIRST FIELD -->
+                        <div class="form-section mb-4 p-3 border rounded">
+                            <h4 class="section-title mb-3">
+                                <i class="fas fa-cog me-2"></i>1. Customize a
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.customize_a.label_tag }}
+                                        {{ form.customize_a }}
+                                        {% if form.customize_a.errors %}
+                                            <div class="text-danger small">{{ form.customize_a.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PE SECTION -->
+                        <div id="peSection" class="form-section mb-4 p-3 border rounded" style="display: none;">
+                            <h4 class="section-title mb-3 text-success">
+                                <i class="fas fa-running me-2"></i>PE UNIFORM
+                            </h4>
+                            
+                            <!-- PE Down Type -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-list me-2"></i>PE Down Type
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ form.pe_down_type.label }}</label>
+                                        {{ form.pe_down_type }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PE SHORTS -->
+                            <div id="peShortsSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-tshirt me-2"></i>PE SHORTS
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_short_waist.label }}</label>
+                                        {{ form.pe_short_waist }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_short_hips.label }}</label>
+                                        {{ form.pe_short_hips }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_short_length.label }}</label>
+                                        {{ form.pe_short_length }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PE PANTS -->
+                            <div id="pePantsSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-vest me-2"></i>PE PANTS
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_waist.label }}</label>
+                                        {{ form.pe_pants_waist }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_hips.label }}</label>
+                                        {{ form.pe_pants_hips }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_length.label }}</label>
+                                        {{ form.pe_pants_length }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_leg_opening.label }}</label>
+                                        {{ form.pe_pants_leg_opening }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_inseam.label }}</label>
+                                        {{ form.pe_pants_inseam }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.pe_pants_outseam.label }}</label>
+                                        {{ form.pe_pants_outseam }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PE T-SHIRT -->
+                            <div id="peTshirtSection" class="sub-section mb-4">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-tshirt me-2"></i>PE T-SHIRT
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_tshirt_size.label }}</label>
+                                        {{ form.pe_tshirt_size }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_tshirt_size_custom.label }}</label>
+                                        {{ form.pe_tshirt_size_custom }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_chest_circumference.label }}</label>
+                                        {{ form.pe_chest_circumference }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_chest_circumference_custom.label }}</label>
+                                        {{ form.pe_chest_circumference_custom }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_shirt_length.label }}</label>
+                                        {{ form.pe_shirt_length }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.pe_shirt_length_custom.label }}</label>
+                                        {{ form.pe_shirt_length_custom }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UNIFORM SECTION -->
+                        <div id="uniformSection" class="form-section mb-4 p-3 border rounded" style="display: none;">
+                            <h4 class="section-title mb-3 text-primary">
+                                <i class="fas fa-tshirt me-2"></i>UNIFORM
+                            </h4>
+                            
+                            <!-- Gender Selection (for Uniform) -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-user me-2"></i>Gender Selection
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ form.gender.label }}</label>
+                                        {{ form.gender }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customization Type -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-list me-2"></i>Customization Type
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ form.customization_type.label }}</label>
+                                        {{ form.customization_type }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uniform Pants Section -->
+                            <div id="uniformPantsSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-vest me-2"></i>PANTS MEASUREMENTS
+                                </h5>
+                                
+                                <!-- Waist Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Waist Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_pants_waist_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_pants_waist_checkbox" value="{{ choice.0 }}" id="waist_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="waist_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_pants_waist_custom.label }}</label>
+                                            {{ form.uniform_pants_waist_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Hips Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Hips Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_pants_hips_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_pants_hips_checkbox" value="{{ choice.0 }}" id="hips_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="hips_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_pants_hips_custom.label }}</label>
+                                            {{ form.uniform_pants_hips_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Inseam Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Inseam Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_pants_inseam_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_pants_inseam_checkbox" value="{{ choice.0 }}" id="inseam_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="inseam_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_pants_inseam_custom.label }}</label>
+                                            {{ form.uniform_pants_inseam_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uniform Polo Section -->
+                            <div id="uniformPoloSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-tshirt me-2"></i>POLO MEASUREMENTS
+                                </h5>
+                                
+                                <!-- Chest Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Chest Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_polo_chest_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_polo_chest_checkbox" value="{{ choice.0 }}" id="chest_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="chest_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_polo_chest_custom.label }}</label>
+                                            {{ form.uniform_polo_chest_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Shoulder Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Shoulder Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_polo_shoulder_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_polo_shoulder_checkbox" value="{{ choice.0 }}" id="shoulder_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="shoulder_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_polo_shoulder_custom.label }}</label>
+                                            {{ form.uniform_polo_shoulder_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Shirt Length Size -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Shirt Length Size:</label>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                                {% for choice in form.uniform_polo_shirt_length_checkbox.field.choices %}
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="uniform_polo_shirt_length_checkbox" value="{{ choice.0 }}" id="shirt_length_{{ choice.0 }}">
+                                                        <label class="form-check-label" for="shirt_length_{{ choice.0 }}">{{ choice.1 }}</label>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label">{{ form.uniform_polo_shirt_length_custom.label }}</label>
+                                            {{ form.uniform_polo_shirt_length_custom }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uniform Blouse Section -->
+                            <div id="uniformBlouseSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-tshirt me-2"></i>BLOUSE MEASUREMENTS
+                                </h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_sleeve.label }}</label>
+                                        {{ form.uniform_blouse_sleeve }}
+                                    </div>
+                                </div>
+
+                                <!-- Sleeve Length Fields -->
+                                <div id="blouseSleeveShort" class="mb-3" style="display: none;">
+                                    <label class="form-label">{{ form.uniform_blouse_sleeve_length_short.label }}</label>
+                                    {{ form.uniform_blouse_sleeve_length_short }}
+                                </div>
+                                <div id="blouseSleeve34" class="mb-3" style="display: none;">
+                                    <label class="form-label">{{ form.uniform_blouse_sleeve_length_34.label }}</label>
+                                    {{ form.uniform_blouse_sleeve_length_34 }}
+                                </div>
+                                <div id="blouseSleeveLong" class="mb-3" style="display: none;">
+                                    <label class="form-label">{{ form.uniform_blouse_sleeve_length_long.label }}</label>
+                                    {{ form.uniform_blouse_sleeve_length_long }}
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_shoulder_width.label }}</label>
+                                        {{ form.uniform_blouse_shoulder_width }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_bust.label }}</label>
+                                        {{ form.uniform_blouse_bust }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_under_bust.label }}</label>
+                                        {{ form.uniform_blouse_under_bust }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_waist.label }}</label>
+                                        {{ form.uniform_blouse_waist }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_hip.label }}</label>
+                                        {{ form.uniform_blouse_hip }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_neck.label }}</label>
+                                        {{ form.uniform_blouse_neck }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_armhole.label }}</label>
+                                        {{ form.uniform_blouse_armhole }}
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">{{ form.uniform_blouse_length.label }}</label>
+                                        {{ form.uniform_blouse_length }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Uniform Skirt/Palda Section -->
+                            <div id="uniformSkirtSection" class="sub-section mb-4" style="display: none;">
+                                <h5 class="sub-section-title mb-3">
+                                    <i class="fas fa-tshirt me-2"></i>SKIRT/PALDA MEASUREMENTS
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">{{ form.uniform_skirt_waist.label }}</label>
+                                        {{ form.uniform_skirt_waist }}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">{{ form.uniform_skirt_hips.label }}</label>
+                                        {{ form.uniform_skirt_hips }}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">{{ form.uniform_skirt_length.label }}</label>
+                                        {{ form.uniform_skirt_length }}
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">{{ form.uniform_skirt_hem_width.label }}</label>
+                                        {{ form.uniform_skirt_hem_width }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div class="form-section mb-4 p-3 border rounded">
+                            <h4 class="section-title mb-3">
+                                <i class="fas fa-sticky-note me-2"></i>Additional Notes
+                            </h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    {{ form.notes }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-actions text-center mb-4">
+                            <button type="submit" class="btn btn-primary btn-lg me-2">
+                                <i class="fas fa-save me-2"></i>Submit Measurements
+                            </button>
+                            <button type="reset" class="btn btn-secondary btn-lg" onclick="resetForm()">
+                                <i class="fas fa-redo me-2"></i>Reset Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-section {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .section-title {
+        color: #1e3a8a;
+        font-weight: 600;
+        border-bottom: 2px solid #1e3a8a;
+        padding-bottom: 10px;
+    }
+    
+    .sub-section-title {
+        color: #495057;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px 12px;
+    }
+    
+    .form-control:focus {
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25);
+    }
+    
+    .sub-section {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        margin-top: 15px;
+    }
+    
+    .form-check-group {
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background: white;
+    }
+    
+    .form-check {
+        margin-right: 15px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const customizeA = document.getElementById('id_customize_a');
+        const peSection = document.getElementById('peSection');
+        const uniformSection = document.getElementById('uniformSection');
+        const peDownType = document.getElementById('id_pe_down_type');
+        const peShortsSection = document.getElementById('peShortsSection');
+        const pePantsSection = document.getElementById('pePantsSection');
+        const customizationType = document.getElementById('id_customization_type');
+        const uniformPantsSection = document.getElementById('uniformPantsSection');
+        const uniformPoloSection = document.getElementById('uniformPoloSection');
+        const uniformBlouseSection = document.getElementById('uniformBlouseSection');
+        const uniformSkirtSection = document.getElementById('uniformSkirtSection');
+        const blouseSleeve = document.getElementById('id_uniform_blouse_sleeve');
+        const blouseSleeveShort = document.getElementById('blouseSleeveShort');
+        const blouseSleeve34 = document.getElementById('blouseSleeve34');
+        const blouseSleeveLong = document.getElementById('blouseSleeveLong');
+        
+        // Function to toggle main sections based on Customize a
+        function toggleMainSections() {
+            const selectedType = customizeA.value;
+            
+            if (selectedType === 'pe') {
+                peSection.style.display = 'block';
+                uniformSection.style.display = 'none';
+                togglePESections();
+            } else if (selectedType === 'uniform') {
+                peSection.style.display = 'none';
+                uniformSection.style.display = 'block';
+                toggleUniformSections();
+            } else {
+                peSection.style.display = 'none';
+                uniformSection.style.display = 'none';
+            }
+        }
+        
+        // Function to toggle PE sections
+        function togglePESections() {
+            const downType = peDownType.value;
+            
+            if (downType === 'short') {
+                peShortsSection.style.display = 'block';
+                pePantsSection.style.display = 'none';
+            } else if (downType === 'pants') {
+                peShortsSection.style.display = 'none';
+                pePantsSection.style.display = 'block';
+            } else {
+                peShortsSection.style.display = 'none';
+                pePantsSection.style.display = 'none';
+            }
+        }
+        
+        // Function to toggle Uniform sections
+        function toggleUniformSections() {
+            const customType = customizationType.value;
+            
+            // Hide all uniform customization sections
+            uniformPantsSection.style.display = 'none';
+            uniformPoloSection.style.display = 'none';
+            uniformBlouseSection.style.display = 'none';
+            uniformSkirtSection.style.display = 'none';
+            
+            // Show selected section
+            if (customType === 'pants') {
+                uniformPantsSection.style.display = 'block';
+            } else if (customType === 'polo') {
+                uniformPoloSection.style.display = 'block';
+            } else if (customType === 'blouse') {
+                uniformBlouseSection.style.display = 'block';
+                toggleBlouseSleeve();
+            } else if (customType === 'skirt_palda') {
+                uniformSkirtSection.style.display = 'block';
+            }
+        }
+        
+        // Function to toggle blouse sleeve length fields
+        function toggleBlouseSleeve() {
+            const sleeveType = blouseSleeve.value;
+            
+            blouseSleeveShort.style.display = 'none';
+            blouseSleeve34.style.display = 'none';
+            blouseSleeveLong.style.display = 'none';
+            
+            if (sleeveType === 'short') {
+                blouseSleeveShort.style.display = 'block';
+            } else if (sleeveType === '3/4') {
+                blouseSleeve34.style.display = 'block';
+            } else if (sleeveType === 'long') {
+                blouseSleeveLong.style.display = 'block';
+            }
+        }
+        
+        // Event listeners
+        customizeA.addEventListener('change', toggleMainSections);
+        peDownType.addEventListener('change', togglePESections);
+        customizationType.addEventListener('change', toggleUniformSections);
+        blouseSleeve.addEventListener('change', toggleBlouseSleeve);
+        
+        // Initialize on page load
+        toggleMainSections();
+        
+        // Reset form function
+        window.resetForm = function() {
+            if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+                document.getElementById('measurementForm').reset();
+                toggleMainSections();
+            }
+        };
+    });
+</script>
+{% endblock %}

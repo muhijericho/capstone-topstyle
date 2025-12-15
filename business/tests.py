@@ -200,3 +200,9 @@ class BusinessAPITests(TestCase):
         self.assertIn('low_stock', data)
         self.assertIn('out_of_stock', data)
 
+
+
+
+
+
+

@@ -94,6 +94,16 @@
     .order-progress p {
         color: white !important;
     }
+    .qr-order-details .detail-item {
+        color: white !important;
+        text-align: center;
+    }
+    .qr-order-details .detail-item > div:first-child {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    .qr-order-details .detail-item > div:last-child {
+        color: white !important;
+    }
     .progress-bar-custom {
         height: 7px;
         background: rgba(255, 255, 255, 0.3);
@@ -160,6 +170,28 @@
         font-size: 0.9rem;
     }
     
+    .qr-result-layout {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .qr-receipt-card {
+        position: relative;
+    }
+    
+    .qr-header-section h1 {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .qr-details-section {
+        border: none;
+    }
+    
+    .qr-detail-item {
+        line-height: 1.6;
+    }
+    
     /* Mobile Responsive */
     @media (max-width: 768px) {
         .track-result-container {
@@ -169,6 +201,36 @@
         .track-result-card {
             max-width: 100%;
             margin: 10px 0;
+        }
+        .qr-result-layout {
+            padding: 20px 10px !important;
+            min-height: 400px !important;
+        }
+        .qr-receipt-card {
+            padding: 30px 20px !important;
+            max-width: 100% !important;
+        }
+        .qr-header-section h1 {
+            font-size: 2.2rem !important;
+        }
+        .qr-header-section p {
+            font-size: 0.95rem !important;
+            letter-spacing: 2px !important;
+        }
+        .qr-details-section {
+            margin-bottom: 25px !important;
+        }
+        .qr-detail-item {
+            margin-bottom: 18px !important;
+        }
+        .qr-detail-item > div:first-child {
+            font-size: 0.95rem !important;
+        }
+        .qr-detail-item > div:last-child {
+            font-size: 1rem !important;
+        }
+        .qr-footer p {
+            font-size: 0.85rem !important;
         }
         .order-progress {
             padding: 20px;
@@ -189,43 +251,48 @@
 <div class="track-result-container">
     <div class="track-result-card">
         {% if found %}
-            <!-- Order Found -->
-            <div class="order-progress">
-                <h2 class="mb-3" style="font-size: 1.8rem;">
-                    <i class="fas fa-check-circle me-2"></i>Order Found!
-                </h2>
-                <h4 class="mb-2" style="font-size: 1.44rem;">{{ order.order_identifier|default:order.order_id }}</h4>
-                <p class="mb-0" style="font-size: 0.9rem;">{{ order.customer.name }} • {{ order.get_order_type_display }}</p>
-                
-                <!-- Progress Bar -->
-                <div class="progress-bar-custom">
-                    <div class="progress-fill" style="width: 
-                        {% if order.status == 'pending' %}25%
-                        {% elif order.status == 'confirmed' %}50%
-                        {% elif order.status == 'in_progress' %}75%
-                        {% elif order.status == 'completed' %}100%
-                        {% elif order.status == 'cancelled' %}0%
-                        {% endif %}">
+            {% if from_qr %}
+            <!-- Receipt-style layout for QR scan results -->
+            <div style="background: #f5f5f5; padding: 40px 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+                <div style="background: white; border: 3px double #000; border-radius: 8px; padding: 40px 30px; max-width: 500px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="font-size: 2.5rem; font-weight: bold; color: #000; margin: 0; letter-spacing: 2px;">TopStyle</h1>
+                        <p style="font-size: 0.9rem; color: #000; margin: 10px 0 0 0; letter-spacing: 4px; text-decoration: underline; text-underline-offset: 5px;">R u g g e d  a n d  T a i l o r</p>
                     </div>
-                </div>
-                
-                <div class="row text-center">
-                    <div class="col-3">
-                        <small style="font-size: 0.72rem;">Ordered</small>
+                    
+                    <!-- Order Details -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <span style="font-weight: 600;">Order Id :</span>
+                            <span style="margin-left: 10px;">{{ order.order_identifier|default:order.order_id }}</span>
+                        </div>
+                        <div style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <span style="font-weight: 600;">Order Type :</span>
+                            <span style="margin-left: 10px;">{{ order.get_order_type_display }}</span>
+                        </div>
+                        <div style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <span style="font-weight: 600;">Customer :</span>
+                            <span style="margin-left: 10px;">{{ order.customer.name }}</span>
+                        </div>
+                        <div style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <span style="font-weight: 600;">Order Date :</span>
+                            <span style="margin-left: 10px;">{{ order.created_at|date:"M d, Y" }}</span>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <small style="font-size: 0.72rem;">Confirmed</small>
-                    </div>
-                    <div class="col-3">
-                        <small style="font-size: 0.72rem;">Processing</small>
-                    </div>
-                    <div class="col-3">
-                        <small style="font-size: 0.72rem;">Completed</small>
+                    
+                    <!-- Divider Line -->
+                    <hr style="border: none; border-top: 1px solid #000; margin: 30px 0;">
+                    
+                    <!-- Footer -->
+                    <div style="text-align: center; margin-top: 30px;">
+                        <p style="font-size: 0.85rem; color: #000; margin: 0; letter-spacing: 1px; text-transform: uppercase;">THANKS FOR TRUSTING TOPSTYLE</p>
                     </div>
                 </div>
             </div>
-            
-            <div class="p-4" style="padding: 1.8rem !important;">
+            {% else %}
+            <!-- Detailed Order Information (shown for manual input) -->
+            <div class="p-4" style="padding: 1.8rem !important; background: white;">
                 <div class="row">
                     <!-- Left Column: Order Timeline -->
                     <div class="col-lg-6">
@@ -427,6 +494,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         
         {% else %}
             <!-- Order Not Found -->

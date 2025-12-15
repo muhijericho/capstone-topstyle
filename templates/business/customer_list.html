@@ -13,39 +13,39 @@
 
 <!-- Customer Statistics -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                <h5 class="card-title">{{ total_customers }}</h5>
-                <p class="card-text">Total Customers</p>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-blue">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <div class="stat-number">{{ total_customers }}</div>
+                <div>Total Customers</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-shopping-cart fa-2x text-success mb-2"></i>
-                <h5 class="card-title">{{ customers_with_orders }}</h5>
-                <p class="card-text">With Orders</p>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-green">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                <div class="stat-number">{{ customers_with_orders }}</div>
+                <div>With Orders</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-user-plus fa-2x text-info mb-2"></i>
-                <h5 class="card-title">{{ recent_customers }}</h5>
-                <p class="card-text">New (30 days)</p>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-orange">
+            <div class="card-body text-center">
+                <i class="fas fa-user-plus fa-2x mb-2"></i>
+                <div class="stat-number">{{ recent_customers }}</div>
+                <div>New (30 days)</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="fas fa-user-times fa-2x text-warning mb-2"></i>
-                <h5 class="card-title">{{ customers_without_orders }}</h5>
-                <p class="card-text">No Orders</p>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-purple">
+            <div class="card-body text-center">
+                <i class="fas fa-user-times fa-2x mb-2"></i>
+                <div class="stat-number">{{ customers_without_orders }}</div>
+                <div>No Orders</div>
             </div>
         </div>
     </div>
@@ -137,6 +137,53 @@
             </table>
         </div>
     </div>
+    
+    <!-- Pagination -->
+    {% if customers.has_other_pages %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Customers pagination">
+            <ul class="pagination">
+                {% if customers.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ customers.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">First</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ customers.number }} of {{ customers.paginator.num_pages }}
+                    </span>
+                </li>
+                
+                {% if customers.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ customers.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ customers.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Last</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">Last</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 

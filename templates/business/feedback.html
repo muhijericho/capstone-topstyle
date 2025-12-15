@@ -1,0 +1,210 @@
+{% extends 'business/base.html' %}
+
+{% block title %}Give Feedback - TopStyle Business Management{% endblock %}
+
+{% block page_title %}Give Feedback{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-comment-dots me-2"></i>Give Feedback
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h6 class="text-primary mb-3">Share Your Thoughts</h6>
+                        <form>
+                            <div class="mb-3">
+                                <label for="feedbackType" class="form-label">Feedback Type</label>
+                                <select class="form-select" id="feedbackType" disabled>
+                                    <option selected>General Feedback</option>
+                                    <option>Bug Report</option>
+                                    <option>Feature Request</option>
+                                    <option>Improvement Suggestion</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feedbackSubject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="feedbackSubject" placeholder="Brief description of your feedback" disabled>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feedbackMessage" class="form-label">Message</label>
+                                <textarea class="form-control" id="feedbackMessage" rows="5" placeholder="Please provide detailed feedback about your experience with the system..." disabled></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="feedbackRating" class="form-label">Overall Rating</label>
+                                <div class="rating">
+                                    <input type="radio" id="star5" name="rating" value="5" disabled>
+                                    <label for="star5" title="Excellent">★</label>
+                                    <input type="radio" id="star4" name="rating" value="4" disabled>
+                                    <label for="star4" title="Good">★</label>
+                                    <input type="radio" id="star3" name="rating" value="3" disabled>
+                                    <label for="star3" title="Average">★</label>
+                                    <input type="radio" id="star2" name="rating" value="2" disabled>
+                                    <label for="star2" title="Poor">★</label>
+                                    <input type="radio" id="star1" name="rating" value="1" disabled>
+                                    <label for="star1" title="Very Poor">★</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>
+                                <i class="fas fa-paper-plane me-2"></i>Submit Feedback
+                            </button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-primary mb-3">Quick Feedback</h6>
+                        <div class="list-group">
+                            <button class="list-group-item list-group-item-action" disabled>
+                                <i class="fas fa-thumbs-up me-2 text-success"></i>System is working great!
+                            </button>
+                            <button class="list-group-item list-group-item-action" disabled>
+                                <i class="fas fa-bug me-2 text-danger"></i>Found a bug
+                            </button>
+                            <button class="list-group-item list-group-item-action" disabled>
+                                <i class="fas fa-lightbulb me-2 text-warning"></i>Have an idea
+                            </button>
+                            <button class="list-group-item list-group-item-action" disabled>
+                                <i class="fas fa-question-circle me-2 text-info"></i>Need help
+                            </button>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h6 class="text-primary mb-3">Recent Updates</h6>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>v2.0 Released!</strong><br>
+                            New admin interface with improved navigation and user experience.
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-primary mb-3">Feedback Status</h6>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> Feedback submission is currently disabled. 
+                            Your feedback is important to us and will be reviewed when the feature is enabled.
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-comments fa-2x text-primary mb-3"></i>
+                                        <h6>Total Feedback</h6>
+                                        <p class="text-muted">0 submissions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-star fa-2x text-warning mb-3"></i>
+                                        <h6>Average Rating</h6>
+                                        <p class="text-muted">Not available</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-clock fa-2x text-info mb-3"></i>
+                                        <h6>Response Time</h6>
+                                        <p class="text-muted">24-48 hours</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <i class="fas fa-heart fa-2x text-danger mb-3"></i>
+                                        <h6>Satisfaction</h6>
+                                        <p class="text-muted">100%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+    color: #ffc107;
+}
+</style>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

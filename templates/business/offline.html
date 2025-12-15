@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - TopStyle Business Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .offline-container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .features {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .features li:last-child {
+            border-bottom: none;
+        }
+        .features li i {
+            margin-right: 10px;
+            color: #4ade80;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button, .btn {
+            background: white;
+            color: #1e3a8a;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        button:hover, .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0.95;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s infinite;
+        }
+        .status-indicator.online {
+            background: #4ade80;
+            animation: none;
+        }
+        .status-indicator.offline {
+            background: #fbbf24;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p>Don't worry! TopStyle works offline. You can still access cached pages and data.</p>
+        
+        <div class="features">
+            <h5 style="margin-bottom: 15px;"><i class="fas fa-check-circle"></i> What you can do offline:</h5>
+            <ul>
+                <li><i class="fas fa-check"></i> View previously loaded pages and data</li>
+                <li><i class="fas fa-check"></i> Create and edit orders (will sync when online)</li>
+                <li><i class="fas fa-check"></i> Add customers and products (will sync when online)</li>
+                <li><i class="fas fa-check"></i> Browse inventory and sales history</li>
+                <li><i class="fas fa-check"></i> Track orders and manage rentals</li>
+            </ul>
+        </div>
+
+        <div class="connection-status">
+            <span class="status-indicator offline" id="statusIndicator"></span>
+            <span id="statusText">Currently Offline</span>
+        </div>
+
+        <div class="btn-group" style="margin-top: 30px;">
+            <button onclick="window.location.reload()" class="btn">
+                <i class="fas fa-sync-alt"></i> Try Again
+            </button>
+            <button onclick="goToDashboard()" class="btn">
+                <i class="fas fa-home"></i> Go to Dashboard
+            </button>
+            <button onclick="manualSync()" class="btn" id="syncBtn" style="display: none;">
+                <i class="fas fa-cloud-upload-alt"></i> Sync Now
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const syncBtn = document.getElementById('syncBtn');
+
+            if (navigator.onLine) {
+                indicator.className = 'status-indicator online';
+                statusText.textContent = 'Back Online! Click Sync to upload pending changes.';
+                syncBtn.style.display = 'inline-block';
+            } else {
+                indicator.className = 'status-indicator offline';
+                statusText.textContent = 'Currently Offline';
+                syncBtn.style.display = 'none';
+            }
+        }
+
+        function goToDashboard() {
+            window.location.href = '/dashboard/';
+        }
+
+        async function manualSync() {
+            if (window.offlineSyncManager) {
+                const btn = document.getElementById('syncBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+                
+                await window.offlineSyncManager.manualSync();
+                
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Now';
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // Initial check
+        updateConnectionStatus();
+        
+        // Check every 2 seconds
+        setInterval(updateConnectionStatus, 2000);
+    </script>
+</body>
+</html>
+
+

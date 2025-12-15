@@ -1,45 +1,79 @@
 {% extends 'business/base.html' %}
 
-{% block title %}Sales - TopStyle Business{% endblock %}
-{% block page_title %}Sales Analytics{% endblock %}
+{% block title %}Sales Analytics & Accounting - TopStyle Business{% endblock %}
+{% block page_title %}Sales Analytics & Accounting{% endblock %}
 
 {% block content %}
-<!-- Sales Statistics -->
+<!-- Overlay for expanded cards -->
+<div class="card-overlay" id="cardOverlay"></div>
+
+<!-- Accounting Details Modal -->
+<div class="modal fade" id="accountingDetailsModal" tabindex="-1" aria-labelledby="accountingDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background: #1a1a1a; color: white; border: none;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title" id="accountingDetailsModalLabel" style="color: #ffffff !important; font-weight: 500;">
+                    <i class="fas fa-calculator me-2"></i><span id="modalTitle">Loading...</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="accountingDetailsContent" style="max-height: 70vh; overflow-y: auto;">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Date Display -->
+<div class="d-flex justify-content-end mb-3">
+    <span class="text-muted">
+        <i class="fas fa-calendar me-2"></i>
+        {{ "now"|date:"l, F d, Y" }}
+    </span>
+</div>
+
+<!-- Sales Statistics - 8 Cards in 2 Rows -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card stat-card stat-card-blue">
+    <!-- Row 1 -->
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-blue" data-stat-type="total_sales" style="cursor: pointer;">
             <div class="card-body text-center">
-                <i class="fas fa-dollar-sign fa-2x mb-2"></i>
+                <i class="fas fa-peso-sign fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ total_sales|floatformat:2 }}</div>
                 <div>Total Sales</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card stat-card-orange">
-            <div class="card-body text-center">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-orange" data-stat-type="monthly_sales" style="cursor: pointer;">
+            <div class="card-body text-center position-relative">
                 <i class="fas fa-calendar-month fa-2x mb-2"></i>
                 <div class="stat-number">₱{{ monthly_sales|floatformat:2 }}</div>
                 <div>This Month</div>
+                <small class="position-absolute top-0 end-0 m-2 text-muted" style="font-size: 0.7rem;">
+                    Est. ₱{{ projected_month|floatformat:2 }}
+                </small>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card stat-card-green">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-green" data-stat-type="total_transactions" style="cursor: pointer;">
             <div class="card-body text-center">
                 <i class="fas fa-shopping-cart fa-2x mb-2"></i>
-                <div class="stat-number">{{ recent_sales|length }}</div>
+                <div class="stat-number">{{ total_transactions }}</div>
                 <div>Total Transactions</div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card stat-card stat-card-purple">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-purple" data-stat-type="average_sale" style="cursor: pointer;">
             <div class="card-body text-center">
-                <i class="fas fa-chart-line fa-2x mb-2"></i>
-                <div class="stat-number">
-                    ₱{{ average_sale|floatformat:2 }}
-                </div>
+                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ average_sale|floatformat:2 }}</div>
                 <div>Average Sale</div>
             </div>
         </div>
@@ -47,71 +81,365 @@
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Sales by Payment Method</h5>
+    <!-- Row 2 -->
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-teal" data-stat-type="yesterday_sales" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-down fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ yesterday_sales|floatformat:2 }}</div>
+                <div>Yesterday's Sales</div>
             </div>
-            <div class="card-body">
-                <canvas id="paymentMethodChart" height="100"></canvas>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-green" data-stat-type="week_sales" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-arrow-up fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ week_sales|floatformat:2 }}</div>
+                <div>This Week</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-orange" data-stat-type="projected_month" style="cursor: pointer;">
+            <div class="card-body text-center position-relative">
+                <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ projected_month|floatformat:2 }}</div>
+                <div>Projected Month</div>
+                <small class="position-absolute top-0 end-0 m-2 text-muted" style="font-size: 0.7rem;">
+                    {{ projected_percentage|floatformat:1 }}%
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card stat-card-blue" data-stat-type="completed_transactions" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                <div class="stat-number">{{ completed_transactions }}</div>
+                <div>Completed Transactions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Accounting Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card accounting-card accounting-card-success" data-accounting-type="cash_on_hand" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ cash_on_hand|floatformat:2 }}</div>
+                <div>Cash on Hand</div>
+                <small>Paid Amounts</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card accounting-card accounting-card-warning" data-accounting-type="accounts_receivable" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-file-invoice-dollar fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ accounts_receivable|floatformat:2 }}</div>
+                <div>Accounts Receivable</div>
+                <small>Unpaid Balances</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card accounting-card accounting-card-info" data-accounting-type="total_profit" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ total_profit|floatformat:2 }}</div>
+                <div>Total Profit</div>
+                <small>{{ profit_margin|floatformat:1 }}% Margin</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card accounting-card accounting-card-danger" data-accounting-type="total_costs" style="cursor: pointer;">
+            <div class="card-body text-center">
+                <i class="fas fa-coins fa-2x mb-2"></i>
+                <div class="stat-number">₱{{ total_costs|floatformat:2 }}</div>
+                <div>Total Costs</div>
+                <small>All Time</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card expandable-card" data-card-id="dailySalesCard">
+            <div class="card-header" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Daily Sales Trend <small class="expand-indicator" style="display: none; margin-left: 10px;"><i class="fas fa-expand"></i> Expanded</small></h5>
+            </div>
+            <div class="card-body expandable-content">
+                <canvas id="dailySalesChart" height="100"></canvas>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0"><i class="fas fa-download me-2"></i>Export Reports</h5>
+        <div class="card expandable-card" data-card-id="paymentMethodCard">
+            <div class="card-header" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Sales by Payment Method <small class="expand-indicator" style="display: none; margin-left: 10px;"><i class="fas fa-expand"></i> Expanded</small></h5>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a href="{% url 'pdf_report' 'sales' %}" class="btn btn-outline-danger">
-                        <i class="fas fa-file-pdf me-2"></i>Export PDF Report
-                    </a>
-                    <a href="{% url 'excel_report' 'sales' %}" class="btn btn-outline-success">
-                        <i class="fas fa-file-excel me-2"></i>Export Excel Report
-                    </a>
+            <div class="card-body expandable-content">
+                <div class="text-center mb-3">
+                    <h3 class="mb-0">100% Total</h3>
+                </div>
+                <div id="paymentMethodList">
+                    {% for method in sales_by_method %}
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-2" style="width: 16px; height: 16px; background-color: 
+                            {% cycle '#667eea' '#764ba2' '#f093fb' '#f5576c' '#4facfe' '#00f2fe' %}; 
+                            border-radius: 3px;"></div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ method.payment_method|title }}</span>
+                                <span class="fw-bold">₱{{ method.total|floatformat:2 }}</span>
+                            </div>
+                            <small class="text-muted">
+                                {% if total_by_method > 0 %}
+                                    {% widthratio method.total total_by_method 100 as percentage %}
+                                    {{ percentage|floatformat:1 }}% ({{ method.count }} txns)
+                                {% else %}
+                                    0.0% ({{ method.count }} txns)
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3 pt-3 border-top text-center">
+                    <strong>₱{{ total_by_method|floatformat:2 }}</strong>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Sales -->
+<!-- Cost Accounting & Managerial Accounting Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card expandable-card" data-card-id="costAccountingCard">
+            <div class="card-header bg-primary text-white" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Cost Accounting - Monthly Summary <small class="expand-indicator" style="display: none; margin-left: 10px;"><i class="fas fa-expand"></i> Expanded</small></h5>
+            </div>
+            <div class="card-body expandable-content">
+                <div class="row text-center mb-3">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h4 text-success">₱{{ monthly_sales|floatformat:2 }}</div>
+                            <small class="text-muted">Revenue</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-danger">₱{{ monthly_costs|floatformat:2 }}</div>
+                        <small class="text-muted">Costs</small>
+                    </div>
+                </div>
+                <div class="progress mb-3" style="height: 25px;">
+                    {% if monthly_sales > 0 %}
+                        {% widthratio monthly_profit monthly_sales 100 as profit_percent %}
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ profit_percent }}%">
+                            Profit: ₱{{ monthly_profit|floatformat:2 }}
+                        </div>
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {% widthratio monthly_costs monthly_sales 100 %}%">
+                            Costs
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span><strong>Profit Margin:</strong></span>
+                    <span class="badge bg-success">
+                        {% if monthly_sales > 0 %}
+                            {% widthratio monthly_profit monthly_sales 100 %}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </span>
+                </div>
+                <hr>
+                <div class="small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Material Costs (Est.):</span>
+                        <span>₱{{ estimated_material_cost|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Labor & Other Costs:</span>
+                        <span>₱{{ monthly_costs|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card expandable-card" data-card-id="serviceTypeCard">
+            <div class="card-header bg-info text-white" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Managerial Accounting - Revenue by Service Type <small class="expand-indicator" style="display: none; margin-left: 10px;"><i class="fas fa-expand"></i> Expanded</small></h5>
+            </div>
+            <div class="card-body expandable-content">
+                <div id="serviceTypeChartContainer" style="max-height: 120px; overflow: hidden; transition: max-height 0.3s ease, transform 0.3s ease; position: relative;">
+                    <canvas id="serviceTypeChart" height="100"></canvas>
+                </div>
+                <div class="mt-3">
+                    {% for service in sales_by_service_type %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>{{ service.order_type|title }}</strong>
+                            <small class="text-muted d-block">{{ service.count }} orders</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">₱{{ service.total_revenue|floatformat:2 }}</div>
+                            <small class="text-muted">Avg: ₱{{ service.avg_order_value|floatformat:2 }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Profitable Orders -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card expandable-card" data-card-id="profitableOrdersCard">
+            <div class="card-header bg-success text-white" style="cursor: pointer;">
+                <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top 5 Most Profitable Orders <small class="expand-indicator" style="display: none; margin-left: 10px;"><i class="fas fa-expand"></i> Expanded</small></h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Service Type</th>
+                                <th>Revenue</th>
+                                <th>Cost</th>
+                                <th>Profit</th>
+                                <th>Margin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order_data in top_profitable_orders %}
+                            <tr>
+                                <td><strong>{{ order_data.order.order_identifier|default:order_data.order.order_id|truncatechars:15 }}</strong></td>
+                                <td>{{ order_data.order.customer.name }}</td>
+                                <td><span class="badge bg-info">{{ order_data.order.get_order_type_display }}</span></td>
+                                <td class="text-success">₱{{ order_data.revenue|floatformat:2 }}</td>
+                                <td class="text-danger">₱{{ order_data.cost|floatformat:2 }}</td>
+                                <td class="text-success fw-bold">₱{{ order_data.profit|floatformat:2 }}</td>
+                                <td>
+                                    <span class="badge bg-success">{{ order_data.margin|floatformat:1 }}%</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">No profitable orders found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4 col-12">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search by order ID or customer...">
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12 col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <select class="form-select" id="dateFilter">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12 col-sm-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                            <select class="form-select" id="paymentFilter">
+                                <option value="all">All Payments</option>
+                                {% for method in sales_by_method %}
+                                <option value="{{ method.payment_method }}">{{ method.payment_method|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-12">
+                        <div class="d-flex flex-column flex-md-row gap-2 w-100">
+                            <a href="{% url 'excel_report' 'sales' %}" class="btn btn-success flex-fill">
+                                <i class="fas fa-download me-2"></i><span class="d-none d-sm-inline">Export </span>Excel
+                            </a>
+                            <button type="button" class="btn btn-primary flex-fill" onclick="window.print()">
+                                <i class="fas fa-print me-2"></i><span class="d-none d-sm-inline">Print </span>Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sales Transactions -->
 <div class="card">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recent Sales</h5>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Recent Sales Transactions</h5>
     </div>
     <div class="card-body">
         {% if recent_sales %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="salesTable">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Payment Method</th>
-                            <th>Date</th>
-                            <th>Actions</th>
+                            <th>ORDER ID</th>
+                            <th>CUSTOMER</th>
+                            <th>AMOUNT</th>
+                            <th>PAYMENT METHOD</th>
+                            <th>STATUS</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for sale in recent_sales %}
                         <tr>
                             <td>
-                                <strong>{{ sale.sales_identifier|default:sale.order.order_id|truncatechars:12 }}</strong>
+                                <strong>{{ sale.order.order_identifier|default:sale.order.order_id|truncatechars:15 }}</strong>
                             </td>
-                            <td>{{ sale.order.customer.name }}</td>
+                            <td>{{ sale.order.customer.name|default:"N/A" }}</td>
                             <td>
-                                <span class="text-success fw-bold">₱{{ sale.amount|floatformat:2 }}</span>
+                                <span class="fw-bold">₱{{ sale.amount|floatformat:2 }}</span>
                             </td>
                             <td>
                                 <span class="badge bg-info">{{ sale.payment_method|title }}</span>
                             </td>
-                            <td>{{ sale.created_at|date:"M d, Y H:i" }}</td>
                             <td>
-                                <a href="{% url 'order_receipt' sale.order.id %}" class="btn btn-sm btn-outline-primary" title="View Receipt">
-                                    <i class="fas fa-receipt"></i>
+                                <span class="badge bg-success">{{ sale.order.get_status_display|default:"Completed" }}</span>
+                            </td>
+                            <td>{{ sale.created_at|date:"M d, Y, h:i A" }}</td>
+                            <td>
+                                <a href="{% url 'order_detail' sale.order.id %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="fas fa-eye"></i>
                                 </a>
                             </td>
                         </tr>
@@ -119,6 +447,53 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            {% if recent_sales.has_other_pages %}
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Sales pagination">
+                    <ul class="pagination">
+                        {% if recent_sales.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ recent_sales.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}">Previous</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">First</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ recent_sales.number }} of {{ recent_sales.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if recent_sales.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ recent_sales.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ recent_sales.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.date_range %}&date_range={{ request.GET.date_range }}{% endif %}{% if request.GET.payment_method %}&payment_method={{ request.GET.payment_method }}{% endif %}">Last</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">Next</span>
+                            </li>
+                            <li class="page-item disabled">
+                                <span class="page-link">Last</span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
         {% else %}
             <div class="text-center text-muted py-4">
                 <i class="fas fa-chart-line fa-3x mb-3"></i>
@@ -131,35 +506,47 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Payment Method Chart
-    const paymentData = [
-        {% for method in sales_by_method %}
-        {
-            method: '{{ method.payment_method|title }}',
-            total: {{ method.total }}
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
+    // Daily Sales Trend Chart
+    const dailySalesData = JSON.parse('{{ daily_sales|escapejs }}');
+    const dailyLabels = [];
+    const dailyAmounts = [];
     
-    const ctx = document.getElementById('paymentMethodChart').getContext('2d');
+    // Generate labels for last 7 days
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        dailyLabels.push(dateStr);
+        
+        // Find matching data or use 0
+        const dateStrForMatch = date.toISOString().split('T')[0];
+        const dayData = dailySalesData.find(d => d.day === dateStrForMatch);
+        dailyAmounts.push(dayData ? parseFloat(dayData.daily_total) : 0);
+    }
     
-    new Chart(ctx, {
-        type: 'doughnut',
+    // Store chart instances globally for expandable card functionality
+    window.dailySalesChartInstance = null;
+    window.serviceTypeChartInstance = null;
+    window.serviceTypeCtx = null;
+    
+    const dailyCtx = document.getElementById('dailySalesChart');
+    if (dailyCtx) {
+        window.dailySalesChartInstance = new Chart(dailyCtx, {
+            type: 'line',
         data: {
-            labels: paymentData.map(item => item.method),
+                labels: dailyLabels,
             datasets: [{
-                data: paymentData.map(item => item.total),
-                backgroundColor: [
-                    '#667eea',
-                    '#764ba2',
-                    '#f093fb',
-                    '#f5576c',
-                    '#4facfe',
-                    '#00f2fe'
-                ],
-                borderWidth: 2,
-                borderColor: '#fff'
+                    label: 'Daily Sales',
+                    data: dailyAmounts,
+                    borderColor: 'rgb(102, 126, 234)',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
             }]
         },
         options: {
@@ -167,25 +554,1151 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
-                    }
+                        display: false
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const label = context.label || '';
-                            const value = context.parsed;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(1);
-                            return `₱{label}: ₱₱{value.toFixed(2)} (₱{percentage}%)`;
+                                return '₱' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Service Type Chart
+    const serviceTypeData = JSON.parse('{{ service_type_data|escapejs }}');
+    window.serviceTypeCtx = document.getElementById('serviceTypeChart');
+    const serviceTypeContainer = document.getElementById('serviceTypeChartContainer');
+    let isChartExpanded = false;
+    let isChartLocked = false; // Track if chart is locked in expanded state via click
+    
+    if (window.serviceTypeCtx && serviceTypeData.length > 0) {
+        const serviceLabels = serviceTypeData.map(s => s.type);
+        const serviceRevenues = serviceTypeData.map(s => s.revenue);
+        
+        window.serviceTypeChartInstance = new Chart(window.serviceTypeCtx, {
+            type: 'bar',
+            data: {
+                labels: serviceLabels,
+                datasets: [{
+                    label: 'Revenue by Service Type',
+                    data: serviceRevenues,
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(240, 147, 251, 0.8)',
+                        'rgba(245, 87, 108, 0.8)',
+                        'rgba(79, 172, 254, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(102, 126, 234)',
+                        'rgb(118, 75, 162)',
+                        'rgb(240, 147, 251)',
+                        'rgb(245, 87, 108)',
+                        'rgb(79, 172, 254)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 5,
+                        bottom: 5,
+                        left: 5,
+                        right: 5
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return '₱' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₱' + value.toLocaleString();
+                            },
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Chart expansion functions (kept for compatibility, but main expansion is via card click)
+        function expandChart() {
+            if (!isChartExpanded && serviceTypeContainer && window.serviceTypeChartInstance) {
+                isChartExpanded = true;
+                serviceTypeContainer.style.maxHeight = '240px';
+                window.serviceTypeCtx.height = 200;
+                window.serviceTypeChartInstance.resize();
+                
+                // Update font sizes for better visibility when expanded
+                window.serviceTypeChartInstance.options.scales.y.ticks.font.size = 12;
+                window.serviceTypeChartInstance.options.scales.x.ticks.font.size = 12;
+                window.serviceTypeChartInstance.update('none');
+            }
+        }
+        
+        function collapseChart() {
+            if (isChartExpanded && serviceTypeContainer && window.serviceTypeChartInstance) {
+                isChartExpanded = false;
+                serviceTypeContainer.style.maxHeight = '120px';
+                window.serviceTypeCtx.height = 100;
+                window.serviceTypeChartInstance.resize();
+                
+                // Reset font sizes
+                window.serviceTypeChartInstance.options.scales.y.ticks.font.size = 10;
+                window.serviceTypeChartInstance.options.scales.x.ticks.font.size = 10;
+                window.serviceTypeChartInstance.update('none');
+            }
+        }
+        
+        // Note: Chart expansion is now handled by the expandable card system
+        // The hover functionality is integrated into the card click-to-expand
+    }
+    
+    // Expandable Card Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const overlay = document.getElementById('cardOverlay');
+        const expandableCards = document.querySelectorAll('.expandable-card');
+        const expandedCards = new Set();
+        
+        function expandCard(card) {
+            const cardId = card.getAttribute('data-card-id');
+            if (expandedCards.has(cardId)) return;
+            
+            expandedCards.add(cardId);
+            card.classList.add('expanded');
+            overlay.classList.add('active');
+            
+            // Show expand indicator
+            const indicator = card.querySelector('.expand-indicator');
+            if (indicator) indicator.style.display = 'inline';
+            
+            // Resize charts if they exist
+            setTimeout(() => {
+                if (cardId === 'dailySalesCard' && window.dailySalesChartInstance) {
+                    window.dailySalesChartInstance.resize();
+                }
+                if (cardId === 'serviceTypeCard' && window.serviceTypeChartInstance) {
+                    // Also expand the chart container
+                    const container = document.getElementById('serviceTypeChartContainer');
+                    if (container) {
+                        container.style.maxHeight = '400px';
+                        if (window.serviceTypeCtx) {
+                            window.serviceTypeCtx.height = 350;
+                        }
+                        window.serviceTypeChartInstance.resize();
+                        // Update font sizes for better visibility
+                        window.serviceTypeChartInstance.options.scales.y.ticks.font.size = 14;
+                        window.serviceTypeChartInstance.options.scales.x.ticks.font.size = 14;
+                        window.serviceTypeChartInstance.update('none');
+                    }
+                }
+            }, 100);
+        }
+        
+        function collapseCard(card) {
+            const cardId = card.getAttribute('data-card-id');
+            expandedCards.delete(cardId);
+            card.classList.remove('expanded');
+            
+            // Hide expand indicator
+            const indicator = card.querySelector('.expand-indicator');
+            if (indicator) indicator.style.display = 'none';
+            
+            // Hide overlay if no cards are expanded
+            if (expandedCards.size === 0) {
+                overlay.classList.remove('active');
+            }
+            
+            // Reset chart sizes
+            if (cardId === 'serviceTypeCard') {
+                const container = document.getElementById('serviceTypeChartContainer');
+                if (container) {
+                    container.style.maxHeight = '120px';
+                    if (window.serviceTypeCtx) {
+                        window.serviceTypeCtx.height = 100;
+                        if (window.serviceTypeChartInstance) {
+                            window.serviceTypeChartInstance.resize();
+                            // Reset font sizes
+                            window.serviceTypeChartInstance.options.scales.y.ticks.font.size = 10;
+                            window.serviceTypeChartInstance.options.scales.x.ticks.font.size = 10;
+                            window.serviceTypeChartInstance.update('none');
                         }
                     }
                 }
             }
         }
+        
+        // Add click handlers to card headers
+        expandableCards.forEach(card => {
+            const header = card.querySelector('.card-header');
+            if (header) {
+                header.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const cardId = card.getAttribute('data-card-id');
+                    if (expandedCards.has(cardId)) {
+                        collapseCard(card);
+                    } else {
+                        expandCard(card);
+                    }
+                });
+            }
+        });
+        
+        // Close on overlay click
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                expandableCards.forEach(card => {
+                    const cardId = card.getAttribute('data-card-id');
+                    if (expandedCards.has(cardId)) {
+                        collapseCard(card);
+                    }
+                });
+            }
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && expandedCards.size > 0) {
+                expandableCards.forEach(card => {
+                    const cardId = card.getAttribute('data-card-id');
+                    if (expandedCards.has(cardId)) {
+                        collapseCard(card);
+                    }
+                });
+            }
+        });
+    });
+    
+    // Accounting Card Click Handler
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountingCards = document.querySelectorAll('[data-accounting-type]');
+        const modalElement = document.getElementById('accountingDetailsModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('accountingDetailsContent');
+        const cardOverlay = document.getElementById('cardOverlay');
+        
+        // Initialize modal once - no backdrop darkening
+        let bsModal = null;
+        if (modalElement) {
+            bsModal = new bootstrap.Modal(modalElement, {
+                backdrop: false,  // No dark backdrop
+                keyboard: true,
+                focus: true
+            });
+            
+            // Hide card overlay when modal opens
+            modalElement.addEventListener('show.bs.modal', function() {
+                if (cardOverlay) {
+                    cardOverlay.classList.remove('active');
+                }
+                // Collapse any expanded cards
+                document.querySelectorAll('.expandable-card.expanded').forEach(card => {
+                    card.classList.remove('expanded');
+                });
+            });
+            
+            // Ensure modal is fully interactive and scrollable
+            modalElement.addEventListener('shown.bs.modal', function() {
+                // Aggressively remove any backdrop that might have been created
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => {
+                    backdrop.style.display = 'none';
+                    backdrop.style.opacity = '0';
+                    backdrop.style.background = 'transparent';
+                    backdrop.remove();
+                });
+                
+                // Ensure modal body is scrollable
+                const modalBody = document.getElementById('accountingDetailsContent');
+                if (modalBody) {
+                    modalBody.style.overflowY = 'auto';
+                    modalBody.style.maxHeight = '70vh';
+                }
+            });
+            
+            // Also remove backdrop on show event (before shown) and use interval to catch it
+            modalElement.addEventListener('show.bs.modal', function() {
+                // Prevent backdrop creation - use interval to catch it
+                const removeBackdrop = setInterval(function() {
+                    const backdrops = document.querySelectorAll('.modal-backdrop');
+                    if (backdrops.length > 0) {
+                        backdrops.forEach(backdrop => {
+                            backdrop.style.display = 'none';
+                            backdrop.style.opacity = '0';
+                            backdrop.style.background = 'transparent';
+                            backdrop.remove();
+                        });
+                    }
+                }, 10);
+                
+                // Clear interval after modal is shown
+                setTimeout(function() {
+                    clearInterval(removeBackdrop);
+                }, 1000);
+            });
+            
+            // Clean up on close
+            modalElement.addEventListener('hidden.bs.modal', function() {
+                modalContent.innerHTML = '';
+            });
+        }
+        
+        accountingCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                const metricType = this.getAttribute('data-accounting-type');
+                
+                if (!bsModal) return;
+                
+                // Show loading state
+                modalTitle.textContent = 'Loading...';
+                modalContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                
+                // Show modal
+                bsModal.show();
+                
+                // Fetch detailed breakdown
+                fetch(`/api/accounting-details/?type=${metricType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayAccountingDetails(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching accounting details:', error);
+                        modalContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error loading details. Please try again.
+                            </div>
+                        `;
+                    });
+            });
+        });
+        
+        // Stat Card Click Handler (for top stat cards)
+        const statCards = document.querySelectorAll('[data-stat-type]');
+        statCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                const statType = this.getAttribute('data-stat-type');
+                
+                if (!bsModal) return;
+                
+                // Show loading state
+                modalTitle.textContent = 'Loading...';
+                modalContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+                
+                // Show modal
+                bsModal.show();
+                
+                // Fetch detailed breakdown
+                fetch(`/api/accounting-details/?type=${statType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displayAccountingDetails(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stat details:', error);
+                        modalContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Error loading details. Please try again.
+                            </div>
+                        `;
+                    });
+            });
+        });
+        
+        function displayAccountingDetails(data) {
+            modalTitle.textContent = data.title;
+            
+            let html = `
+                <div class="mb-4">
+                    <div class="card" style="background: rgba(255,255,255,0.9) !important; border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="card-body">
+                            <h6 class="mb-3" style="color: #000000 !important; font-weight: 500;"><i class="fas fa-info-circle me-2" style="color: #000000 !important;"></i>Description</h6>
+                            <p class="mb-3" style="color: #000000 !important; font-weight: 400;">${data.description}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h5 class="mb-3" style="color: #ffffff !important; font-weight: 500;">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        ${data.type === 'total_transactions' || data.type === 'completed_transactions' ? 'Total: ' : 'Total: '}
+                        <span class="text-primary">
+                            ${data.type === 'total_transactions' || data.type === 'completed_transactions' 
+                                ? (data.total != null ? data.total.toLocaleString('en-US') : '0') 
+                                : '₱' + (data.total != null ? data.total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00')}
+                        </span>
+                    </h5>
+            `;
+            
+            if (data.total_revenue !== undefined && data.total_revenue != null) {
+                html += `
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card bg-success bg-opacity-10 border-success">
+                                <div class="card-body text-center">
+                                    <small class="text-muted">Total Revenue</small>
+                                    <div class="h5 mb-0">₱${(data.total_revenue || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-danger bg-opacity-10 border-danger">
+                                <div class="card-body text-center">
+                                    <small class="text-muted">Total Costs</small>
+                                    <div class="h5 mb-0">₱${(data.total_costs || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info bg-opacity-10 border-info">
+                                <div class="card-body text-center">
+                                    <small class="text-muted">Profit Margin</small>
+                                    <div class="h5 mb-0">${(data.profit_margin != null ? data.profit_margin : 0).toFixed(1)}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <h6 class="mb-3" style="color: #ffffff !important; font-weight: 500;"><i class="fas fa-list me-2"></i>Detailed Breakdown (Last 50 Records)</h6>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+            `;
+            
+            // Table headers based on type
+            if (data.type === 'cash_on_hand') {
+                html += `
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Type</th>
+                        <th>Payment Method</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                `;
+            } else if (data.type === 'accounts_receivable') {
+                html += `
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Type</th>
+                        <th>Total Amount</th>
+                        <th>Paid Amount</th>
+                        <th>Balance</th>
+                        <th>Date</th>
+                    </tr>
+                `;
+            } else if (data.type === 'total_profit') {
+                html += `
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Type</th>
+                        <th>Revenue</th>
+                        <th>Cost</th>
+                        <th>Profit</th>
+                        <th>Margin</th>
+                        <th>Date</th>
+                    </tr>
+                `;
+            } else if (data.type === 'total_costs') {
+                html += `
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Type</th>
+                        <th>Material Costs</th>
+                        <th>Labor Costs</th>
+                        <th>Total Cost</th>
+                        <th>Date</th>
+                    </tr>
+                `;
+            } else {
+                // Default table for sales-based stats (total_sales, monthly_sales, etc.)
+                html += `
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Type</th>
+                        <th>Payment Method</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Table rows
+            data.breakdown.forEach((item, index) => {
+                html += '<tr>';
+                if (data.type === 'cash_on_hand') {
+                    html += `
+                        <td><strong>${item.order_id || 'N/A'}</strong></td>
+                        <td>${item.customer || 'N/A'}</td>
+                        <td><span class="badge bg-info">${item.order_type || 'N/A'}</span></td>
+                        <td><span class="badge bg-secondary">${item.payment_method || 'N/A'}</span></td>
+                        <td><strong class="text-success">₱${(item.amount != null ? item.amount : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                        <td>${item.date || 'N/A'}</td>
+                    `;
+                } else if (data.type === 'accounts_receivable') {
+                    html += `
+                        <td><strong>${item.order_id || 'N/A'}</strong></td>
+                        <td>${item.customer || 'N/A'}</td>
+                        <td><span class="badge bg-info">${item.order_type || 'N/A'}</span></td>
+                        <td>₱${(item.total_amount != null ? item.total_amount : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>₱${(item.paid_amount != null ? item.paid_amount : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td><strong class="text-warning">₱${(item.balance != null ? item.balance : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                        <td>${item.date || 'N/A'}</td>
+                    `;
+                } else if (data.type === 'total_profit') {
+                    html += `
+                        <td><strong>${item.order_id || 'N/A'}</strong></td>
+                        <td>${item.customer || 'N/A'}</td>
+                        <td><span class="badge bg-info">${item.order_type || 'N/A'}</span></td>
+                        <td>₱${(item.revenue != null ? item.revenue : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="text-danger">₱${(item.cost != null ? item.cost : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td><strong class="text-success">₱${(item.profit != null ? item.profit : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                        <td><span class="badge ${(item.margin != null && item.margin >= 50) ? 'bg-success' : (item.margin != null && item.margin >= 20) ? 'bg-warning' : 'bg-danger'}">${(item.margin != null ? item.margin : 0).toFixed(1)}%</span></td>
+                        <td>${item.date || 'N/A'}</td>
+                    `;
+                } else if (data.type === 'total_costs') {
+                    html += `
+                        <td><strong>${item.order_id || 'N/A'}</strong></td>
+                        <td>${item.customer || 'N/A'}</td>
+                        <td><span class="badge bg-info">${item.order_type || 'N/A'}</span></td>
+                        <td>₱${(item.material_costs != null ? item.material_costs : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>₱${(item.labor_costs != null ? item.labor_costs : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td><strong class="text-danger">₱${(item.total_cost != null ? item.total_cost : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                        <td>${item.date || 'N/A'}</td>
+                    `;
+                } else {
+                    // Default rows for sales-based stats
+                    html += `
+                        <td><strong>${item.order_id || 'N/A'}</strong></td>
+                        <td>${item.customer || 'N/A'}</td>
+                        <td><span class="badge bg-info">${item.order_type || 'N/A'}</span></td>
+                        <td><span class="badge bg-secondary">${item.payment_method || 'Cash'}</span></td>
+                        <td><strong class="text-success">₱${(item.amount != null ? item.amount : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                        <td>${item.date || 'N/A'}</td>
+                    `;
+                }
+                html += '</tr>';
+                
+                // For total_costs, show item breakdown in expandable row
+                if (data.type === 'total_costs' && item.items && item.items.length > 0) {
+                    const collapseId = 'collapse-cost-' + index;
+                    html += `
+                        <tr class="bg-dark">
+                            <td colspan="7" class="p-0">
+                                <div class="collapse" id="${collapseId}">
+                                    <div class="card card-body bg-dark border-0 p-3">
+                                        <h6 class="text-muted mb-2">Item Breakdown:</h6>
+                                        <table class="table table-sm table-dark mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Quantity</th>
+                                                    <th>Unit Cost</th>
+                                                    <th>Total Cost</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                    `;
+                    item.items.forEach(item_detail => {
+                        html += `
+                            <tr>
+                                <td>${item_detail.product || 'N/A'}</td>
+                                <td>${item_detail.quantity || '0'}</td>
+                                <td>₱${(item_detail.unit_cost != null ? item_detail.unit_cost : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>₱${(item_detail.total_cost != null ? item_detail.total_cost : 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            </tr>
+                        `;
+                    });
+                    html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false">
+                                    <i class="fas fa-chevron-down me-1"></i> Show Item Details
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            modalContent.innerHTML = html;
+        }
+    });
+    
+    // Search and Filter Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const dateFilter = document.getElementById('dateFilter');
+        const paymentFilter = document.getElementById('paymentFilter');
+        const table = document.getElementById('salesTable');
+        
+        if (table) {
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const dateValue = dateFilter.value;
+                const paymentValue = paymentFilter.value;
+                const today = new Date();
+                
+                Array.from(rows).forEach(row => {
+                    const orderId = row.cells[0].textContent.toLowerCase();
+                    const customer = row.cells[1].textContent.toLowerCase();
+                    const payment = row.cells[3].textContent.toLowerCase();
+                    const dateStr = row.cells[5].textContent;
+                    
+                    // Search filter
+                    const matchesSearch = orderId.includes(searchTerm) || customer.includes(searchTerm);
+                    
+                    // Date filter
+                    let matchesDate = true;
+                    if (dateValue !== 'all') {
+                        const rowDate = new Date(dateStr);
+                        switch(dateValue) {
+                            case 'today':
+                                matchesDate = rowDate.toDateString() === today.toDateString();
+                                break;
+                            case 'week':
+                                const weekAgo = new Date(today);
+                                weekAgo.setDate(weekAgo.getDate() - 7);
+                                matchesDate = rowDate >= weekAgo;
+                                break;
+                            case 'month':
+                                matchesDate = rowDate.getMonth() === today.getMonth() && 
+                                            rowDate.getFullYear() === today.getFullYear();
+                                break;
+                            case 'year':
+                                matchesDate = rowDate.getFullYear() === today.getFullYear();
+                                break;
+                        }
+                    }
+                    
+                    // Payment filter
+                    const matchesPayment = paymentValue === 'all' || payment.includes(paymentValue.toLowerCase());
+                    
+                    row.style.display = (matchesSearch && matchesDate && matchesPayment) ? '' : 'none';
+                });
+            }
+            
+            searchInput.addEventListener('input', filterTable);
+            dateFilter.addEventListener('change', filterTable);
+            paymentFilter.addEventListener('change', filterTable);
+        }
     });
 </script>
+
+<style>
+.stat-card-teal {
+    background: linear-gradient(135deg, #20bf6b 0%, #01a3a4 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-teal i {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+#paymentMethodList {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Professional Accounting Card Styles */
+.accounting-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.accounting-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.accounting-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.accounting-card-success:hover {
+    box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5), 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.accounting-card-warning:hover {
+    box-shadow: 0 12px 35px rgba(251, 146, 60, 0.5), 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.accounting-card-info:hover {
+    box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5), 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.accounting-card-danger:hover {
+    box-shadow: 0 12px 35px rgba(239, 68, 68, 0.5), 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Override base template's white background for accounting cards */
+.card.accounting-card {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    height: 140px !important;
+    min-height: 140px !important;
+    margin-bottom: 1rem !important;
+}
+
+.accounting-card .card-body {
+    padding: 0.75rem !important;
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    height: 100% !important;
+}
+
+/* Cash on Hand - Rich Green/Emerald Gradient */
+.card.accounting-card.accounting-card-success,
+.accounting-card.accounting-card-success {
+    background: linear-gradient(135deg, #047857 0%, #10b981 50%, #6ee7b7 100%) !important;
+    background-color: transparent !important;
+    color: white !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+}
+
+.accounting-card-success::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.accounting-card-success i {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.accounting-card-success .stat-number {
+    color: white;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive */
+}
+
+.accounting-card-success small {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+/* Accounts Receivable - Vibrant Orange/Amber Gradient */
+.card.accounting-card.accounting-card-warning,
+.accounting-card.accounting-card-warning {
+    background: linear-gradient(135deg, #ea580c 0%, #fb923c 50%, #fcd34d 100%) !important;
+    background-color: transparent !important;
+    color: white !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(251, 146, 60, 0.4) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+}
+
+.accounting-card-warning::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.accounting-card-warning i {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.accounting-card-warning .stat-number {
+    color: white;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive */
+}
+
+.accounting-card-warning small {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+/* Total Profit - Deep Blue/Purple Gradient */
+.card.accounting-card.accounting-card-info,
+.accounting-card.accounting-card-info {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%) !important;
+    background-color: transparent !important;
+    color: white !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+}
+
+.accounting-card-info::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.accounting-card-info i {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.accounting-card-info .stat-number {
+    color: white;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive */
+}
+
+.accounting-card-info small {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+/* Total Costs - Bold Red/Crimson Gradient */
+.card.accounting-card.accounting-card-danger,
+.accounting-card.accounting-card-danger {
+    background: linear-gradient(135deg, #991b1b 0%, #ef4444 50%, #fca5a5 100%) !important;
+    background-color: transparent !important;
+    color: white !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4) !important;
+    border: none !important;
+    backdrop-filter: none !important;
+}
+
+.accounting-card-danger::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+}
+
+.accounting-card-danger i {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.accounting-card-danger .stat-number {
+    color: white;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive */
+}
+
+.accounting-card-danger small {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+/* Print Styles */
+@media print {
+    .btn, .pagination, .input-group, .card-header .btn {
+        display: none !important;
+    }
+    
+    .card {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+    }
+    
+    .stat-number {
+        font-size: clamp(1.25rem, 4vw, 1.5rem); /* Responsive stat number */
+    }
+    
+    /* Responsive stat numbers on mobile */
+    @media (max-width: 768px) {
+        .stat-number {
+            font-size: clamp(1.1rem, 3.5vw, 1.35rem) !important;
+        }
+        
+        .accounting-card .stat-number {
+            font-size: clamp(1rem, 3vw, 1.25rem) !important;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stat-number {
+            font-size: clamp(1rem, 3vw, 1.2rem) !important;
+        }
+    }
+    
+    body {
+        background: white !important;
+    }
+    
+    .sidebar, nav, .navbar {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .accounting-card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+    
+    .accounting-card:hover {
+        transform: none !important;
+    }
+}
+
+/* Expandable Card Styles */
+.expandable-card {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.expandable-card.expanded {
+    z-index: 1000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.expandable-card.expanded .expandable-content {
+    min-height: 400px;
+}
+
+.expandable-card.expanded .expandable-content canvas {
+    height: 350px !important;
+}
+
+.expandable-card.expanded[data-card-id="dailySalesCard"] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.expandable-card.expanded[data-card-id="paymentMethodCard"] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.expandable-card.expanded[data-card-id="costAccountingCard"],
+.expandable-card.expanded[data-card-id="serviceTypeCard"] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.expandable-card.expanded[data-card-id="profitableOrdersCard"] {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 95vw;
+    max-width: 1400px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.expand-indicator {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+/* Overlay for expanded cards */
+.card-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 999;
+    backdrop-filter: blur(2px);
+}
+
+.card-overlay.active {
+    display: block;
+}
+
+/* Accounting Modal Styling - No dark backdrop */
+.modal-backdrop {
+    background-color: transparent !important;
+    z-index: 1040 !important;
+    pointer-events: none !important;
+}
+
+.modal-backdrop.show {
+    opacity: 0 !important;
+    display: none !important;
+}
+
+#accountingDetailsModal {
+    z-index: 1050 !important;
+    pointer-events: auto !important;
+}
+
+#accountingDetailsModal.show {
+    display: block !important;
+}
+
+#accountingDetailsModal .modal-dialog {
+    z-index: 1051 !important;
+    margin: 1.75rem auto;
+    pointer-events: auto !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#accountingDetailsModal .modal-content {
+    pointer-events: auto !important;
+    max-height: 90vh;
+    overflow: visible;
+}
+
+#accountingDetailsModal .modal-body {
+    pointer-events: auto !important;
+    overflow-y: auto !important;
+    max-height: 70vh !important;
+}
+
+/* Modal Title - Bright White */
+#accountingDetailsModal .modal-title,
+#accountingDetailsModal .modal-title span,
+#accountingDetailsModalLabel,
+#modalTitle {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Stat Card Labels - Bright White */
+.stat-card .card-body div:last-child,
+.stat-card .card-body > div:not(.stat-number):not(small) {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
+}
+
+.stat-card .card-body small {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Ensure card overlay doesn't interfere with modal */
+.card-overlay {
+    z-index: 999 !important;
+}
+
+body.modal-open .card-overlay {
+    display: none !important;
+}
+</style>
 {% endblock %}

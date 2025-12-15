@@ -1,0 +1,201 @@
+{% extends 'business/base.html' %}
+
+{% block title %}{{ staff.get_full_name|default:staff.username }} - Staff Details{% endblock %}
+{% block page_title %}Staff Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .staff-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .staff-avatar-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: white;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 3rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .orders-table {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .activity-item {
+        padding: 15px;
+        border-left: 3px solid #667eea;
+        background: #f8f9fa;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Staff Header -->
+<div class="staff-header">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <div class="staff-avatar-large me-4">
+                {{ staff.first_name|first|default:staff.username|first|upper }}
+            </div>
+            <div>
+                <h2 class="mb-1">{{ staff.get_full_name|default:staff.username }}</h2>
+                <p class="mb-1"><i class="fas fa-user me-2"></i>@{{ staff.username }}</p>
+                {% if staff.email %}
+                <p class="mb-0"><i class="fas fa-envelope me-2"></i>{{ staff.email }}</p>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'staff_management' %}" class="btn btn-light">
+            <i class="fas fa-arrow-left me-2"></i>Back to Staff
+        </a>
+    </div>
+</div>
+
+<!-- Staff Information -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="info-card">
+            <h5 class="mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Account Information</h5>
+            <div class="mb-2">
+                <strong>Username:</strong> {{ staff.username }}
+            </div>
+            <div class="mb-2">
+                <strong>Email:</strong> {{ staff.email|default:"Not provided" }}
+            </div>
+            <div class="mb-2">
+                <strong>Name:</strong> {{ staff.get_full_name|default:"Not provided" }}
+            </div>
+            <div class="mb-2">
+                <strong>Status:</strong> 
+                {% if staff.is_active %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="mb-2">
+                <strong>Joined:</strong> {{ staff.date_joined|date:"M d, Y" }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="info-card">
+            <h5 class="mb-3"><i class="fas fa-chart-line me-2 text-success"></i>Performance Summary</h5>
+            <div class="row text-center">
+                <div class="col-md-4 mb-3">
+                    <h3 class="text-primary">{{ assigned_orders.count }}</h3>
+                    <p class="text-muted mb-0">Total Assigned</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h3 class="text-success">{{ assigned_orders|length|add:"-"|add:assigned_orders.filter|length }}</h3>
+                    <p class="text-muted mb-0">Completed</p>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <h3 class="text-warning">{% widthratio assigned_orders.filter.count assigned_orders.count 100 %}%</h3>
+                    <p class="text-muted mb-0">Completion Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assigned Orders -->
+<div class="orders-table">
+    <div class="card-header bg-gradient text-white p-3">
+        <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Assigned Orders ({{ assigned_orders.count }})</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Service Type</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in assigned_orders %}
+                <tr>
+                    <td><strong>{{ order.order_identifier|default:order.id }}</strong></td>
+                    <td><span class="badge bg-info">{{ order.get_order_type_display }}</span></td>
+                    <td>{{ order.customer.name|default:"N/A" }}</td>
+                    <td>₱{{ order.total_amount|floatformat:2 }}</td>
+                    <td>
+                        {% if order.status == 'completed' %}
+                            <span class="badge bg-success">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No orders assigned yet.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="info-card">
+    <h5 class="mb-3"><i class="fas fa-history me-2 text-info"></i>Recent Activity</h5>
+    {% for activity in activities %}
+    <div class="activity-item">
+        <div class="d-flex justify-content-between">
+            <div>
+                <strong>{{ activity.get_activity_type_display }}</strong>
+                <p class="mb-0 text-muted">{{ activity.description }}</p>
+            </div>
+            <small class="text-muted">{{ activity.created_at|timesince }} ago</small>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted text-center py-3">No recent activity.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+

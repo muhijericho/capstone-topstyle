@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}TopStyle Business Management{% endblock %}</title>
     
     <!-- PWA Meta Tags -->
@@ -46,105 +46,39 @@
             height: 100vh;
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             color: white;
-            z-index: 1000;
+            z-index: 1050;
             overflow-y: auto;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            transition: width 0.3s ease, transform 0.3s ease;
-            transform: translateX(-130px);
-        }
-        
-        /* Collapsed state - show only 70px */
-        .sidebar.collapsed {
-            width: 70px;
             transform: translateX(0);
         }
         
-        /* Expanded state on hover */
-        .sidebar:hover {
-            transform: translateX(0);
-            width: 200px;
-        }
-        
-        /* Hide text when collapsed */
-        .sidebar.collapsed .nav-link span,
-        .sidebar.collapsed .logo-text-left,
-        .sidebar.collapsed .logo-text-right,
-        .sidebar.collapsed .logo-tagline,
-        .sidebar.collapsed .btn span {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            width: 0;
-            overflow: hidden;
-        }
-        
-        /* Show text when expanded or on hover */
-        .sidebar:hover .nav-link span,
-        .sidebar:hover .logo-text-left,
-        .sidebar:hover .logo-text-right,
-        .sidebar:hover .logo-tagline,
-        .sidebar:hover .btn span {
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            width: auto;
-        }
-        
-        /* Ensure logo text is visible when not collapsed */
+        /* Ensure all text is always visible */
         .sidebar .nav-link span,
         .sidebar .logo-text-left,
         .sidebar .logo-text-right,
         .sidebar .logo-tagline,
         .sidebar .btn span {
             opacity: 1;
-            transition: opacity 0.3s ease;
             width: auto;
         }
         
-        /* Center icons when collapsed */
-        .sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px;
-        }
-        
-        .sidebar.collapsed .nav-link i {
-            margin: 0;
-        }
-        
-        /* Logo adjustments for collapsed state */
-        .sidebar.collapsed .logo-wrapper {
-            max-width: 50px;
-            padding: 8px;
-        }
-        
-        .sidebar.collapsed .logo-main {
-            justify-content: center;
-        }
-        
-        .sidebar.collapsed .logo-icon {
-            margin: 0;
-        }
-        
-        /* Logo adjustments for expanded state */
-        .sidebar:hover .logo-wrapper {
+        /* Logo adjustments for fixed open state */
+        .sidebar .logo-wrapper {
             max-width: 180px;
             padding: 12px 16px;
         }
         
-        .sidebar:hover .logo-main {
+        .sidebar .logo-main {
             justify-content: center;
         }
         
-        .sidebar:hover .logo-icon {
+        .sidebar .logo-icon {
             margin: 0 8px;
         }
         
-        /* Logout button adjustments */
-        .sidebar.collapsed .logout-btn .btn {
-            padding: 12px;
-            justify-content: center;
-        }
-        
-        .sidebar.collapsed .logout-btn .btn i {
-            margin: 0;
+        /* Hide sidebar toggle button since sidebar is always open */
+        .sidebar-toggle-btn {
+            display: none;
         }
         
         /* Navbar enhancement */
@@ -153,21 +87,75 @@
             backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: relative !important;
+            z-index: 1000 !important;
+        }
+        
+        /* Comprehensive Mobile Responsiveness */
+        
+        /* Tablet Styles (768px - 992px) */
+        @media (max-width: 992px) {
+            .main-content {
+                padding: 10px !important;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .stat-card {
+                height: 120px;
+                min-height: 120px;
+            }
+            
+            .stat-number {
+                font-size: 2rem !important;
+            }
         }
         
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             .sidebar {
-                width: 200px;
+                width: 250px;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
+                z-index: 1050;
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
             }
             .sidebar.show {
                 transform: translateX(0);
             }
             .main-content {
-                margin-left: 0;
-                width: 100%;
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 10px !important;
+            }
+            
+            /* Show toggle button on mobile */
+            .sidebar-toggle-btn {
+                display: flex !important;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1060;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            }
+            
+            /* Sidebar overlay when open */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1040;
+            }
+            .sidebar-overlay.show {
+                display: block;
             }
             
             /* Mobile-specific touch optimizations */
@@ -175,12 +163,509 @@
                 min-height: 44px;
                 min-width: 44px;
                 touch-action: manipulation;
+                padding: 10px 15px !important;
             }
             
             /* Prevent zoom on input focus */
             input, select, textarea {
-                font-size: 16px;
+                font-size: 16px !important;
+                padding: 12px !important;
             }
+            
+            /* Responsive tables */
+            .table-responsive {
+                border-radius: 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                font-size: 0.875rem;
+                min-width: 600px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 10px !important;
+                white-space: nowrap;
+            }
+            
+            /* Cards on mobile */
+            .card {
+                border-radius: 10px;
+                margin-bottom: 1rem;
+            }
+            
+            .card-header {
+                padding: 12px 15px !important;
+                font-size: 0.95rem;
+            }
+            
+            .card-body {
+                padding: 15px !important;
+            }
+            
+            /* Stat cards on mobile */
+            .stat-card {
+                height: 100px;
+                min-height: 100px;
+                margin-bottom: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem !important;
+            }
+            
+            .stat-card .card-body i {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.25rem;
+            }
+            
+            /* Navbar on mobile */
+            .navbar {
+                padding: 10px 15px !important;
+            }
+            
+            .navbar-brand {
+                font-size: 1.2rem !important;
+            }
+            
+            /* Forms on mobile */
+            .form-label {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .form-control,
+            .form-select {
+                font-size: 16px;
+                padding: 12px;
+                border-radius: 8px;
+            }
+            
+            .input-group {
+                flex-wrap: wrap;
+            }
+            
+            .input-group > .form-control,
+            .input-group > .form-select {
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+            
+            /* Buttons on mobile */
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+                margin-bottom: 5px;
+                border-radius: 8px !important;
+            }
+            
+            /* Modals on mobile */
+            .modal-dialog {
+                margin: 10px !important;
+                max-width: calc(100% - 20px) !important;
+            }
+            
+            .modal-content {
+                border-radius: 10px;
+            }
+            
+            .modal-header,
+            .modal-footer {
+                padding: 12px 15px !important;
+            }
+            
+            .modal-body {
+                padding: 15px !important;
+            }
+            
+            /* Container and rows */
+            .container-fluid {
+                padding-left: 10px !important;
+                padding-right: 10px !important;
+            }
+            
+            .row {
+                margin-left: -5px;
+                margin-right: -5px;
+            }
+            
+            .row > * {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+            
+            /* Responsive columns - stack on mobile */
+            .col-md-6,
+            .col-md-4,
+            .col-md-3,
+            .col-md-8,
+            .col-md-12 {
+                margin-bottom: 15px;
+            }
+            
+            /* Hide less important elements on mobile */
+            .d-none-mobile {
+                display: none !important;
+            }
+            
+            /* Text sizes on mobile */
+            h1 { font-size: 1.75rem !important; }
+            h2 { font-size: 1.5rem !important; }
+            h3 { font-size: 1.25rem !important; }
+            h4 { font-size: 1.1rem !important; }
+            h5 { font-size: 1rem !important; }
+            h6 { font-size: 0.95rem !important; }
+            
+            /* Badges on mobile */
+            .badge {
+                font-size: 0.75rem;
+                padding: 5px 10px;
+            }
+            
+            /* Status badges */
+            .status-badge {
+                font-size: 0.75rem !important;
+                padding: 4px 10px !important;
+            }
+            
+            /* Connection status indicator */
+            #connection-status {
+                font-size: 0.75rem !important;
+                padding: 4px 8px !important;
+            }
+        }
+        
+        /* Small Mobile (576px and below) */
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 8px !important;
+            }
+            
+            .stat-card {
+                height: 90px;
+                min-height: 90px;
+            }
+            
+            .stat-number {
+                font-size: 1.25rem !important;
+            }
+            
+            .stat-card .card-body i {
+                font-size: 1.25rem !important;
+            }
+            
+            .card-header {
+                padding: 10px 12px !important;
+                font-size: 0.9rem;
+            }
+            
+            .card-body {
+                padding: 12px !important;
+            }
+            
+            .btn {
+                padding: 8px 12px !important;
+                font-size: 0.875rem;
+            }
+            
+            .table {
+                font-size: 0.8rem;
+                min-width: 500px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 6px 8px !important;
+            }
+            
+            h1 { font-size: 1.5rem !important; }
+            h2 { font-size: 1.3rem !important; }
+            h3 { font-size: 1.15rem !important; }
+            h4 { font-size: 1rem !important; }
+            
+            .navbar-brand {
+                font-size: 1.1rem !important;
+            }
+        }
+        
+        /* Extra Small Mobile (360px and below) */
+        @media (max-width: 360px) {
+            .stat-card {
+                height: 80px;
+                min-height: 80px;
+            }
+            
+            .stat-number {
+                font-size: 1.1rem !important;
+            }
+            
+            .btn {
+                padding: 6px 10px !important;
+                font-size: 0.8rem;
+            }
+            
+            .main-content {
+                padding: 5px !important;
+            }
+            
+            .modal-dialog {
+                margin: 5px !important;
+                max-width: calc(100% - 10px) !important;
+            }
+            
+            .table {
+                font-size: 0.75rem;
+                min-width: 400px;
+            }
+        }
+        
+        /* Additional Responsive Enhancements */
+        /* Ensure all images are responsive */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Responsive video and iframe */
+        video, iframe, embed, object {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Responsive canvas elements */
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Ensure all forms are responsive */
+        @media (max-width: 768px) {
+            .form-control,
+            .form-select,
+            .form-check-input,
+            textarea {
+                width: 100% !important;
+                min-width: 0 !important;
+                font-size: 16px !important; /* Prevents iOS zoom */
+            }
+            
+            /* Stack form groups vertically */
+            .row .col-md-6,
+            .row .col-md-4,
+            .row .col-md-3,
+            .row .col-md-8,
+            .row .col-md-12 {
+                width: 100% !important;
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 1rem;
+            }
+            
+            /* Responsive input groups */
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group > * {
+                width: 100% !important;
+                border-radius: 8px !important;
+                margin-bottom: 0.5rem;
+            }
+            
+            .input-group > :first-child {
+                border-bottom-left-radius: 8px !important;
+                border-top-right-radius: 8px !important;
+            }
+            
+            .input-group > :last-child {
+                border-top-right-radius: 8px !important;
+                border-bottom-left-radius: 8px !important;
+            }
+        }
+        
+        /* Touch-friendly buttons everywhere */
+        @media (hover: none) and (pointer: coarse) {
+            .btn,
+            button,
+            a.btn,
+            .nav-link,
+            .dropdown-item,
+            .card,
+            input[type="button"],
+            input[type="submit"],
+            input[type="reset"],
+            .form-check-label {
+                min-height: 44px !important;
+                min-width: 44px !important;
+                padding: 10px 15px !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: rgba(30, 58, 138, 0.3) !important;
+            }
+            
+            /* Larger touch targets for important buttons */
+            .btn-primary,
+            .btn-success,
+            .btn-danger,
+            .btn-warning {
+                min-height: 48px !important;
+                padding: 12px 20px !important;
+            }
+        }
+        
+        /* Landscape orientation fixes */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .modal-dialog {
+                max-height: calc(100vh - 20px) !important;
+            }
+            
+            .modal-body {
+                max-height: calc(100vh - 160px) !important;
+                overflow-y: auto !important;
+            }
+            
+            .navbar {
+                padding: 8px 15px !important;
+            }
+        }
+        
+        /* Ensure all tables have responsive wrapper even if class is missing */
+        @media (max-width: 768px) {
+            /* Auto-wrap any table without table-responsive class */
+            .card-body > table,
+            .table:not(.table-responsive),
+            div > table {
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
+            
+            .card-body > table > thead,
+            .table:not(.table-responsive) > thead,
+            div > table > thead {
+                display: block;
+                width: 100%;
+            }
+            
+            .card-body > table > tbody,
+            .table:not(.table-responsive) > tbody,
+            div > table > tbody {
+                display: block;
+                width: 100%;
+            }
+            
+            .card-body > table tr,
+            .table:not(.table-responsive) tr,
+            div > table tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+                min-width: 600px;
+            }
+        }
+        
+        /* Ensure dropdowns work on mobile */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                max-width: calc(100vw - 40px);
+                right: 10px !important;
+                left: auto !important;
+            }
+            
+            .dropdown-menu.show {
+                position: fixed !important;
+                z-index: 9999 !important;
+            }
+        }
+        
+        /* Fix any overflow issues */
+        @media (max-width: 768px) {
+            * {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            
+            body {
+                overflow-x: hidden;
+            }
+            
+            .main-content {
+                overflow-x: hidden;
+            }
+            
+            .container,
+            .container-fluid {
+                overflow-x: hidden;
+            }
+        }
+        
+        /* Ensure all form elements are accessible on mobile */
+        @media (max-width: 768px) {
+            select,
+            textarea,
+            input[type="text"],
+            input[type="email"],
+            input[type="number"],
+            input[type="password"],
+            input[type="date"],
+            input[type="time"],
+            input[type="datetime-local"],
+            input[type="tel"],
+            input[type="url"] {
+                font-size: 16px !important; /* Prevents iOS zoom */
+                width: 100% !important;
+                padding: 12px !important;
+                border-radius: 8px;
+            }
+        }
+        
+        /* Responsive images and media */
+        @media (max-width: 768px) {
+            img,
+            video,
+            iframe,
+            embed,
+            object {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            canvas {
+                max-width: 100% !important;
+            }
+        }
+        
+        /* Install App Button - Ensure it's a regular button size, not a banner */
+        button.position-fixed.btn-primary,
+        button.position-fixed.btn-success {
+            width: auto !important;
+            min-width: auto !important;
+            max-width: none !important;
+            white-space: nowrap !important;
+            padding: 10px 20px !important;
+        }
+        
+        /* Responsive Install App button on mobile */
+        @media (max-width: 768px) {
+            button.position-fixed.btn-primary,
+            button.position-fixed.btn-success {
+                padding: 8px 16px !important;
+                font-size: 0.875rem !important;
+                bottom: 15px !important;
+                right: 15px !important;
+            }
+        }
+        
+        /* Ensure fixed position buttons don't stretch */
+        .btn.position-fixed:not(.w-100):not([style*="width: 100%"]) {
+            width: auto !important;
+            min-width: auto !important;
         }
         
         /* iOS-specific optimizations */
@@ -216,37 +701,17 @@
             }
         }
         
-        /* Desktop behavior */
+        /* Desktop behavior - sidebar always open */
         @media (min-width: 769px) {
-            .sidebar.collapsed {
-                width: 70px;
-                transform: translateX(0);
-            }
-            .sidebar.collapsed .nav-link span,
-            .sidebar.collapsed .logo-text-left,
-            .sidebar.collapsed .logo-text-right,
-            .sidebar.collapsed .logo-tagline,
-            .sidebar.collapsed .btn span {
-                opacity: 0;
-                width: 0;
-                overflow: hidden;
-            }
-            .sidebar:hover {
-                transform: translateX(0);
+            .sidebar {
                 width: 200px;
+                transform: translateX(0);
             }
-            .sidebar:hover .nav-link span,
-            .sidebar:hover .logo-text-left,
-            .sidebar:hover .logo-text-right,
-            .sidebar:hover .logo-tagline,
-            .sidebar:hover .btn span {
-                opacity: 1;
-                width: auto;
-            }
-            /* Ensure logo is visible when not collapsed */
+            .sidebar .nav-link span,
             .sidebar .logo-text-left,
             .sidebar .logo-text-right,
-            .sidebar .logo-tagline {
+            .sidebar .logo-tagline,
+            .sidebar .btn span {
                 opacity: 1;
                 width: auto;
             }
@@ -269,15 +734,49 @@
         .main-content {
             background-color: #9ca3af;
             min-height: 100vh;
-            margin-left: 70px;
-            width: calc(100% - 70px);
+            margin-left: 200px;
+            width: calc(100% - 200px);
             position: relative;
+            {% if system_settings and system_settings.background_image %}
+            background-image: url('{{ system_settings.background_image.url }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: transparent;
+            opacity: 1;
+            {% endif %}
         }
         
         .main-content > * {
             position: relative;
             z-index: 2;
         }
+        
+        {% if system_settings and system_settings.background_image %}
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1;
+        }
+        
+        /* Make cards more transparent to show background better */
+        .main-content .card:not(.stat-card) {
+            background: rgba(255, 255, 255, 0.92) !important;
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Make navbar more transparent */
+        .main-content .navbar {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(15px);
+        }
+        {% endif %}
         
         /* Global text visibility improvements */
         .main-content {
@@ -300,7 +799,7 @@
         .main-content .text-dark {
             color: #111827 !important;
         }
-        .card {
+        .card:not(.stat-card) {
             border: none;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -309,37 +808,121 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
-        .card:hover {
+        .card:not(.stat-card):hover {
             transform: translateY(-5px);
         }
         .stat-card {
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            height: 120px;
-            min-height: 120px;
+            border: none !important;
+            height: 140px;
+            min-height: 140px;
             margin-bottom: 1rem;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
             color: white !important;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: transparent !important;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background: radial-gradient(circle at top right, rgba(255,255,255,0.4), transparent);
+            z-index: 0;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+        }
+        
+        /* Responsive Stat Card Icons and Text */
+        .stat-card .card-body i {
+            font-size: clamp(1.5rem, 4vw, 2rem) !important; /* Responsive icon size */
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-number {
+            font-size: clamp(1.5rem, 5vw, 2.5rem) !important; /* Responsive number size */
+            font-weight: 800;
+            color: white !important;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            margin-bottom: 0.25rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+        
+        .stat-card .card-body > div:not(.stat-number) {
+            font-size: clamp(0.75rem, 2vw, 1rem) !important; /* Responsive label size */
+            font-weight: 600;
+            color: white !important;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+            opacity: 0.95;
+            line-height: 1.3;
         }
         
         .stat-card-blue {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         }
         
         .stat-card-orange {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
         }
         
         .stat-card-green {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
         }
         
         .stat-card-purple {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
         }
         
         .stat-card-teal {
-            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+        }
+        
+        .stat-card-pink {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%) !important;
+        }
+        
+        .stat-card-cyan {
+            background: linear-gradient(135deg, #30cfd0 0%, #330867 100%) !important;
+        }
+        
+        .stat-card-yellow {
+            background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%) !important;
+        }
+        
+        .stat-card-red {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+        }
+        
+        /* Archive page stat cards */
+        .stat-card-total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .stat-card-products {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        }
+        
+        .stat-card-orders {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        }
+        
+        .stat-card-customers {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
         }
         
         @media (max-width: 768px) {
@@ -348,9 +931,60 @@
                 min-height: 100px;
             }
             .stat-number {
-                font-size: 1.5rem;
+                font-size: clamp(1.25rem, 4vw, 1.75rem) !important;
                 color: white !important;
                 text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+            
+            .stat-card .card-body i {
+                font-size: clamp(1rem, 3vw, 1.5rem) !important;
+                margin-bottom: 0.35rem;
+            }
+            
+            .stat-card .card-body div:last-child {
+                font-size: clamp(0.7rem, 1.8vw, 0.875rem) !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stat-card {
+                height: 90px;
+                min-height: 90px;
+                padding: 0.5rem;
+            }
+            
+            .stat-number {
+                font-size: clamp(1.1rem, 3.5vw, 1.5rem) !important;
+            }
+            
+            .stat-card .card-body i {
+                font-size: clamp(0.9rem, 2.5vw, 1.25rem) !important;
+                margin-bottom: 0.25rem;
+            }
+            
+            .stat-card .card-body div:last-child {
+                font-size: clamp(0.65rem, 1.5vw, 0.8rem) !important;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .stat-card {
+                height: 80px;
+                min-height: 80px;
+                padding: 0.4rem;
+            }
+            
+            .stat-number {
+                font-size: clamp(1rem, 3vw, 1.3rem) !important;
+            }
+            
+            .stat-card .card-body i {
+                font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+                margin-bottom: 0.2rem;
+            }
+            
+            .stat-card .card-body div:last-child {
+                font-size: clamp(0.6rem, 1.3vw, 0.75rem) !important;
             }
         }
         .stat-card .card-body {
@@ -361,27 +995,67 @@
             align-items: center;
             text-align: center;
             height: 100%;
+            position: relative;
+            z-index: 2;
+            background: transparent !important;
         }
         
+        /* Responsive Stat Card Icons - Override FontAwesome fixed sizes */
         .stat-card .card-body i {
             color: white !important;
             margin-bottom: 0.5rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+            font-size: clamp(1.25rem, 3.5vw, 2rem) !important; /* Responsive icon size */
+            width: auto !important;
+            height: auto !important;
+            line-height: 1 !important;
+        }
+        
+        /* Override FontAwesome fixed sizes for responsive behavior */
+        .stat-card .card-body i.fa-2x {
+            font-size: clamp(1.25rem, 3.5vw, 2rem) !important;
+        }
+        
+        .stat-card .card-body i.fa-3x {
+            font-size: clamp(1.5rem, 4vw, 3rem) !important;
+        }
+        
+        .stat-card .card-body i.fa-4x {
+            font-size: clamp(2rem, 5vw, 4rem) !important;
+        }
+        
+        .stat-card .card-body i.fa-lg {
+            font-size: clamp(1rem, 2.5vw, 1.33rem) !important;
+        }
+        
+        .stat-card .card-body i.fa-xl {
+            font-size: clamp(1.125rem, 3vw, 1.5rem) !important;
         }
         
         .stat-card .card-body div:last-child {
             color: white !important;
             font-weight: 600;
-            font-size: 0.9rem;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            font-size: clamp(0.75rem, 2vw, 1rem) !important; /* Responsive label size */
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+            opacity: 0.95;
+            line-height: 1.3;
         }
+        
         .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: clamp(1.5rem, 5vw, 2.5rem) !important; /* Responsive number size */
+            font-weight: 800;
             color: white !important;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 3px 10px rgba(0,0,0,0.3);
             margin-bottom: 0.25rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
         }
+        .stat-card-click { cursor: pointer; }
         .btn-primary {
             background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
             border: none;
@@ -392,11 +1066,231 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        
+        /* Responsive Forms */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-row > * {
+                width: 100% !important;
+                margin-bottom: 1rem;
+            }
+            
+            .input-group {
+                flex-wrap: wrap;
+            }
+            
+            .input-group > * {
+                flex: 1 1 auto;
+            }
+        }
+        
+        /* Responsive Cards and Modals */
+        @media (max-width: 768px) {
+            .card-columns {
+                column-count: 1 !important;
+            }
+            
+            .modal-dialog-centered {
+                min-height: auto;
+            }
+            
+            .modal-fullscreen {
+                max-width: 100% !important;
+                margin: 0 !important;
+                height: 100vh !important;
+            }
+            
+            /* Force all modals to be responsive */
+            .modal-dialog {
+                margin: 10px !important;
+                max-width: calc(100% - 20px) !important;
+                width: calc(100% - 20px) !important;
+            }
+            
+            .modal-content {
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            
+            /* Fix fixed-width modals */
+            .modal-dialog[style*="width"],
+            .modal-dialog[style*="max-width"],
+            .modal-content[style*="width"],
+            .modal-content[style*="height"] {
+                max-width: calc(100% - 20px) !important;
+                width: calc(100% - 20px) !important;
+                height: auto !important;
+                max-height: calc(100vh - 40px) !important;
+            }
+            
+            .modal-body {
+                max-height: calc(100vh - 180px) !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            /* Responsive modal sizes */
+            .modal-xl,
+            .modal-lg,
+            .modal-md,
+            .modal-sm {
+                max-width: calc(100% - 20px) !important;
+            }
+        }
+        
+        /* Responsive Utilities */
+        .text-responsive {
+            font-size: clamp(0.875rem, 2vw, 1rem);
+        }
+        
+        .h-responsive {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+        }
+        
+        /* Global Responsive Icons - Make all FontAwesome icons responsive */
+        /* Override FontAwesome fixed sizes for responsive behavior across all pages */
+        @media (max-width: 768px) {
+            /* Make fa-2x responsive on mobile */
+            i.fa-2x {
+                font-size: clamp(1rem, 3vw, 1.5rem) !important;
+            }
+            
+            /* Make fa-3x responsive on mobile */
+            i.fa-3x {
+                font-size: clamp(1.25rem, 3.5vw, 2rem) !important;
+            }
+            
+            /* Make fa-4x responsive on mobile */
+            i.fa-4x {
+                font-size: clamp(1.5rem, 4vw, 2.5rem) !important;
+            }
+            
+            /* Make fa-5x responsive on mobile */
+            i.fa-5x {
+                font-size: clamp(2rem, 5vw, 3rem) !important;
+            }
+            
+            /* Make fa-lg responsive on mobile */
+            i.fa-lg {
+                font-size: clamp(0.875rem, 2.5vw, 1.125rem) !important;
+            }
+            
+            /* Make fa-xl responsive on mobile */
+            i.fa-xl {
+                font-size: clamp(1rem, 3vw, 1.25rem) !important;
+            }
+            
+            /* Responsive icons in cards */
+            .card i.fa-2x,
+            .card-body i.fa-2x {
+                font-size: clamp(1rem, 3vw, 1.5rem) !important;
+            }
+            
+            .card i.fa-3x,
+            .card-body i.fa-3x {
+                font-size: clamp(1.25rem, 3.5vw, 2rem) !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            /* Smaller icons on small mobile */
+            i.fa-2x {
+                font-size: clamp(0.9rem, 2.5vw, 1.25rem) !important;
+            }
+            
+            i.fa-3x {
+                font-size: clamp(1.1rem, 3vw, 1.75rem) !important;
+            }
+            
+            i.fa-4x {
+                font-size: clamp(1.3rem, 3.5vw, 2.25rem) !important;
+            }
+            
+            i.fa-5x {
+                font-size: clamp(1.75rem, 4.5vw, 2.75rem) !important;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            /* Extra small mobile */
+            i.fa-2x {
+                font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+            }
+            
+            i.fa-3x {
+                font-size: clamp(1rem, 2.5vw, 1.5rem) !important;
+            }
+        }
+        /* Responsive Tables - Enhanced */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+        }
+        
         .table {
             border-radius: 10px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
+            width: 100%;
+            margin-bottom: 0;
+        }
+        
+        /* Ensure ALL tables are responsive by default */
+        .table-responsive,
+        table {
+            position: relative;
+        }
+        
+        /* Auto-wrap tables without .table-responsive class */
+        @media (max-width: 768px) {
+            table:not(.table-responsive) {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+            }
+            
+            .table-responsive .table,
+            .table {
+                min-width: 600px;
+                font-size: 0.875rem;
+            }
+            
+            .table-responsive .table th,
+            .table-responsive .table td,
+            .table th,
+            .table td {
+                padding: 8px 10px !important;
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .table-responsive .table,
+            .table {
+                min-width: 500px;
+                font-size: 0.8rem;
+            }
+            
+            .table-responsive .table th,
+            .table-responsive .table td,
+            .table th,
+            .table td {
+                padding: 6px 8px !important;
+            }
         }
         .table thead th {
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
@@ -405,16 +1299,43 @@
             backdrop-filter: blur(10px);
         }
         .status-badge {
-            padding: 5px 15px;
+            padding: 6px 15px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
-        .status-pending { background-color: #ffc107; color: #000; }
-        .status-confirmed { background-color: #17a2b8; color: white; }
-        .status-in-progress { background-color: #007bff; color: white; }
-        .status-completed { background-color: #28a745; color: white; }
-        .status-cancelled { background-color: #dc3545; color: white; }
+        .status-pending { 
+            background-color: #f97316; 
+            color: #ffffff; 
+            border-color: #ea580c;
+            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+        }
+        .status-confirmed { 
+            background-color: #3b82f6; 
+            color: #ffffff; 
+            border-color: #2563eb;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+        }
+        .status-in-progress { 
+            background-color: #3b82f6; 
+            color: #ffffff; 
+            border-color: #2563eb;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+        }
+        .status-completed { 
+            background-color: #22c55e; 
+            color: #ffffff; 
+            border-color: #16a34a;
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+        }
+        .status-cancelled { 
+            background-color: #ef4444; 
+            color: #ffffff; 
+            border-color: #dc2626;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+        }
         .navbar-brand {
             font-weight: bold;
             font-size: 1.5rem;
@@ -528,12 +1449,40 @@
         }
         
         /* Enhanced button styles */
+        /* Global 3D button styling */
         .btn {
-            transition: all 0.3s ease;
+            position: relative;
+            border: none;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+            /* 3D layers: hard drop + soft glow */
+            box-shadow:
+                0 8px 0 rgba(0, 0, 0, 0.15),
+                0 8px 22px rgba(0, 0, 0, 0.18);
+            transform-style: preserve-3d;
         }
-        
-        .btn:hover {
-            transform: translateY(-1px);
+        /* Subtle top highlight and bottom inner edge for depth */
+        .btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.35),
+                inset 0 -3px 0 rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+        .btn:hover, .btn:focus {
+            transform: translateY(-2px);
+            box-shadow:
+                0 10px 0 rgba(0, 0, 0, 0.14),
+                0 14px 26px rgba(0, 0, 0, 0.22);
+        }
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow:
+                0 4px 0 rgba(0, 0, 0, 0.2),
+                0 8px 16px rgba(0, 0, 0, 0.2);
         }
         
         /* Table enhancements */
@@ -549,6 +1498,383 @@
         .card:hover {
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
+        
+        /* Admin Dropdown Styles */
+        .admin-dropdown {
+            border: none !important;
+            background: none !important;
+            padding: 0 !important;
+            text-decoration: none !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative !important;
+            z-index: 1000 !important;
+        }
+        
+        .admin-dropdown:focus {
+            box-shadow: none !important;
+        }
+        
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0;
+            border: none;
+            background: transparent;
+        }
+        
+        .admin-profile:hover {
+            background: transparent;
+            transform: none;
+        }
+        
+        .admin-avatar {
+            display: none;
+        }
+        
+        .status-dot {
+            display: none;
+        }
+        
+        .admin-info {
+            display: none; /* Hide old admin-info if it exists */
+        }
+        
+        .admin-name-btn {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            line-height: 1.2;
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .admin-name-btn:hover {
+            background: rgba(30, 58, 138, 0.1);
+            color: #1e3a8a;
+        }
+        
+        .admin-status {
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            background: #28a745;
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: none;
+            display: inline-block;
+        }
+        
+        /* Hide any duplicate online status elements */
+        .online-status {
+            display: none !important;
+        }
+        
+        .admin-dropdown-menu {
+            min-width: 280px;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 8px 0;
+            margin-top: 8px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            z-index: 9999 !important;
+            position: absolute !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        .admin-profile-item {
+            padding: 16px 20px !important;
+            border-radius: 8px;
+            margin: 0 8px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid #1e3a8a;
+        }
+        
+        .admin-avatar-large {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .admin-details {
+            flex: 1;
+        }
+        
+        .admin-name-large {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+        
+        .admin-email {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.2;
+        }
+        
+        .admin-dropdown-menu .dropdown-item {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: #374151;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            margin: 2px 8px;
+        }
+        
+        .admin-dropdown-menu .dropdown-item:hover {
+            background: rgba(30, 58, 138, 0.1);
+            color: #1e3a8a;
+            transform: translateX(4px);
+        }
+        
+        .admin-dropdown-menu .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .admin-dropdown-menu .dropdown-item:hover i {
+            color: #1e3a8a;
+        }
+        
+        .logout-item {
+            color: #dc3545 !important;
+        }
+        
+        .logout-item:hover {
+            background: rgba(220, 53, 69, 0.1) !important;
+            color: #dc3545 !important;
+        }
+        
+        .logout-item i {
+            color: #dc3545 !important;
+        }
+        
+        .dropdown-divider {
+            margin: 8px 0;
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Ensure dropdown is always visible */
+        .dropdown-menu.show {
+            display: block !important;
+            z-index: 9999 !important;
+        }
+        
+        /* Override Bootstrap dropdown positioning */
+        .dropdown-menu-end {
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        /* Mobile responsiveness for admin dropdown */
+        @media (max-width: 768px) {
+            .admin-dropdown-menu {
+                min-width: 260px;
+                right: 10px;
+                left: auto;
+                z-index: 9999 !important;
+            }
+            
+            .admin-profile {
+                padding: 6px 10px;
+            }
+            
+            .admin-name-btn {
+                font-size: 13px;
+            }
+            
+            .admin-status {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
+        }
+        
+        /* Dark Mode Styles */
+        {% if dark_mode %}
+        body {
+            background-color: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .main-content {
+            background-color: #1a1a1a !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .card {
+            background: rgba(45, 45, 45, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .card-header {
+            background: rgba(30, 30, 30, 0.8) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .navbar {
+            background: rgba(30, 30, 30, 0.9) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .navbar-brand {
+            color: #e0e0e0 !important;
+        }
+        
+        .form-control, .form-select {
+            background-color: #2d2d2d !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #2d2d2d !important;
+            border-color: #1e3a8a !important;
+            color: #e0e0e0 !important;
+            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.25) !important;
+        }
+        
+        .table {
+            background: rgba(45, 45, 45, 0.8) !important;
+            color: #e0e0e0 !important;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%) !important;
+            color: white !important;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(30, 58, 138, 0.1) !important;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+            border: none !important;
+        }
+        
+        .btn-outline-primary {
+            color: #1e3a8a !important;
+            border-color: #1e3a8a !important;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #1e3a8a !important;
+            color: white !important;
+        }
+        
+        .text-muted {
+            color: #9ca3af !important;
+        }
+        
+        .text-primary {
+            color: #60a5fa !important;
+        }
+        
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1) !important;
+            border-color: rgba(59, 130, 246, 0.3) !important;
+            color: #93c5fd !important;
+        }
+        
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+            color: #6ee7b7 !important;
+        }
+        
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1) !important;
+            border-color: rgba(245, 158, 11, 0.3) !important;
+            color: #fbbf24 !important;
+        }
+        
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.3) !important;
+            color: #fca5a5 !important;
+        }
+        
+        .form-text {
+            color: #9ca3af !important;
+        }
+        
+        .form-label {
+            color: #e0e0e0 !important;
+        }
+        
+        .dropdown-menu {
+            background: rgba(45, 45, 45, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .dropdown-item {
+            color: #e0e0e0 !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(30, 58, 138, 0.1) !important;
+            color: #60a5fa !important;
+        }
+        
+        .admin-dropdown-menu {
+            background: rgba(45, 45, 45, 0.98) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .admin-profile {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .admin-profile:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        .admin-name-btn {
+            color: #e0e0e0 !important;
+        }
+        
+        .admin-name-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #e0e0e0 !important;
+        }
+        {% endif %}
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -570,6 +1896,7 @@
                         </div>
                         <div class="logo-tagline">RUGGED TAILORING</div>
                     </div>
+                    <!-- Sidebar toggle button removed - sidebar is now always open -->
                 </div>
             </div>
             <nav class="nav flex-column sidebar-nav px-3">
@@ -592,18 +1919,25 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'rental_management' %}active{% endif %}" href="{% url 'rental_management' %}">
                     <i class="fas fa-tshirt me-2"></i> <span>Rentals</span>
                 </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'materials_management' %}active{% endif %}" href="{% url 'materials_management' %}">
+                    <i class="fas fa-cut me-2"></i> <span>Materials</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'staff_management' or request.resolver_match.url_name == 'staff_detail' %}active{% endif %}" href="{% url 'staff_management' %}">
+                    <i class="fas fa-user-tie me-2"></i> <span>Staff</span>
+                </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'track_order' %}active{% endif %}" href="{% url 'track_order' %}">
                     <i class="fas fa-search me-2"></i> <span>Track Order</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'activity_log' %}active{% endif %}" href="{% url 'activity_log' %}">
                     <i class="fas fa-history me-2"></i> <span>Activity Log</span>
                 </a>
-            </nav>
-            <div class="logout-btn">
-                <a href="{% url 'logout' %}" class="btn btn-outline-light w-100">
-                    <i class="fas fa-sign-out-alt me-2"></i> <span>Logout</span>
+                <a class="nav-link {% if request.resolver_match.url_name == 'archive' %}active{% endif %}" href="{% url 'archive' %}">
+                    <i class="fas fa-archive me-2"></i> <span>Archive</span>
                 </a>
-            </div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'reports' %}">
+                    <i class="fas fa-file-alt me-2"></i> <span>Reports</span>
+                </a>
+            </nav>
         </div>
     </div>
     
@@ -616,11 +1950,20 @@
                 <button class="btn btn-link d-lg-none" type="button" id="sidebarToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <span class="navbar-brand mb-0 h1">{% block page_title %}Dashboard{% endblock %}</span>
+                <span class="navbar-brand mb-0 h1 fw-bold">{% block page_title %}Dashboard{% endblock %}</span>
                 <div class="navbar-nav ms-auto">
-                    <span class="navbar-text">
-                        Welcome, {{ user.username }}!
-                    </span>
+                    <div class="dropdown admin-dropdown">
+                        <button class="btn btn-link dropdown-toggle admin-name-btn" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Welcome, {{ user.username }}!
+                            <i class="fas fa-chevron-down ms-2" style="font-size: 10px;"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end admin-dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'admin_settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -631,7 +1974,7 @@
                             {% for message in messages %}
                                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                                     {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             {% endfor %}
                         </div>
@@ -644,60 +1987,124 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Offline/PWA Support Scripts - Load in order -->
+    <script src="{% static 'js/offline-db.js' %}"></script>
+    <script src="{% static 'js/offline-api.js' %}"></script>
+    <script src="{% static 'js/offline-sync.js' %}"></script>
     <script src="{% static 'js/offline.js' %}"></script>
     <script src="{% static 'js/notifications.js' %}"></script>
+    <!-- Auto-Save Service - Ensures all changes are automatically saved -->
+    <script src="{% static 'js/auto-save-service.js' %}"></script>
     
     <!-- PWA Installation Script -->
     <script>
-        // Mobile sidebar toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebar = document.querySelector('.sidebar');
-            
-            // Initialize sidebar state - start collapsed on desktop
-            if (window.innerWidth > 768) {
-                sidebar.classList.add('collapsed');
-            }
-            
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
+            // Enhanced Sidebar functionality with mobile overlay
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebarToggleBtn = document.getElementById('sidebarToggle') || document.getElementById('sidebarToggleBtn');
+                const sidebar = document.querySelector('.sidebar');
                 
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', function(e) {
-                    if (window.innerWidth <= 768) {
-                        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-                            sidebar.classList.remove('show');
-                        }
-                    }
-                });
-            }
-            
-            // Handle window resize for mobile responsiveness
-            window.addEventListener('resize', function() {
-                if (window.innerWidth <= 768) {
-                    // Mobile: show full sidebar
-                    sidebar.classList.remove('collapsed');
-                    sidebar.style.transform = 'translateX(0)';
-                    sidebar.style.width = '200px';
-                } else {
-                    // Desktop: collapsed sidebar (CSS hover will handle expanding it)
-                    sidebar.classList.add('collapsed');
+                // Create overlay element for mobile
+                let overlay = document.querySelector('.sidebar-overlay');
+                if (!overlay && window.innerWidth <= 768) {
+                    overlay = document.createElement('div');
+                    overlay.className = 'sidebar-overlay';
+                    document.body.appendChild(overlay);
+                    
+                    // Close sidebar when overlay is clicked
+                    overlay.addEventListener('click', function() {
+                        sidebar.classList.remove('show');
+                        overlay.classList.remove('show');
+                    });
                 }
+                
+                // Initialize sidebar state - always open on desktop
+                if (window.innerWidth > 768) {
+                    if (sidebar) {
+                        sidebar.classList.remove('collapsed');
+                        sidebar.style.transform = 'translateX(0)';
+                        sidebar.style.width = '200px';
+                    }
+                    if (overlay) {
+                        overlay.classList.remove('show');
+                    }
+                }
+                
+                // Mobile toggle functionality (only for mobile)
+                if (sidebarToggleBtn && sidebar) {
+                    sidebarToggleBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        if (window.innerWidth <= 768) {
+                            // Mobile: toggle show state
+                            const isShowing = sidebar.classList.contains('show');
+                            sidebar.classList.toggle('show');
+                            
+                            if (overlay) {
+                                if (isShowing) {
+                                    overlay.classList.remove('show');
+                                } else {
+                                    overlay.classList.add('show');
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Close sidebar when clicking outside on mobile
+                    document.addEventListener('click', function(e) {
+                        if (window.innerWidth <= 768) {
+                            if (sidebar && overlay && 
+                                !sidebar.contains(e.target) && 
+                                !sidebarToggleBtn.contains(e.target) &&
+                                sidebar.classList.contains('show')) {
+                                sidebar.classList.remove('show');
+                                overlay.classList.remove('show');
+                            }
+                        }
+                    });
+                }
+                
+                // Handle window resize
+                let resizeTimer;
+                window.addEventListener('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        if (window.innerWidth > 768) {
+                            // Desktop: always show sidebar
+                            if (sidebar) {
+                                sidebar.classList.add('show');
+                                sidebar.style.transform = 'translateX(0)';
+                            }
+                            if (overlay) {
+                                overlay.classList.remove('show');
+                            }
+                        } else {
+                            // Mobile: hide sidebar by default
+                            if (sidebar) {
+                                sidebar.classList.remove('show');
+                            }
+                            if (overlay) {
+                                overlay.classList.remove('show');
+                            }
+                        }
+                    }, 250);
+                });
             });
-        });
 
-        // PWA Installation Prompt
-        let deferredPrompt;
+        // PWA Installation Prompt - use global to avoid duplicate declaration
+        if (typeof window.deferredPrompt === 'undefined') {
+            window.deferredPrompt = null;
+        }
+        let deferredPrompt = window.deferredPrompt;
         const installButton = document.createElement('button');
         installButton.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
         installButton.className = 'btn btn-success btn-sm position-fixed';
-        installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; display: none;';
+        installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; display: none; width: auto; min-width: auto; max-width: none; padding: 8px 16px; white-space: nowrap;';
         document.body.appendChild(installButton);
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
+            window.deferredPrompt = e;
             deferredPrompt = e;
             installButton.style.display = 'block';
         });
@@ -728,7 +2135,7 @@
                 updateNotification.innerHTML = `
                     <i class="fas fa-sync-alt me-2"></i>
                     App update available! 
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 `;
                 document.body.appendChild(updateNotification);
                 
@@ -741,35 +2148,37 @@
             });
         }
         
-        // PWA Installation Functionality
-        let deferredPrompt;
-        let installButton;
+        // PWA Installation Functionality (continued from above)
+        // Note: deferredPrompt is already declared above - reuse it
+        let installButton2;
         
         // Create install button
         function createInstallButton() {
-            if (installButton) return;
+            if (installButton2) return;
             
-            installButton = document.createElement('button');
-            installButton.className = 'btn btn-primary position-fixed';
-            installButton.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);';
-            installButton.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
-            installButton.onclick = installApp;
+            installButton2 = document.createElement('button');
+            installButton2.className = 'btn btn-primary position-fixed';
+            installButton2.style.cssText = 'bottom: 20px; right: 20px; z-index: 1000; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); width: auto; min-width: auto; max-width: none; padding: 10px 20px; white-space: nowrap;';
+            installButton2.innerHTML = '<i class="fas fa-download me-2"></i>Install App';
+            installButton2.onclick = installApp;
             
-            document.body.appendChild(installButton);
+            document.body.appendChild(installButton2);
         }
         
         // Install app function
         function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
+            const prompt = window.deferredPrompt || deferredPrompt;
+            if (prompt) {
+                prompt.prompt();
+                prompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
                         showInstallSuccess();
                     } else {
                         console.log('User dismissed the install prompt');
                     }
-                    deferredPrompt = null;
+                    window.deferredPrompt = null;
+                    if (typeof deferredPrompt !== 'undefined') deferredPrompt = null;
                     hideInstallButton();
                 });
             }
@@ -777,9 +2186,9 @@
         
         // Hide install button
         function hideInstallButton() {
-            if (installButton) {
-                installButton.remove();
-                installButton = null;
+            if (installButton2) {
+                installButton2.remove();
+                installButton2 = null;
             }
         }
         
@@ -808,24 +2217,8 @@
                    window.navigator.standalone === true;
         }
         
-        // Handle beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('PWA install prompt triggered');
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Only show install button if app is not already installed
-            if (!isAppInstalled()) {
-                createInstallButton();
-            }
-        });
-        
-        // Handle app installed event
-        window.addEventListener('appinstalled', (e) => {
-            console.log('PWA was installed');
-            hideInstallButton();
-            showInstallSuccess();
-        });
+        // Note: beforeinstallprompt is already handled above (line 2105)
+        // This duplicate handler is removed to prevent errors
         
         // Check installation status on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -865,6 +2258,92 @@
         if (isIOS() && !isAppInstalled()) {
             setTimeout(showIOSInstallInstructions, 2000);
         }
+        
+        // Fix ARIA warnings for modals - properly manage aria-hidden attribute
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to setup modal ARIA handlers
+            function setupModalAriaHandlers(modal) {
+                if (!modal || !modal.classList.contains('modal')) return;
+                
+                // Remove aria-hidden when modal starts showing (before shown event)
+                modal.addEventListener('show.bs.modal', function() {
+                    modal.removeAttribute('aria-hidden');
+                }, { capture: true });
+                
+                // Also remove on shown as fallback
+                modal.addEventListener('shown.bs.modal', function() {
+                    // Force remove aria-hidden if modal is visible
+                    if (modal.style.display === 'block' || modal.classList.contains('show')) {
+                        modal.removeAttribute('aria-hidden');
+                    }
+                }, { capture: true });
+                
+                // When modal starts hiding, blur focused elements first
+                modal.addEventListener('hide.bs.modal', function() {
+                    const activeElement = document.activeElement;
+                    if (modal.contains(activeElement)) {
+                        activeElement.blur();
+                    }
+                }, { capture: true });
+                
+                // Set aria-hidden when modal is fully hidden
+                modal.addEventListener('hidden.bs.modal', function() {
+                    modal.setAttribute('aria-hidden', 'true');
+                }, { capture: true });
+            }
+            
+            // Handle all existing modals
+            const allModals = document.querySelectorAll('.modal');
+            allModals.forEach(setupModalAriaHandlers);
+            
+            // Watch for aria-hidden changes and remove them if modal is visible
+            const ariaObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                        const modal = mutation.target;
+                        if (modal.classList && modal.classList.contains('modal')) {
+                            // If modal is visible (display: block or has show class) but has aria-hidden, remove it
+                            const isVisible = modal.style.display === 'block' || 
+                                           modal.classList.contains('show') ||
+                                           window.getComputedStyle(modal).display === 'block';
+                            
+                            if (isVisible && modal.getAttribute('aria-hidden') === 'true') {
+                                modal.removeAttribute('aria-hidden');
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Observe all modals for aria-hidden attribute changes
+            allModals.forEach(function(modal) {
+                ariaObserver.observe(modal, {
+                    attributes: true,
+                    attributeFilter: ['aria-hidden', 'style', 'class']
+                });
+            });
+            
+            // Also handle dynamically added modals
+            const modalObserver = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && node.classList && node.classList.contains('modal')) {
+                            setupModalAriaHandlers(node);
+                            // Also observe new modals for aria-hidden changes
+                            ariaObserver.observe(node, {
+                                attributes: true,
+                                attributeFilter: ['aria-hidden', 'style', 'class']
+                            });
+                        }
+                    });
+                });
+            });
+            
+            modalObserver.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}

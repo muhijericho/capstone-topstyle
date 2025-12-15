@@ -1,0 +1,58 @@
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/admin.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/forms.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/models.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/signals.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/urls.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'business/views.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'env_example.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'requirements.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/add_product.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/base.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/complete_order.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/create_order.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/dashboard.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/inventory.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/login.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/order_receipt.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/order_receipt_new.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/orders.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/payment_process.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/rental_management.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/sales.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/business/track_order.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'topstyle_business/settings.py', LF will be replaced by CRLF the next time Git touches it
+ README.md                                          |   32 [32m+[m[31m-[m
+ business/admin.py                                  |  110 [32m+[m[31m-[m
+ business/forms.py                                  | 1466 [32m+++++[m[31m-[m
+ business/management/__init__.py                    |   29 [32m+[m
+ business/management/commands/__init__.py           |   29 [32m+[m
+ .../management/commands/create_sample_orders.py    |   15 [32m+[m
+ business/models.py                                 |  262 [32m+[m[31m-[m
+ business/signals.py                                |   64 [32m+[m[31m-[m
+ business/tests.py                                  |    6 [32m+[m
+ business/urls.py                                   |   86 [32m+[m
+ business/views.py                                  | 4786 [32m+++++++++++++++++++[m[31m-[m
+ env_example.txt                                    |    5 [32m+[m
+ requirements.txt                                   |   13 [32m+[m[31m-[m
+ run.py                                             |  201 [32m+[m[31m-[m
+ start_server.bat                                   |   42 [32m+[m[31m-[m
+ start_server.ps1                                   |   52 [32m+[m[31m-[m
+ static/js/notifications.js                         |    6 [32m+[m
+ templates/business/add_product.html                |   20 [32m+[m[31m-[m
+ templates/business/base.html                       |  612 [32m++[m[31m-[m
+ templates/business/complete_order.html             |  384 [32m+[m[31m-[m
+ templates/business/create_order.html               | 2303 [32m+++++++++[m[31m-[m
+ templates/business/dashboard.html                  |  311 [32m+[m[31m-[m
+ templates/business/inventory.html                  |  658 [32m++[m[31m-[m
+ templates/business/login.html                      |  315 [32m+[m[31m-[m
+ templates/business/order_receipt.html              |  404 [32m+[m[31m-[m
+ templates/business/order_receipt_new.html          |   12 [32m+[m[31m-[m
+ templates/business/orders.html                     |  770 [32m+++[m[31m-[m
+ templates/business/payment_process.html            |   92 [32m+[m[31m-[m
+ templates/business/rental_management.html          |  962 [32m+++[m[31m-[m
+ templates/business/sales.html                      |    2 [32m+[m[31m-[m
+ templates/business/track_order.html                |  540 [32m+[m[31m--[m
+ topstyle_business/settings.py                      |   67 [32m+[m
+ 32 files changed, 13289 insertions(+), 1367 deletions(-)

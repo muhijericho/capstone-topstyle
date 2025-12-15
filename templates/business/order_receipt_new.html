@@ -384,9 +384,76 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- Load QR code library with multiple fallback CDNs -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" onerror="loadQRCodeFallback()"></script>
 <script>
+    // Fallback loading mechanism
+    function loadQRCodeFallback() {
+        if (typeof QRCode !== 'undefined') {
+            return; // Already loaded
+        }
+        
+        const cdnUrls = [
+            'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js',
+            'https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js'
+        ];
+        
+        let currentIndex = 0;
+        
+        function loadNextCDN() {
+            if (currentIndex >= cdnUrls.length) {
+                console.error('All QR code CDNs failed');
+                window.useBackendQR = true;
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = cdnUrls[currentIndex];
+            script.async = true;
+            script.onload = function() {
+                // Wait a bit for the library to initialize
+                setTimeout(() => {
+                    if (typeof QRCode !== 'undefined') {
+                        console.log('QR code library loaded from:', cdnUrls[currentIndex]);
+                        window.qrcodeLoaded = true;
+                        // Trigger any pending QR code generation
+                        if (window.pendingQRGeneration) {
+                            window.pendingQRGeneration();
+                            window.pendingQRGeneration = null;
+                        }
+                    } else {
+                        console.warn('QRCode library loaded but not defined, trying next CDN...');
+                        currentIndex++;
+                        loadNextCDN();
+                    }
+                }, 100);
+            };
+            script.onerror = function() {
+                console.warn('Failed to load QR code from:', cdnUrls[currentIndex]);
+                currentIndex++;
+                loadNextCDN();
+            };
+            document.head.appendChild(script);
+        }
+        
+        loadNextCDN();
+    }
+    
+    // Check if QRCode is loaded after a short delay
+    setTimeout(() => {
+        if (typeof QRCode !== 'undefined') {
+            console.log('QR code library is ready');
+            window.qrcodeLoaded = true;
+        } else {
+            console.warn('QR code library not loaded, trying fallback...');
+            loadQRCodeFallback();
+        }
+    }, 100);
+</script>
+<script>
+    
     let orderData = null;
+    let useBackendQR = false;
     
     // Load order data from sessionStorage
     function loadOrderData() {
@@ -401,9 +468,19 @@
                 console.log('Attempting to generate QR code...');
                 if (typeof QRCode !== 'undefined') {
                     generateQRCode();
+                } else if (useBackendQR) {
+                    // Use backend API to generate QR code
+                    generateQRCodeFromBackend();
                 } else {
-                    console.error('QRCode library not loaded');
-                    showQRCodeError('QR Code library not available');
+                    console.error('QRCode library not loaded, retrying...');
+                    // Retry after another delay
+                    setTimeout(() => {
+                        if (typeof QRCode !== 'undefined') {
+                            generateQRCode();
+                        } else {
+                            showQRCodeError('QR Code library not available. Please refresh the page.');
+                        }
+                    }, 1000);
                 }
             }, 500);
             
@@ -446,6 +523,20 @@
     
     // Generate QR Code
     function generateQRCode() {
+        // Check if QRCode library is loaded
+        if (typeof QRCode === 'undefined') {
+            console.warn('QRCode library not loaded yet, queuing generation...');
+            // Queue the generation for when library loads
+            window.pendingQRGeneration = generateQRCode;
+            // Try to use backend as fallback
+            if (typeof generateQRCodeFromBackend === 'function') {
+                generateQRCodeFromBackend();
+            } else {
+                showQRCodeError('QR Code library is loading. Please wait a moment and try again.');
+            }
+            return;
+        }
+        
         if (!orderData) {
             console.log('No order data available for QR code generation');
             showQRCodeError('No order data available');
@@ -516,6 +607,12 @@
     
     // Generate simple QR code as fallback
     function generateSimpleQRCode(orderId, container) {
+        if (typeof QRCode === 'undefined') {
+            console.error('QRCode library not available for simple QR generation');
+            showQRCodeError('QR Code library not available');
+            return;
+        }
+        
         console.log('Generating simple QR code for order ID:', orderId);
         
         QRCode.toDataURL(orderId, {
@@ -539,6 +636,12 @@
     
     // Fallback method to generate QR code as image
     function generateQRCodeAsImage(qrString, container) {
+        if (typeof QRCode === 'undefined') {
+            console.error('QRCode library not available for image QR generation');
+            showQRCodeError('QR Code library not available');
+            return;
+        }
+        
         console.log('Trying QR code generation as image...');
         
         QRCode.toDataURL(qrString, {
@@ -575,15 +678,33 @@
         })
         .then(response => response.json())
         .then(data => {
-                    if (data.success) {
-            console.log('Order saved successfully:', data);
-            // Update order ID with the one from database
-            orderData.orderId = data.order_identifier || data.order_id;
-            orderData.salesId = data.sales_identifier;
-            document.getElementById('orderId').textContent = data.order_identifier || data.order_id;
-        } else {
+            if (data.success) {
+                console.log('Order saved successfully:', data);
+                // Order successfully created, redirect to modern receipt
+                window.location.href = `/orders/${data.order_id}/receipt/`;
+            } else {
                 console.error('Error saving order:', data.error);
-                alert('Error saving order: ' + data.error);
+                
+                // Handle material availability errors
+                if (data.error === 'Materials are unavailable' || data.unavailable_materials) {
+                    let errorMessage = data.message || 'Materials are unavailable';
+                    
+                    if (data.unavailable_materials && data.unavailable_materials.length > 0) {
+                        errorMessage += '\n\nUnavailable Materials:';
+                        data.unavailable_materials.forEach(material => {
+                            errorMessage += `\n- ${material.material}: ${material.message || `Need ${material.needed}, Available ${material.available}`}`;
+                        });
+                    }
+                    
+                    errorMessage += '\n\nPlease go back and use other available materials.';
+                    
+                    alert(errorMessage);
+                    
+                    // Redirect back to create order page
+                    window.location.href = '/orders/create/';
+                } else {
+                    alert('Error saving order: ' + (data.error || 'Unknown error'));
+                }
             }
         })
         .catch(error => {

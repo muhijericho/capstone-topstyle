@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Rental System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .product { border: 1px solid #ccc; margin: 10px; padding: 10px; display: inline-block; }
+        .product.rented { background-color: #ffebee; border-color: #f44336; }
+        .product.available { background-color: #e8f5e8; border-color: #4caf50; }
+        button { margin: 5px; padding: 10px; }
+        .status { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Rental System</h1>
+    
+    <div id="products">
+        <h2>Rental Products</h2>
+        <div id="productList"></div>
+    </div>
+    
+    <div id="orderForm" style="margin-top: 20px;">
+        <h2>Create Rental Order</h2>
+        <form id="rentalForm">
+            <input type="text" id="customerName" placeholder="Customer Name" required><br><br>
+            <input type="text" id="customerPhone" placeholder="Customer Phone" required><br><br>
+            <div id="selectedProducts"></div>
+            <button type="submit">Create Rental Order</button>
+        </form>
+    </div>
+    
+    <div id="results" style="margin-top: 20px;"></div>
+
+    <script>
+        let products = [];
+        let selectedProducts = [];
+        
+        // Load products
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products/');
+                const data = await response.json();
+                products = data.products || [];
+                displayProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+        
+        // Display products
+        function displayProducts() {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = '';
+            
+            products.forEach(product => {
+                const div = document.createElement('div');
+                div.className = 'product';
+                div.id = `product-${product.id}`;
+                div.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>Price: ₱${product.price}</p>
+                    <p class="status">Status: <span id="status-${product.id}">Loading...</span></p>
+                    <button onclick="selectProduct(${product.id})">Select</button>
+                `;
+                productList.appendChild(div);
+            });
+            
+            loadRentalStatus();
+        }
+        
+        // Load rental status
+        async function loadRentalStatus() {
+            try {
+                const response = await fetch('/api/rental-status/');
+                const data = await response.json();
+                
+                if (data.success) {
+                    Object.keys(data.rental_status).forEach(productId => {
+                        const status = data.rental_status[productId];
+                        const productDiv = document.getElementById(`product-${productId}`);
+                        const statusSpan = document.getElementById(`status-${productId}`);
+                        
+                        if (productDiv && statusSpan) {
+                            if (status.is_rented) {
+                                productDiv.className = 'product rented';
+                                statusSpan.textContent = 'RENTED';
+                                statusSpan.style.color = '#f44336';
+                            } else {
+                                productDiv.className = 'product available';
+                                statusSpan.textContent = 'AVAILABLE';
+                                statusSpan.style.color = '#4caf50';
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading rental status:', error);
+            }
+        }
+        
+        // Select product
+        function selectProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product && !selectedProducts.includes(productId)) {
+                selectedProducts.push(productId);
+                updateSelectedProducts();
+            }
+        }
+        
+        // Update selected products display
+        function updateSelectedProducts() {
+            const selectedDiv = document.getElementById('selectedProducts');
+            selectedDiv.innerHTML = '<h3>Selected Products:</h3>';
+            
+            selectedProducts.forEach(productId => {
+                const product = products.find(p => p.id === productId);
+                if (product) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        ${product.name} - ₱${product.price}
+                        <button onclick="removeProduct(${productId})">Remove</button>
+                    `;
+                    selectedDiv.appendChild(div);
+                }
+            });
+        }
+        
+        // Remove product
+        function removeProduct(productId) {
+            selectedProducts = selectedProducts.filter(id => id !== productId);
+            updateSelectedProducts();
+        }
+        
+        // Create rental order
+        document.getElementById('rentalForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const customerName = document.getElementById('customerName').value;
+            const customerPhone = document.getElementById('customerPhone').value;
+            
+            if (selectedProducts.length === 0) {
+                alert('Please select at least one product');
+                return;
+            }
+            
+            try {
+                const formData = new FormData();
+                formData.append('customer_name', customerName);
+                formData.append('customer_phone', customerPhone);
+                
+                selectedProducts.forEach(productId => {
+                    formData.append('selected_products[]', productId);
+                });
+                
+                const response = await fetch('/api/create-rental-simple/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('results').innerHTML = `
+                        <div style="background: #d4edda; padding: 10px; border: 1px solid #c3e6cb;">
+                            <h3>SUCCESS!</h3>
+                            <p>Order ID: ${data.order_identifier}</p>
+                            <p>Total Cost: ₱${data.total_cost}</p>
+                            <p>Rented Products: ${data.rented_products.join(', ')}</p>
+                            <p>${data.message}</p>
+                        </div>
+                    `;
+                    
+                    // Refresh rental status
+                    setTimeout(loadRentalStatus, 1000);
+                    
+                    // Clear form
+                    selectedProducts = [];
+                    updateSelectedProducts();
+                    document.getElementById('customerName').value = '';
+                    document.getElementById('customerPhone').value = '';
+                } else {
+                    document.getElementById('results').innerHTML = `
+                        <div style="background: #f8d7da; padding: 10px; border: 1px solid #f5c6cb;">
+                            <h3>ERROR!</h3>
+                            <p>${data.error}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error creating order:', error);
+                document.getElementById('results').innerHTML = `
+                    <div style="background: #f8d7da; padding: 10px; border: 1px solid #f5c6cb;">
+                        <h3>ERROR!</h3>
+                        <p>Failed to create order: ${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+        
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Load products on page load
+        loadProducts();
+        
+        // Refresh status every 5 seconds
+        setInterval(loadRentalStatus, 5000);
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
