@@ -36,9 +36,8 @@ DEFAULT_FROM_EMAIL=your-email@gmail.com
 
 ### Optional (if using Twilio):
 ```env
-TWILIO_ACCOUNT_SID=ACc80054a9c3f513815e247eb87d46c0ac
-TWILIO_AUTH_TOKEN=8563ffc97cd3025ea911f41c60439e33
-TWILIO_PHONE_NUMBER=+15807412415
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_API_KEY=your_twilio_api_key
 ```
 
 **⚠️ Important:** Set all variables for **Production**, **Preview**, and **Development** environments.

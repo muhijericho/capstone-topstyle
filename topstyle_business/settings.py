@@ -48,11 +48,11 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,*.herokuapp
 
 
 
-# Twilio SMS Configuration
-TWILIO_ACCOUNT_SID = "SKe0f7454db3502b5dfcb32352198be4c6" # config('TWILIO_ACCOUNT_SID', default='ACc80054a9c3f513815e247eb87d46c0ac')
-TWILIO_AUTH_TOKEN = "p6Qq2vjSoWNKzMLujXuhz8FJlEWLkFlg" # config('TWILIO_AUTH_TOKEN', default='8563ffc97cd3025ea911f41c60439e33')
-TWILIO_PHONE_NUMBER = "+15807412415" # config('TWILIO_PHONE_NUMBER', default='+15807412415')
-TWILIO_MESSAGING_SERVICE_SID = "" # config('TWILIO_MESSAGING_SERVICE_SID', default='')
+import os
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_API_KEY = os.getenv("TWILIO_API_KEY")
+
 
 # Application definition
 INSTALLED_APPS = [
